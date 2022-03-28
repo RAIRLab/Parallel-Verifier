@@ -25,8 +25,8 @@ struct sExpression{
     sExpression& operator=(const sExpression&& toMove);         //Move assignment
     sExpression& operator=(const sExpression& toCopy);         //Move assignment
     
-    std::string toString(bool expand) const;
-    void print(bool expand) const;
+    std::string toString(bool expand = false) const;
+    void print(bool expand = false) const;
 
     //These only work if type is list
     sExpression& operator[](const size_t index);          //Access values based on indicies

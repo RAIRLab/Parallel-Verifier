@@ -18,13 +18,19 @@
 
 // Token Helper Class ===================================================================
 
+/**
+ * @brief Enum contating possible token types
+ * Some members of this Enum corespond directly to sExpression::Type members values
+ * and are directly converted to them within parserBaseCase(). This must be kept in
+ * mind in the event of future modification. 
+ */
 enum class TokenType{
-    Keyword = 0,            //Items begining with :
-    Number = 1,             //Unsigned Ints
-    String = 2,             //Items enclosed in quotes
-    Symbol = 3,             //Any other valid identifier 
-    Left_Parenthesis = 4,
-    Right_Parenthesis = 5
+    Keyword = 0,            ///< Tokens begining with :
+    Number = 1,             ///< Tokens containing unsigned Ints (At the moment other numeric types are unsupported by the lexer)
+    String = 2,             ///< Tokens enclosed in quotes
+    Symbol = 3,             ///< Tokens containing any other valid identifier or name
+    Left_Parenthesis = 4,   ///< A token containing a left parenthesis "("
+    Right_Parenthesis = 5   ///< A token containing a right parenthesis ")"
 };
 
 struct Token{
@@ -37,12 +43,15 @@ Token::Token(TokenType type_, std::string value_)
 :type(type_), value(value_)
 {}
 
-//Lexer Code ============================================================================
-
+//Tokenizer and Lexer Code ============================================================================
+/**
+ * @name The Lexer
+ */
+///@{
+    
 //Lexer Globals
 const std::unordered_set<char> ingnoreChars({' ', '\t', '\n'});                 //Ignored characters when parsing 
 const std::unordered_set<char> endingChars({' ', '(', ')', '\t', '\n'});        //Tokens that end a previous token if encountered
-
 
 //Lexer helper functions
 
@@ -107,8 +116,14 @@ inline void addNormalToken(const std::string& expressionString, int &i, std::vec
 }
 
 
-//Main Lexer
-
+/**
+ * @brief Takes an S-expression string and tokenizes it, as well as lexing it by identifying the tokens
+ * @param expressionString A string containing an s-expression to tokenize
+ * @return A vector containing the list of token objects containing both their content and type.
+ * @throws std::runtime-error if an error is encountered lexing tokens 
+ * The lexer both tokenizes and lexes the expressionString. The lexer can fail while lexing a token if the token
+ * is not well formed, I.E. a string token without a closing quote.
+ */
 std::vector<Token> lex(const std::string& expressionString){
     std::vector<Token> tokens; 
     for(int i = 0; i < expressionString.length(); i++){
@@ -128,17 +143,25 @@ std::vector<Token> lex(const std::string& expressionString){
     return tokens;
 }
 
-//Parser Helpers ========================================================================
-/*
-    Starting at position i, will grab a subexpression from the token array and
-    move i to the position after the matching parenthisis. 
-    Precondition is that i must be the index of a left parenthisis expression.
-    Ie if:
-        tokens = ( ...  (a (b c)) ...)
-                        ^        ^
-                        i        Ni
-        then grabSubExpression returns (a (b c)) and changes i to position Ni 
-*/
+//Parser Code ========================================================================
+
+
+
+/**
+ *   @brief A helper for 
+ *   @param 
+ *   @param
+ *   Starting at position i, will grab a subexpression from the token array and
+ *   move i to the position after the matching parenthisis. 
+ *   Precondition is that i must be the index of a left parenthisis expression.
+ *   ```
+ *   For example:
+ *       tokens = ( ...  (a (b c)) ...)
+ *                       ^        ^
+ *                       i        Ni
+ *       then grabSubExpression returns (a (b c)) and changes i to position Ni 
+ *   ```
+ */
 inline std::vector<Token> grabSubExpression(const std::vector<Token>& tokens, int& i){
     int parenthesisCounter = 1;
     bool foundMatch = false;
@@ -323,31 +346,5 @@ unsigned int sExpression::getNumAt(const size_t index) const{
     return std::stoi(getValueAt(index));
 }
 
-
-//Testing 
-
-#include<fstream>
-
-std::string readFile(const std::string&& path){
-    std::ifstream file(path);
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-}
-
-void printTokens(const std::vector<Token>& v){
-    for(const Token& t : v)
-        std::cout<<(int)t.type<<":"<<t.value<<"\n";
-    std::cout<<std::endl;
-}
-
-int main(){
-    std::string sExpStr = readFile("laryLikesLucy.slt");
-    //int i = 2;
-    //std::vector<Token> t = lex(sExpStr);
-    //std::vector<Token> st = grabSubExpression(t, i);
-    sExpression sExp(sExpStr);
-    sExpression sExp2(sExp.toString());
-    sExp2.print();
-    return 0;
-}
 
 
