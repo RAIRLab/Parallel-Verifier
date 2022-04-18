@@ -7,6 +7,9 @@
  * This file implements the sExpression class outlined in SExpression.hpp 
  * along with various other utils that make this possible such: as a combine
  * S-Expression lexer and tokenizer, a parser, and a token class.
+ * 
+ * At some point I attempted to document this file, I did not finish, sorry
+ * -James of 4/18/22
  */
 
 #include<cctype>
@@ -142,18 +145,21 @@ std::vector<Token> lex(const std::string& expressionString){
     }
     return tokens;
 }
-
+///@}
 //Parser Code ========================================================================
-
+/**
+ * @name The Parser
+ */
+///@{
 
 
 /**
- *   @brief A helper for 
- *   @param 
- *   @param
+ *   @brief A helper for the parser
+ *   @param tokens the list of tokens to grab the sub expression from
+ *   @param i the token index to begin grabbing the sub expression at
+ *   @pre i must be the index of a left parenthisis expression. 
  *   Starting at position i, will grab a subexpression from the token array and
  *   move i to the position after the matching parenthisis. 
- *   Precondition is that i must be the index of a left parenthisis expression.
  *   ```
  *   For example:
  *       tokens = ( ...  (a (b c)) ...)
@@ -188,8 +194,10 @@ inline std::vector<Token> grabSubExpression(const std::vector<Token>& tokens, in
 
 inline void parserBaseCase(const std::vector<Token>& tokens, sExpression& expression){
     Token token = tokens[0];
-    if(!(token.type >= TokenType::Keyword && token.type <= TokenType::Symbol)) //Make sure the token type is also a valid s-expression type
-        throw std::runtime_error("S-Expression parsing error: invalid token type for conversion " + std::to_string((int)token.type));
+    //Make sure the token type is also a valid s-expression type
+    if(!(token.type >= TokenType::Keyword && token.type <= TokenType::Symbol)) 
+        throw std::runtime_error("S-Expression parsing error: invalid token type for conversion "
+            + std::to_string((int)token.type));
     expression.type = static_cast<sExpression::Type>(token.type);
     expression.value = token.value;
 }
@@ -197,7 +205,8 @@ inline void parserBaseCase(const std::vector<Token>& tokens, sExpression& expres
 sExpression parseTokens(const std::vector<Token>& tokens);
 
 inline void parserRecursiveCase(const std::vector<Token>& tokens, sExpression& expression){
-    if(tokens[0].type != TokenType::Left_Parenthesis || tokens[tokens.size()-1].type != TokenType::Right_Parenthesis)
+    if(tokens[0].type != TokenType::Left_Parenthesis 
+            || tokens[tokens.size()-1].type != TokenType::Right_Parenthesis)
         throw std::runtime_error("S-Expression parsing error: Expected list to be wrapped by Parenthesis");
     expression.type = sExpression::Type::List;
     expression.members = std::vector<sExpression>();
