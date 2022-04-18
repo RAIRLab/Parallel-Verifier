@@ -8,7 +8,7 @@ struct HyperslateDescription{
     id_t id;                        //Internal ID in hyperstate
     const char* name;               //Hyperslate names
     const char* formula;            //The textual representation of the formula
-    const char* justification;      //The 
+    const char* justification;      //The logical justification
 };
 
 struct HyperslateStructure{
