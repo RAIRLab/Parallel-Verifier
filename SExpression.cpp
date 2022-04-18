@@ -244,7 +244,7 @@ sExpression::sExpression()
 :type(sExpression::Type::Keyword), value(""), members(0){
 }
 
-//Initilize this s-epression object from an s-expression string
+//Initialize this s-expression object from an s-expression string
 sExpression::sExpression(const std::string sExpressionString){
     std::vector<Token> tokens = lex(sExpressionString);
     *this = parseTokens(tokens);
