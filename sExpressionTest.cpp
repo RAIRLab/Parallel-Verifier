@@ -3,20 +3,10 @@
 #include<fstream>
 #include<iostream>
 
-#include"SExpression.hpp"
-
-std::string readFile(const std::string&& path){
-    std::ifstream file(path);
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-}
+#include"hyperslateUtils.hpp"
 
 int main(){
-    std::string sExpStr = readFile("laryLikesLucy.slt");
-    //int i = 2;
-    //std::vector<Token> t = lex(sExpStr);
-    //std::vector<Token> st = grabSubExpression(t, i);
-    sExpression sExp(sExpStr);
-    sExpression sExp2(sExp.toString());
-    sExp2.print();
+    HyperslateFileData data = parseHyperslateFile("laryLikesLucy.slt");
+    printf("Test");
     return 0;
 }

@@ -297,11 +297,11 @@ std::string recursiveToString(const sExpression& expression, size_t depth, bool 
     return result;
 } 
 
-std::string sExpression::toString(bool expand = false) const{
+std::string sExpression::toString(bool expand) const{
     return recursiveToString(*this, 0, expand);
 }
 
-void sExpression::print(bool expand = false) const{
+void sExpression::print(bool expand) const{
     std::string stringExpression = recursiveToString(*this, 0, expand);
     std::cout << stringExpression << std::endl;
 }

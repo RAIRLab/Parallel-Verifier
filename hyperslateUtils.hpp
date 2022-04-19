@@ -18,7 +18,7 @@ struct HyperslateDescription{
 
 struct HyperslateStructure{
     id_t conclusion;
-    id_t premises[];
+    std::vector<id_t> premises;
 };
 
 struct HyperslateInterface{
@@ -39,5 +39,7 @@ struct HyperslateFileData{
     std::string connectorType;      
     std::string backgroundColor;
 };
+
+HyperslateFileData parseHyperslateFile(const std::string&& path);
 
 #endif

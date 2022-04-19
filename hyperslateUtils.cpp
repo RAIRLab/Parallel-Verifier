@@ -12,12 +12,15 @@ std::string readFile(const std::string& path){
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
+
+//Reimplement this with struct constructors at some point, this C style implementation is jank
 HyperslateFileData parseHyperslateFile(const std::string&& path){
     
+    //Read the file and convert it to an S expression
     std::string fileContents = readFile(path);
     sExpression fileExpression(fileContents);
 
-
+    //Pull the descriptions
     std::vector<HyperslateDescription> returnDescriptions;
     sExpression descriptions = fileExpression["DESCRIPTIONS"];
     for(sExpression& description : descriptions.members){
@@ -31,15 +34,20 @@ HyperslateFileData parseHyperslateFile(const std::string&& path){
         returnDescriptions.push_back(returnDescription);
     }
 
-    
-    std::vector<HyperslateDescription> returnStructures;
+    //Pull the structures
+    std::vector<HyperslateStructure> returnStructures;
     sExpression structures = fileExpression["STRUCTURES"];
     for(sExpression& structure : structures.members){
         HyperslateStructure returnStructure;
-        returnStructure.conclusion = 
-        returnStructures.push_back()
+        std::vector<id_t> returnPremises;
+        for(const sExpression& premise : structure["PREMISES"].members)
+            returnPremises.push_back(std::stoi(premise.value));
+        returnStructure.premises = returnPremises;
+        returnStructure.conclusion = std::stoi(structure["CONCLUSION"].value);
+        returnStructures.push_back(returnStructure);
     }
 
+    //Read the interface
     HyperslateInterface returnInterface;
     sExpression interface = fileExpression["INTERFACE"];
     returnInterface.x = std::stoi(interface["X"].value);
@@ -49,7 +57,8 @@ HyperslateFileData parseHyperslateFile(const std::string&& path){
     returnInterface.proofSystem = interface["PROOF-SYSTEM"].value;
 
     HyperslateFileData returnData;
-
+    returnData.descriptions = returnDescriptions;
+    returnData.structures = returnStructures;
     returnData.interface = returnInterface;
     returnData.connectorType = fileExpression["CONNECTOR-TYPE"].value;
     returnData.backgroundColor = fileExpression["BACKGROUND-COLOR"].value;
