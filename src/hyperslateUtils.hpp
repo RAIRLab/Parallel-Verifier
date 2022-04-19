@@ -6,6 +6,14 @@
 #include<string>
 #include<vector>
 
+//Possible justifications (infrence rules) on a node
+enum HyperslateJustification{
+    Assume, AndIntro, AndElim, OrIntro, OrElim,
+    NotIntro, NotElim, IfIntro, IfElim, IffIntro, IffElim,
+    EqIntro, EqElim, ForallIntro, ForallElim,
+    ExistsIntro, ExistsElim, PCOracle, FOLOracle
+};
+
 typedef unsigned int id_t;
 
 struct HyperslateDescription{
@@ -13,7 +21,7 @@ struct HyperslateDescription{
     id_t id;                        //Internal ID in hyperstate
     std::string name;               //Hyperslate names
     std::string formula;            //The textual representation of the formula
-    std::string justification;      //The logical justification
+    HyperslateJustification justification;      //The logical justification
 };
 
 struct HyperslateStructure{
@@ -28,18 +36,18 @@ struct HyperslateInterface{
 };
 
 struct HyperslateFileData{
-    std::vector<HyperslateStructure> structures;
-    std::vector<HyperslateDescription> descriptions;
+    std::vector<HyperslateStructure> structures;    //The nodes (including justifications)
+    std::vector<HyperslateDescription> descriptions; //The connections between nodes
     
     //For some unknown reason, in hyperslate files, :BACKGROUND-COLOR and :CONNECTOR-TYPE
     //are on the same level as :DESCRIPTIONS and :STRUCTURES, and not included in the 
     //:INTERFACE. We model this in the struct because sure why not. 
 
-    HyperslateInterface interface;
+    HyperslateInterface interface; 
     std::string connectorType;      
     std::string backgroundColor;
 };
 
-HyperslateFileData parseHyperslateFile(const std::string&& path);
+HyperslateFileData parseHyperslateFile(std::string path);
 
 #endif

@@ -17,5 +17,5 @@ makeBin:
 	mkdir -p bin
 
 clean:
-	rm bin/*.o
+	rm bin/*.opp
 	rm bin/*.exe
