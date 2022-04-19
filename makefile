@@ -1,14 +1,21 @@
 
+FLAGS = -g
 
-SExpressionTest.exe: sExpressionTest.cpp SExpression.o hyperslateUtils.o
-	g++ -g -o $@ $^
+SOURCES = $(wildcard src/*.cpp)
+OBJECTS = $(SOURCES:src/%.cpp=bin/%.opp)
 
-SExpression.o: SExpression.cpp SExpression.hpp
-	g++ -g -c -o $@ $<
+all: $(OBJECTS)
+	g++ $(FLAGS) -o bin/verif.exe $^
 
-hyperslateUtils.o: hyperslateUtils.cpp hyperslateUtils.hpp
-	g++ -g -c -o $@ $<
+bin/%.opp : src/%.cpp src/%.hpp makeBin
+	g++ $(FLAGS) -c -o $@ $<
+
+bin/%.opp : src/%.cpp makeBin
+	g++ $(FLAGS) -c -o $@ $<
+
+makeBin:
+	mkdir -p bin
 
 clean:
-	rm *.o
-	rm *.exe
+	rm bin/*.o
+	rm bin/*.exe
