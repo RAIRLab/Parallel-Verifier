@@ -14,7 +14,7 @@ int myrank;
 int numranks;
 
 // Type Aliases
-using Markings = std::unordered_map<int, std::unordered_set<int>>;
+using Markings = std::unordered_map<id_t, std::unordered_set<id_t>>;
 
 void SR(int rank, int vertex_id) {
     std::cout << "Rank " << rank << " was assigned " << vertex_id << std::endl;
@@ -27,9 +27,9 @@ bool verify(Proof& p) {
     }
 
     // Allocate ranks to vertices
-    for (const int i: p.assumptions) {
+    for (id_t i: p.assumptions) {
         if (!unallocated_ranks.empty()) {
-            const int rank = unallocated_ranks.back();
+            int rank = unallocated_ranks.back();
             unallocated_ranks.pop_back();
             SR(rank, i);
         }
@@ -40,51 +40,211 @@ bool verify(Proof& p) {
 }
 
 // Update dest's marking vector to contain source
-void mark(Markings& markings, int source, int dest) {
+void mark(Markings& markings, id_t source, id_t dest) {
     Markings::iterator it = markings.find(dest);
     if (it == markings.end()) {
-        markings[dest] = {};
+        markings.insert({dest, std::unordered_set<id_t>()});
+        // markings[dest] = std::unordered_set<id_t>();
     }
     markings.at(dest).insert(source);
 }
 
-bool hasCompleteMarkings(Proof& p, int vertex_id, const std::unordered_set<int>& markingList) {
-    std::unordered_map<HyperslateJustification, int> numMarkingsMap = {
+bool hasCompleteMarkings(const Proof& p, id_t vertex_id, const std::unordered_set<id_t>& markingList) {
+    std::unordered_map<HyperslateJustification, size_t> numMarkingsMap = {
         {Assume, 0}, {AndIntro, 2}, {AndElim, 1},
         {OrIntro, 1}, {OrElim, 3}, {NotIntro, 2},
         {NotElim, 2}, {IfIntro, 1}, {IfElim, 2},
         {IffIntro, 2}, {IffElim, 2}
     };
-    // TODO: Maybe error handling
-    int markingsNeeded = numMarkingsMap[p.nodeLookup.at(vertex_id).justification];
+    size_t markingsNeeded = numMarkingsMap[p.nodeLookup.at(vertex_id).justification];
     return markingList.size() == markingsNeeded;
 }
 
-bool verifyVertex(Proof& p, int vertex_id) {
-    ProofNode& pn = p.nodeLookup.at(vertex_id);
+inline bool is_and_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "and";
+}
+
+bool verifyAndIntro(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    if (!is_and_vertex(pn)) {
+        return false;
+    }
+
+    // Make sure we have two parent nodes
+    if (pn.parents.size() != 2) {
+        return false;
+    }
+
+    // Make sure the subformulas match the parents
+    bool match_parent1 = false;
+    bool match_parent2 = false;
+    for (id_t parent_id : pn.parents) {
+        const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
+        if (parent_pn.formula == pn.formula.members[1]) {
+            match_parent1 = true;
+        } else if (parent_pn.formula == pn.formula.members[2]) {
+            match_parent2 = true;
+        }
+    }
+    return match_parent1 && match_parent2;
+}
+
+bool verifyAndElim(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure we have one parent node
+    if (pn.parents.size() != 1) {
+        return false;
+    }
+
+    // Grab parent node
+    const ProofNode& parent_pn = p.nodeLookup.at(*pn.parents.begin());
+
+    if (!is_and_vertex(parent_pn)) {
+        return false;
+    }
+
+    // Make sure the formula matches one of the parent subformulas
+    const sExpression& parent_subformula1 = parent_pn.formula.members[1];
+    const sExpression& parent_subformula2 = parent_pn.formula.members[2];
+    return pn.formula == parent_subformula1 || pn.formula == parent_subformula2;
+}
+
+inline bool is_or_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "or";
+}
+
+bool verifyOrIntro(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    if (!is_or_vertex(pn)) {
+        return false;
+    }
+
+    // Make sure we have one parent nodes
+    if (pn.parents.size() != 1) {
+        return false;
+    }
+
+    // Make sure the subformulas match the parents
+    const ProofNode& parent_pn = p.nodeLookup.at(*pn.parents.begin());
+    return parent_pn.formula == pn.formula.members[1] || parent_pn.formula == pn.formula.members[2];
+}
+
+inline bool is_if_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+           pn.formula.members.size() == 3 && \
+           pn.formula.members[0].type == sExpression::Type::Symbol && \
+           pn.formula.members[0].value == "if";
+}
+
+bool verifyIfElim(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure we have two parent nodes
+    if (pn.parents.size() != 2) {
+        return false;
+    }
+
+    id_t firstParentId;
+    id_t secondParentId;
+
+    id_t index = 0;
+    for (const id_t parentId : pn.parents) {
+        if (index == 0) {
+            firstParentId = parentId;
+        } else {
+            secondParentId = parentId;
+        }
+        index += 1;
+    }
+
+    const ProofNode& firstParent = p.nodeLookup.at(firstParentId);
+    const ProofNode& secondParent = p.nodeLookup.at(secondParentId);
+
+    return \
+        // firstParent is the antecedant of secondParent
+        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]) || \
+        // secondParent is the antecedant of firstParent
+        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
+}
+
+inline bool is_iff_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+           pn.formula.members.size() == 3 && \
+           pn.formula.members[0].type == sExpression::Type::Symbol && \
+           pn.formula.members[0].value == "iff";
+}
+
+bool verifyIffElim(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure we have two parent nodes
+    if (pn.parents.size() != 2) {
+        return false;
+    }
+
+    id_t firstParentId;
+    id_t secondParentId;
+
+    id_t index = 0;
+    for (const id_t parentId : pn.parents) {
+        if (index == 0) {
+            firstParentId = parentId;
+        } else {
+            secondParentId = parentId;
+        }
+        index += 1;
+    }
+
+    const ProofNode& firstParent = p.nodeLookup.at(firstParentId);
+    const ProofNode& secondParent = p.nodeLookup.at(secondParentId);
+
+    return \
+        // firstParent is the antecedant of secondParent
+        (is_if_vertex(secondParent) && \
+            (firstParent.formula == secondParent.formula.members[1] || \
+            firstParent.formula == secondParent.formula.members[2])
+        ) || \
+        // secondParent is the antecedant of firstParent
+        (is_if_vertex(secondParent) && \
+            (firstParent.formula == secondParent.formula.members[1] || \
+            firstParent.formula == secondParent.formula.members[2])
+        );
+}
+
+bool verifyVertex(const Proof& p, id_t vertex_id) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
     switch (pn.justification) {
         case Assume:
-            break;
+            return true;
         case AndIntro:
-            break;
+            return verifyAndIntro(p, vertex_id);
         case AndElim:
-            break;
+            return verifyAndElim(p, vertex_id);
         case OrIntro:
-            break;
+            return verifyOrIntro(p, vertex_id);
         case OrElim:
-            break;
+            return true;
         case NotIntro:
-            break;
+            return true;
         case NotElim:
-            break;
+            return true;
         case IfIntro:
-            break;
+            return true;
         case IfElim:
-            break;
+            return verifyIfElim(p, vertex_id);
         case IffIntro:
-            break;
+            return true;
         case IffElim:
-            break;
+            return verifyIffElim(p, vertex_id);
         default: break;
     }
     return false;
@@ -93,44 +253,58 @@ bool verifyVertex(Proof& p, int vertex_id) {
 bool verifySimple(Proof& p) {
     Markings markings;
     int numVerified = 0;
-    std::queue<int> lastVerified;
+    std::queue<id_t> lastVerified;
 
     // Assumptions are verified by default
-    for (const int vertex_id: p.assumptions) {
+    for (id_t vertex_id: p.assumptions) {
         numVerified += 1;
         lastVerified.push(vertex_id);
+        std::cout << "Verified " << vertex_id << std::endl;
     }
 
     while (!lastVerified.empty()) {
-        const int vertex_id = lastVerified.front();
+        const id_t vertex_id = lastVerified.front();
         lastVerified.pop();
 
         // Mark all of a vertex's children
         const ProofNode n = p.nodeLookup.at(vertex_id);
-        for (const int child_id: n.children) {
+        for (const id_t child_id: n.children) {
             mark(markings, vertex_id, child_id);
         }
 
         // Check to see if any markings are completed
+        std::vector<id_t> toEraseMarking;
         for (auto const& markingIt : markings) {
-            const int vid = markingIt.first;
-            const std::unordered_set<int>& markingList = markingIt.second;
+            id_t vid = markingIt.first;
+            const std::unordered_set<id_t>& markingList = markingIt.second;
             if (hasCompleteMarkings(p, vid, markingList)) {
+                // If marking completed, verify the vertex
                 if (verifyVertex(p, vid)) {
+                    // Verified vertices are the new starting points
+                    // and have their markings removed.
                     lastVerified.push(vid);
-                    markings.erase(vid);
+                    toEraseMarking.push_back(vid);
+
                     // TODO: Update assumptions
+                    std::cout << "Verified " << vid << std::endl;
+                    numVerified += 1;
                 } else {
                     // One false vertex means its all false
                     return false;
                 }
             }
         }
+        // Erased verified vertices in the markings map
+        for (id_t id : toEraseMarking) {
+            markings.erase(id);
+        }
     }
 
-    // If the number verified matches the graph, then the
-    // whole graph was verified successfully.
-    return numVerified == p.nodeLookup.size();
+    // If the number verified matches the graph node size,
+    // then the whole graph was verified successfully.
+    // std::cout << "Verified " << numVerified << "/" << p.nodeLookup.size() - 1 << std::endl;
+    // Minus 1 since there's a node labeled ":"
+    return numVerified == p.nodeLookup.size() - 1;
 }
 
 void print_help() {
