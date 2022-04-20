@@ -37,6 +37,10 @@ struct sExpression{
     unsigned int getNumAt(const size_t) const;                    //same as getValue but if type == num casts it to an int first
 };
 
+// For equaliity
+bool operator==(const sExpression& s1, const sExpression& s2);
+bool operator!=(const sExpression& s1, const sExpression& s2);
+
 //For using sExpressions with std::cout
 std::ostream& operator<<(std::ostream& os, const sExpression& object);
 

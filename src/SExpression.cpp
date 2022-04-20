@@ -355,5 +355,25 @@ unsigned int sExpression::getNumAt(const size_t index) const{
     return std::stoi(getValueAt(index));
 }
 
+bool operator!=(const sExpression& s1, const sExpression& s2) {
+    return !(s1 == s2);
+}
 
+bool operator==(const sExpression& s1, const sExpression& s2) {
+    if (s1.type != s2.type) { return false; }
+    if (s1.type != sExpression::Type::List) { return s1.value == s2.value; }
+
+    // Assume its a list
+    if (s1.members.size() != s2.members.size()) {
+        return false;
+    }
+
+    // Make sure each item in the list are equal
+    for (id_t i = 0; i < s1.members.size(); i++) {
+        if (s1.members[i] != s2.members[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
