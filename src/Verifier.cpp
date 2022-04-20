@@ -86,10 +86,10 @@ bool verifyAndIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     id_t parent2Id;
     for (id_t parent_id : pn.parents) {
         const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
-        if (parent_pn.formula == pn.formula.members[1]) {
+        if (!match_parent1 && parent_pn.formula == pn.formula.members[1]) {
             match_parent1 = true;
             parent1Id = parent_id;
-        } else if (parent_pn.formula == pn.formula.members[2]) {
+        } else if (!match_parent2 && parent_pn.formula == pn.formula.members[2]) {
             match_parent2 = true;
             parent2Id = parent_id;
         }
@@ -170,7 +170,6 @@ bool verifyOrIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyOrElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
-    return true;
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have three parent nodes
@@ -181,6 +180,7 @@ bool verifyOrElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     id_t orParentId;
     id_t parentId2;
     id_t parentId3;
+    bool orParentFound = false;
     bool parentId2Found = false;
     bool parentId3Found = false;
     for (const id_t parentId : pn.parents) {
@@ -198,12 +198,14 @@ bool verifyOrElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
             if (!is_or_vertex(parentNode)) {
                 return false;
             }
+            orParentFound = true;
             orParentId = parentId;
         }
     }
 
     // Syntax check: Two of the parents must match the current formula
-    if (!parentId2Found || !parentId3Found) {
+    // One of the nodes must be OR rooted
+    if (!parentId2Found || !parentId3Found || !orParentFound) {
         return false;
     }
 
@@ -254,7 +256,7 @@ bool verifyOrElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         std::unordered_set<id_t> parent2Assumptions = assumptions[parentId2];
         parent2Assumptions.erase(parent2AssumptionId);
         std::unordered_set<id_t> parent3Assumptions = assumptions[parentId3];
-        parent2Assumptions.erase(parent3AssumptionId);
+        parent3Assumptions.erase(parent3AssumptionId);
 
         assumptions[vertex_id].insert(parent2Assumptions.begin(), parent2Assumptions.end());
         assumptions[vertex_id].insert(parent3Assumptions.begin(), parent3Assumptions.end());
@@ -580,59 +582,67 @@ bool verifyVertex(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
             assumptions[vertex_id] = {vertex_id};
             return true;
         case AndIntro:
-            result = verifyAndIntro(p, vertex_id, assumptions);
-            std::cout << "Passed And Intro: " << result << std::endl;
-            break;
-            // return verifyAndIntro(p, vertex_id, assumptions);
+            // result = verifyAndIntro(p, vertex_id, assumptions);
+            // std::cout << "Passed And Intro: " << result << std::endl;
+            // break;
+            return verifyAndIntro(p, vertex_id, assumptions);
         case AndElim:
-            result = verifyAndElim(p, vertex_id, assumptions);
-            std::cout << "Passed And Elim: " << result << std::endl;
-            break;
-            // return verifyAndElim(p, vertex_id, assumptions);
+            // result = verifyAndElim(p, vertex_id, assumptions);
+            // std::cout << "Passed And Elim: " << result << std::endl;
+            // break;
+            return verifyAndElim(p, vertex_id, assumptions);
         case OrIntro:
-            result = verifyOrIntro(p, vertex_id, assumptions);
-            std::cout << "Passed Or Intro: " << result << std::endl;
-            break;
-            // return verifyOrIntro(p, vertex_id, assumptions);
+            // result = verifyOrIntro(p, vertex_id, assumptions);
+            // std::cout << "Passed Or Intro: " << result << std::endl;
+            // break;
+            return verifyOrIntro(p, vertex_id, assumptions);
         case OrElim:
-            result = verifyOrElim(p, vertex_id, assumptions);
-            std::cout << "Passed Or Elim: " << result << std::endl;
-            break;
-            // return verifyOrElim(p, vertex_id, assumptions);
+            // result = verifyOrElim(p, vertex_id, assumptions);
+            // std::cout << "Passed Or Elim: " << result << std::endl;
+            // break;
+            return verifyOrElim(p, vertex_id, assumptions);
         case NotIntro:
-            result = verifyNotIntro(p, vertex_id, assumptions);
-            std::cout << "Passed Not Intro: " << result << std::endl;
-            break;
-            // return verifyNotIntro(p, vertex_id, assumptions);
+            // result = verifyNotIntro(p, vertex_id, assumptions);
+            // std::cout << "Passed Not Intro: " << result << std::endl;
+            // break;
+            return verifyNotIntro(p, vertex_id, assumptions);
         case NotElim:
-            result = verifyNotElim(p, vertex_id, assumptions);
-            std::cout << "Passed Not Elim: " << result << std::endl;
-            break;
-            // return verifyNotElim(p, vertex_id, assumptions);
+            // result = verifyNotElim(p, vertex_id, assumptions);
+            // std::cout << "Passed Not Elim: " << result << std::endl;
+            // break;
+            return verifyNotElim(p, vertex_id, assumptions);
         case IfIntro:
-            result = verifyIfIntro(p, vertex_id, assumptions);
-            std::cout << "Passed If Intro: " << result << std::endl;
-            break;
-            // return verifyIfIntro(p, vertex_id, assumptions);
+            // result = verifyIfIntro(p, vertex_id, assumptions);
+            // std::cout << "Passed If Intro: " << result << std::endl;
+            // break;
+            return verifyIfIntro(p, vertex_id, assumptions);
         case IfElim:
-            result = verifyIfElim(p, vertex_id, assumptions);
-            std::cout << "Passed If Elim: " << result << std::endl;
-            break;
-            // return verifyIfElim(p, vertex_id, assumptions);
+            // result = verifyIfElim(p, vertex_id, assumptions);
+            // std::cout << "Passed If Elim: " << result << std::endl;
+            // break;
+            return verifyIfElim(p, vertex_id, assumptions);
         case IffIntro:
-            result = verifyIffIntro(p, vertex_id, assumptions);
-            std::cout << "Passed Iff Intro: " << result << std::endl;
-            break;
-            // return verifyIffIntro(p, vertex_id, assumptions);
+            // result = verifyIffIntro(p, vertex_id, assumptions);
+            // std::cout << "Passed Iff Intro: " << result << std::endl;
+            // break;
+            return verifyIffIntro(p, vertex_id, assumptions);
         case IffElim:
-            result = verifyIffElim(p, vertex_id, assumptions);
-            std::cout << "Passed Iff Elim: " << result << std::endl;
-            break;
-            // return verifyIffElim(p, vertex_id, assumptions);
+            // result = verifyIffElim(p, vertex_id, assumptions);
+            // std::cout << "Passed Iff Elim: " << result << std::endl;
+            // break;
+            return verifyIffElim(p, vertex_id, assumptions);
         default:
             std::cout << "Unknown Justification" << std::endl;
             break;
     }
+
+    // std::cout << "Formula Passed: " << p.nodeLookup.at(vertex_id).formula.toString() << std::endl;
+    // std::cout << "New Assumptions" << std::endl;
+    // for (const id_t a : assumptions[vertex_id]) {
+    //     const ProofNode& aNode = p.nodeLookup.at(a);
+    //     std::cout << "Assumption: " << aNode.formula.toString() << std::endl;
+    // }
+
     return result;
 }
 
@@ -672,7 +682,7 @@ bool verifySimple(Proof& p) {
                     // and have their markings removed.
                     lastVerified.push(vid);
                     toEraseMarking.push_back(vid);
-                    std::cout << "Verified " << vid << std::endl;
+                    // std::cout << "Verified " << vid << std::endl;
                     numVerified += 1;
                 } else {
                     // One false vertex means its all false
