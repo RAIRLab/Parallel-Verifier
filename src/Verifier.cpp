@@ -15,6 +15,7 @@ int numranks;
 
 // Type Aliases
 using Markings = std::unordered_map<id_t, std::unordered_set<id_t>>;
+using Assumptions = std::unordered_map<id_t, std::unordered_set<id_t>>;
 
 void SR(int rank, int vertex_id) {
     std::cout << "Rank " << rank << " was assigned " << vertex_id << std::endl;
@@ -67,7 +68,7 @@ inline bool is_and_vertex(const ProofNode& pn) {
        pn.formula.members[0].value == "and";
 }
 
-bool verifyAndIntro(const Proof& p, id_t vertex_id) {
+bool verifyAndIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_and_vertex(pn)) {
@@ -82,18 +83,31 @@ bool verifyAndIntro(const Proof& p, id_t vertex_id) {
     // Make sure the subformulas match the parents
     bool match_parent1 = false;
     bool match_parent2 = false;
+    id_t parent1Id;
+    id_t parent2Id;
     for (id_t parent_id : pn.parents) {
         const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
         if (parent_pn.formula == pn.formula.members[1]) {
             match_parent1 = true;
+            parent1Id = parent_id;
         } else if (parent_pn.formula == pn.formula.members[2]) {
             match_parent2 = true;
+            parent2Id = parent_id;
         }
     }
-    return match_parent1 && match_parent2;
+
+    const bool result = match_parent1 && match_parent2;
+
+    // Update assumptions with union
+    if (result) {
+        assumptions[vertex_id] = assumptions[parent1Id];
+        assumptions[vertex_id].insert(assumptions[parent2Id].begin(), assumptions[parent2Id].end());
+    }
+
+    return result;
 }
 
-bool verifyAndElim(const Proof& p, id_t vertex_id) {
+bool verifyAndElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have one parent node
@@ -102,7 +116,8 @@ bool verifyAndElim(const Proof& p, id_t vertex_id) {
     }
 
     // Grab parent node
-    const ProofNode& parent_pn = p.nodeLookup.at(*pn.parents.begin());
+    const id_t parentId = *pn.parents.begin();
+    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
 
     if (!is_and_vertex(parent_pn)) {
         return false;
@@ -111,7 +126,15 @@ bool verifyAndElim(const Proof& p, id_t vertex_id) {
     // Make sure the formula matches one of the parent subformulas
     const sExpression& parent_subformula1 = parent_pn.formula.members[1];
     const sExpression& parent_subformula2 = parent_pn.formula.members[2];
-    return pn.formula == parent_subformula1 || pn.formula == parent_subformula2;
+
+    const bool result = pn.formula == parent_subformula1 || pn.formula == parent_subformula2;
+
+    // Update assumptions with union
+    if (result) {
+        assumptions[vertex_id] = assumptions[parentId];
+    }
+
+    return result;
 }
 
 inline bool is_or_vertex(const ProofNode& pn) {
@@ -121,7 +144,7 @@ inline bool is_or_vertex(const ProofNode& pn) {
        pn.formula.members[0].value == "or";
 }
 
-bool verifyOrIntro(const Proof& p, id_t vertex_id) {
+bool verifyOrIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_or_vertex(pn)) {
@@ -134,8 +157,17 @@ bool verifyOrIntro(const Proof& p, id_t vertex_id) {
     }
 
     // Make sure the subformulas match the parents
-    const ProofNode& parent_pn = p.nodeLookup.at(*pn.parents.begin());
-    return parent_pn.formula == pn.formula.members[1] || parent_pn.formula == pn.formula.members[2];
+    const id_t parentId = *pn.parents.begin();
+    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+
+    const bool result = parent_pn.formula == pn.formula.members[1] || parent_pn.formula == pn.formula.members[2];
+
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[parentId];
+    }
+
+    return result;
 }
 
 inline bool is_if_vertex(const ProofNode& pn) {
@@ -145,7 +177,7 @@ inline bool is_if_vertex(const ProofNode& pn) {
            pn.formula.members[0].value == "if";
 }
 
-bool verifyIfElim(const Proof& p, id_t vertex_id) {
+bool verifyIfElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
@@ -169,11 +201,19 @@ bool verifyIfElim(const Proof& p, id_t vertex_id) {
     const ProofNode& firstParent = p.nodeLookup.at(firstParentId);
     const ProofNode& secondParent = p.nodeLookup.at(secondParentId);
 
-    return \
+    const bool result = \
         // firstParent is the antecedant of secondParent
         (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]) || \
         // secondParent is the antecedant of firstParent
         (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
+
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[firstParentId];
+        assumptions[vertex_id].insert(assumptions[secondParentId].begin(), assumptions[secondParentId].end());
+    }
+
+    return result;
 }
 
 inline bool is_iff_vertex(const ProofNode& pn) {
@@ -183,7 +223,7 @@ inline bool is_iff_vertex(const ProofNode& pn) {
            pn.formula.members[0].value == "iff";
 }
 
-bool verifyIffElim(const Proof& p, id_t vertex_id) {
+bool verifyIffElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
@@ -207,7 +247,7 @@ bool verifyIffElim(const Proof& p, id_t vertex_id) {
     const ProofNode& firstParent = p.nodeLookup.at(firstParentId);
     const ProofNode& secondParent = p.nodeLookup.at(secondParentId);
 
-    return \
+    const bool result =  \
         // firstParent is the antecedant of secondParent
         (is_if_vertex(secondParent) && \
             (firstParent.formula == secondParent.formula.members[1] || \
@@ -218,19 +258,27 @@ bool verifyIffElim(const Proof& p, id_t vertex_id) {
             (firstParent.formula == secondParent.formula.members[1] || \
             firstParent.formula == secondParent.formula.members[2])
         );
+
+    if (result) {
+        assumptions[vertex_id] = assumptions[firstParentId];
+        assumptions[vertex_id].insert(assumptions[secondParentId].begin(), assumptions[secondParentId].end());
+    }
+
+    return result;
 }
 
-bool verifyVertex(const Proof& p, id_t vertex_id) {
+// Verify that vertex is justified and update assumptions
+bool verifyVertex(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
     switch (pn.justification) {
         case Assume:
             return true;
         case AndIntro:
-            return verifyAndIntro(p, vertex_id);
+            return verifyAndIntro(p, vertex_id, assumptions);
         case AndElim:
-            return verifyAndElim(p, vertex_id);
+            return verifyAndElim(p, vertex_id, assumptions);
         case OrIntro:
-            return verifyOrIntro(p, vertex_id);
+            return verifyOrIntro(p, vertex_id, assumptions);
         case OrElim:
             return true;
         case NotIntro:
@@ -240,11 +288,11 @@ bool verifyVertex(const Proof& p, id_t vertex_id) {
         case IfIntro:
             return true;
         case IfElim:
-            return verifyIfElim(p, vertex_id);
+            return verifyIfElim(p, vertex_id, assumptions);
         case IffIntro:
             return true;
         case IffElim:
-            return verifyIffElim(p, vertex_id);
+            return verifyIffElim(p, vertex_id, assumptions);
         default: break;
     }
     return false;
@@ -252,6 +300,7 @@ bool verifyVertex(const Proof& p, id_t vertex_id) {
 
 bool verifySimple(Proof& p) {
     Markings markings;
+    Assumptions assumptions;
     int numVerified = 0;
     std::queue<id_t> lastVerified;
 
@@ -279,13 +328,11 @@ bool verifySimple(Proof& p) {
             const std::unordered_set<id_t>& markingList = markingIt.second;
             if (hasCompleteMarkings(p, vid, markingList)) {
                 // If marking completed, verify the vertex
-                if (verifyVertex(p, vid)) {
+                if (verifyVertex(p, vid, assumptions)) {
                     // Verified vertices are the new starting points
                     // and have their markings removed.
                     lastVerified.push(vid);
                     toEraseMarking.push_back(vid);
-
-                    // TODO: Update assumptions
                     std::cout << "Verified " << vid << std::endl;
                     numVerified += 1;
                 } else {
