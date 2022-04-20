@@ -178,10 +178,89 @@ bool verifyOrElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    const std::vector<id_t> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
-    const ProofNode& thirdParent = p.nodeLookup.at(parents[2]);
+    id_t orParentId;
+    id_t parentId2;
+    id_t parentId3;
+    bool parentId2Found = false;
+    bool parentId3Found = false;
+    for (const id_t parentId : pn.parents) {
+        const ProofNode& parentNode = p.nodeLookup.at(parentId);
+        if (parentNode.formula == pn.formula) {
+            if (!parentId2Found) {
+                parentId2 = parentId;
+                parentId2Found = true;
+            } else {
+                parentId3 = parentId;
+                parentId3Found = true;
+            }
+        } else {
+            // Parent vertices that don't match us must be OR rooted.
+            if (!is_or_vertex(parentNode)) {
+                return false;
+            }
+            orParentId = parentId;
+        }
+    }
+
+    // Syntax check: Two of the parents must match the current formula
+    if (!parentId2Found || !parentId3Found) {
+        return false;
+    }
+
+    const ProofNode& orParent = p.nodeLookup.at(orParentId);
+    const ProofNode& parentNode2 = p.nodeLookup.at(parentId2);
+    const ProofNode& parentNode3 = p.nodeLookup.at(parentId3);
+
+    // Check Assumptions
+    bool left_side_check = false;
+    id_t parent2AssumptionId;
+    bool right_side_check = false;
+    id_t parent3AssumptionId;
+
+    for (const id_t a : assumptions[parentId2]) {
+        const ProofNode& aNode = p.nodeLookup.at(a);
+        if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
+            left_side_check = true;
+            parent2AssumptionId = a;
+            break;
+        }
+        if (!right_side_check && aNode.formula == orParent.formula.members[2]) {
+            right_side_check = true;
+            parent2AssumptionId = a;
+            break;
+        }
+    }
+
+    for (const id_t a : assumptions[parentId3]) {
+        const ProofNode& aNode = p.nodeLookup.at(a);
+        if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
+            left_side_check = true;
+            parent3AssumptionId = a;
+            break;
+        }
+        if (!right_side_check && aNode.formula == orParent.formula.members[2]) {
+            right_side_check = true;
+            parent3AssumptionId = a;
+            break;
+        }
+    }
+
+
+    const bool result = left_side_check && right_side_check;
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[orParentId];
+
+        std::unordered_set<id_t> parent2Assumptions = assumptions[parentId2];
+        parent2Assumptions.erase(parent2AssumptionId);
+        std::unordered_set<id_t> parent3Assumptions = assumptions[parentId3];
+        parent2Assumptions.erase(parent3AssumptionId);
+
+        assumptions[vertex_id].insert(parent2Assumptions.begin(), parent2Assumptions.end());
+        assumptions[vertex_id].insert(parent3Assumptions.begin(), parent3Assumptions.end());
+    }
+
+    return result;
 }
 
 inline bool is_if_vertex(const ProofNode& pn) {
