@@ -122,13 +122,13 @@ bool verifyAndElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    // Make sure the formula matches one of the parent subformulas
-    const sExpression& parent_subformula1 = parent_pn.formula.members[1];
-    const sExpression& parent_subformula2 = parent_pn.formula.members[2];
+    const bool result = \
+        // Check if the formula matches the left parent subformula
+        pn.formula == parent_pn.formula.members[1] || \
+        // Check if the formula matches the right parent subformula
+        pn.formula == parent_pn.formula.members[2];
 
-    const bool result = pn.formula == parent_subformula1 || pn.formula == parent_subformula2;
-
-    // Update assumptions with union
+    // Update assumptions
     if (result) {
         assumptions[vertex_id] = assumptions[parentId];
     }
@@ -383,6 +383,10 @@ inline bool is_not_vertex(const ProofNode& pn) {
 bool verifyNotIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
 
+    if (!is_not_vertex(pn)) {
+        return false;
+    }
+
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
         return false;
@@ -396,7 +400,7 @@ bool verifyNotIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         // Check to see if the first parent is the neagtion of the second
         (is_not_vertex(firstParent) && firstParent.formula.members[1] == secondParent.formula) || \
         // Check to see if the second parent is the negation of the first
-        (is_not_vertex(secondParent) && secondParent.formula.members[1] == secondParent.formula);
+        (is_not_vertex(secondParent) && secondParent.formula.members[1] == firstParent.formula);
 
     if (!syntax_result) {
         return false;
@@ -450,7 +454,7 @@ bool verifyNotElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         // Check to see if the first parent is the neagtion of the second
         (is_not_vertex(firstParent) && firstParent.formula.members[1] == secondParent.formula) || \
         // Check to see if the second parent is the negation of the first
-        (is_not_vertex(secondParent) && secondParent.formula.members[1] == secondParent.formula);
+        (is_not_vertex(secondParent) && secondParent.formula.members[1] == firstParent.formula);
 
     if (!syntax_result) {
         return false;
@@ -461,7 +465,7 @@ bool verifyNotElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     // Make sure the current formula is a positive of an assumption
     for (const id_t a : assumptions[parents[0]]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
-        if (aNode.formula.members[1] == pn.formula) {
+        if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
             formula_found = true;
             formula_id = a;
             break;
@@ -470,7 +474,7 @@ bool verifyNotElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     if (!formula_found) {
         for (const id_t a : assumptions[parents[1]]) {
             const ProofNode& aNode = p.nodeLookup.at(a);
-            if (aNode.formula.members[1] == pn.formula) {
+            if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
                 formula_found = true;
                 formula_id = a;
                 break;
@@ -499,46 +503,58 @@ bool verifyVertex(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         case AndIntro:
             result = verifyAndIntro(p, vertex_id, assumptions);
             std::cout << "Passed And Intro: " << result << std::endl;
+            break;
             // return verifyAndIntro(p, vertex_id, assumptions);
         case AndElim:
             result = verifyAndElim(p, vertex_id, assumptions);
             std::cout << "Passed And Elim: " << result << std::endl;
+            break;
             // return verifyAndElim(p, vertex_id, assumptions);
         case OrIntro:
             result = verifyOrIntro(p, vertex_id, assumptions);
             std::cout << "Passed Or Intro: " << result << std::endl;
+            break;
             // return verifyOrIntro(p, vertex_id, assumptions);
         case OrElim:
             result = verifyOrElim(p, vertex_id, assumptions);
             std::cout << "Passed Or Elim: " << result << std::endl;
+            break;
             // return verifyOrElim(p, vertex_id, assumptions);
         case NotIntro:
             result = verifyNotIntro(p, vertex_id, assumptions);
             std::cout << "Passed Not Intro: " << result << std::endl;
+            break;
             // return verifyNotIntro(p, vertex_id, assumptions);
         case NotElim:
             result = verifyNotElim(p, vertex_id, assumptions);
             std::cout << "Passed Not Elim: " << result << std::endl;
+            break;
             // return verifyNotElim(p, vertex_id, assumptions);
         case IfIntro:
             result = verifyIfIntro(p, vertex_id, assumptions);
             std::cout << "Passed If Intro: " << result << std::endl;
+            break;
             // return verifyIfIntro(p, vertex_id, assumptions);
         case IfElim:
             result = verifyIfElim(p, vertex_id, assumptions);
             std::cout << "Passed If Elim: " << result << std::endl;
+            break;
             // return verifyIfElim(p, vertex_id, assumptions);
         case IffIntro:
             result = verifyIffIntro(p, vertex_id, assumptions);
             std::cout << "Passed Iff Intro: " << result << std::endl;
+            break;
             // return verifyIffIntro(p, vertex_id, assumptions);
         case IffElim:
             result = verifyIffElim(p, vertex_id, assumptions);
             std::cout << "Passed Iff Elim: " << result << std::endl;
+            break;
             // return verifyIffElim(p, vertex_id, assumptions);
-        default: break;
+        default:
+            std::cout << "Unknown Justification" << std::endl;
+            break;
     }
-    return false;
+    return result;
 }
 
 bool verifySimple(Proof& p) {
@@ -549,6 +565,7 @@ bool verifySimple(Proof& p) {
 
     // Assumptions are verified by default
     for (id_t vertex_id: p.assumptions) {
+        verifyVertex(p, vertex_id, assumptions);
         numVerified += 1;
         lastVerified.push(vertex_id);
         std::cout << "Verified " << vertex_id << std::endl;
