@@ -2,7 +2,7 @@
 #include"Proof.hpp"
 
 Proof::Proof(HyperslateFileData fileData){
-    nodeLookup = std::vector<ProofNode>(fileData.descriptions.size() + 1);
+    nodeLookup = std::unordered_map<id_t, ProofNode>();
     for(HyperslateDescription descriptionNode : fileData.descriptions){
         ProofNode proofNode;
         proofNode.id = descriptionNode.id;

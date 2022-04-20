@@ -746,3 +746,12 @@ int main(int argc, char** argv){
     MPI_Finalize();
     return 0;
 }
+
+//S-Expression Tester
+/*
+int main(int argc, char** argv){
+    HyperslateFileData fd = parseHyperslateFile(std::string(argv[1]));
+    Proof p(fd);
+    return 0;
+}
+*/

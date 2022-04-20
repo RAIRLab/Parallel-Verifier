@@ -3,6 +3,7 @@
 #pragma once
 
 #include<unordered_set>
+#include<unordered_map>
 #include"SExpression.hpp"
 #include"hyperslateUtils.hpp"
 
@@ -21,7 +22,7 @@ struct Proof{
         This prevents us from using pointers on ProofNodes which would not translate between ranks.
         Allows proofs to easily be serialized for message passing.
     */
-    std::vector<ProofNode> nodeLookup; 
+    std::unordered_map<id_t, ProofNode> nodeLookup; 
     //We need to know our initial assumptions for our algs
     std::unordered_set<id_t> assumptions;
     

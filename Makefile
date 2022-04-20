@@ -7,7 +7,7 @@ SOURCES = $(wildcard src/*.cpp)
 OBJECTS = $(SOURCES:src/%.cpp=bin/%.opp)
 
 all: $(OBJECTS)
-	$(CC) $(FLAGS) -o bin/verif.exe $^
+	$(CC) $(FLAGS) -o verif.exe $^
 
 bin/%.opp : src/%.cpp src/%.hpp makeBin
 	$(CC) $(FLAGS) -c -o $@ $<
