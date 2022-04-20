@@ -15,6 +15,7 @@ Proof::Proof(HyperslateFileData fileData){
     for(HyperslateStructure connection : fileData.structures){
         for(id_t premise : connection.premises){
             nodeLookup[premise].children.insert(connection.conclusion);
+            nodeLookup[connection.conclusion].parents.insert(premise);
         }
     }
 }

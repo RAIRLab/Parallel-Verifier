@@ -10,7 +10,8 @@ struct ProofNode{
     id_t id;
     HyperslateJustification justification;
     sExpression formula;
-    std::unordered_set<id_t> children; //We only need children, not parents
+    std::unordered_set<id_t> parents;
+    std::unordered_set<id_t> children;
 };
 
 struct Proof{
