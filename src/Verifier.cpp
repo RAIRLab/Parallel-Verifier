@@ -661,7 +661,7 @@ bool verifySimple(Proof& p) {
         verifyVertex(p, vertex_id, assumptions);
         numVerified += 1;
         lastVerified.push(vertex_id);
-        std::cout << "Verified " << vertex_id << std::endl;
+        // std::cout << "Verified " << vertex_id << std::endl;
     }
 
     while (!lastVerified.empty()) {
