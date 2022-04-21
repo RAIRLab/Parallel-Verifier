@@ -325,9 +325,9 @@ bool verifyIfElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool result = \
-        // firstParent is the antecedant of secondParent
-        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]) || \
         // secondParent is the antecedant of firstParent
+        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[1]) || \
+        // firstParent is the antecedant of secondParent
         (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
 
     // Update Assumptions
@@ -375,6 +375,7 @@ bool verifyIffIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
                 forward_id = a;
+                break;
             }
         }
     } else if (!forward_check && secondParent.formula == pn.formula.members[2]) {
@@ -384,6 +385,7 @@ bool verifyIffIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
                 forward_id = a;
+                break;
             }
         }
     }
@@ -393,18 +395,20 @@ bool verifyIffIntro(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
         // Make sure the consequent is in the assumptions of the parent
         for (const id_t a : assumptions[parents[0]]) {
             const ProofNode& aNode = p.nodeLookup.at(a);
-            if (aNode.formula == pn.formula.members[1]) {
+            if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
                 backward_id = a;
+                break;
             }
         }
     } else if (!backward_check && secondParent.formula == pn.formula.members[1]) {
         // Make sure the consequent is in the assumptions of the parent
         for (const id_t a : assumptions[parents[1]]) {
             const ProofNode& aNode = p.nodeLookup.at(a);
-            if (aNode.formula == pn.formula.members[1]) {
+            if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
                 backward_id = a;
+                break;
             }
         }
     }
@@ -435,13 +439,13 @@ bool verifyIffElim(const Proof& p, id_t vertex_id, Assumptions& assumptions) {
     const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool result =  \
-        // firstParent is the antecedant of secondParent
-        (is_if_vertex(secondParent) && \
-            (firstParent.formula == secondParent.formula.members[1] || \
-            firstParent.formula == secondParent.formula.members[2])
+        // secondParent is either the antecedant or consequent of firstParent
+        (is_iff_vertex(firstParent) && \
+            (secondParent.formula == firstParent.formula.members[1] || \
+            secondParent.formula == firstParent.formula.members[2])
         ) || \
-        // secondParent is the antecedant of firstParent
-        (is_if_vertex(secondParent) && \
+        // firstParent is either the antecedant or consequent of secondParent
+        (is_iff_vertex(secondParent) && \
             (firstParent.formula == secondParent.formula.members[1] || \
             firstParent.formula == secondParent.formula.members[2])
         );
@@ -698,9 +702,8 @@ bool verifySimple(Proof& p) {
 
     // If the number verified matches the graph node size,
     // then the whole graph was verified successfully.
-    // std::cout << "Verified " << numVerified << "/" << p.nodeLookup.size() - 1 << std::endl;
-    // Minus 1 since there's a node labeled ":"
-    return numVerified == p.nodeLookup.size() - 1;
+    // std::cout << "Verified " << numVerified << "/" << p.nodeLookup.size() << std::endl;
+    return numVerified == p.nodeLookup.size();
 }
 
 void print_help() {
