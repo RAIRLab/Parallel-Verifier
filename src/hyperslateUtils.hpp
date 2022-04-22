@@ -48,6 +48,6 @@ struct HyperslateFileData{
     std::string backgroundColor;
 };
 
-HyperslateFileData parseHyperslateFile(std::string path);
+HyperslateFileData parseHyperslateFile(std::string fileContents);
 
 #endif

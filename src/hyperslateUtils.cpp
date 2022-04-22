@@ -2,7 +2,6 @@
 
 #include<unordered_map>
 #include<string>
-#include<fstream>
 
 #include "SExpression.hpp"
 #include "hyperslateUtils.hpp"
@@ -30,18 +29,9 @@ const std::unordered_map<std::string, HyperslateJustification> justificationMap 
     {"LOGIC::FOL-PROVABILITY", FOLOracle}
 };
 
-//Reads a file at path into a string and returns it
-std::string readFile(std::string path){
-    std::ifstream file(path);
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-}
-
 //Reimplement this with struct constructors at some point, this C style implementation is jank
 //Takes a path and stores all its data in a C struct with better structure and typing 
-HyperslateFileData parseHyperslateFile(std::string path){
-    
-    //Read the file and convert it to an S expression
-    std::string fileContents = readFile(path);
+HyperslateFileData parseHyperslateFile(std::string fileContents){
     sExpression fileExpression(fileContents);
 
     //Pull the descriptions

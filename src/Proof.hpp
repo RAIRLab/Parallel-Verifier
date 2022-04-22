@@ -28,4 +28,5 @@ struct Proof{
     
     //Methods
     Proof(HyperslateFileData proofData);
+    Proof(std::string hyperslateFileString);
 };

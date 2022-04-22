@@ -1,6 +1,11 @@
 
 #include"Proof.hpp"
 
+//This lets us construct the proof from the raw .slt file contents
+Proof::Proof(std::string slateFileContents)
+:Proof(parseHyperslateFile(slateFileContents))
+{}
+
 Proof::Proof(HyperslateFileData fileData){
     nodeLookup = std::unordered_map<id_t, ProofNode>();
     for(HyperslateDescription descriptionNode : fileData.descriptions){
