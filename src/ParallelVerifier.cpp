@@ -1,19 +1,22 @@
 
 #include<mpi.h>
+#include<functional>
 #include<iostream>
 #include"SharedVerifier.hpp"
 
+
+//MPI globals
 int myRank;
 int numRanks;
 
 /*
 Marking Matrices are how we pass markings and assumptions to other MPI ranks.
-(The name marking matrix is a holdover from before I used them for assumptions)
+(The name "marking matrix" is a holdover from before I used them for assumptions)
 Since in our model, one rank can own multiple vertices who can potentially mark at the same time,
 we need to be able to pass markings from multiple verticies in a singe MPI structure.
 Sample marking matrix:
     1  2  3  -1   <--- Special header row specifies which vertex (id) is doing the marking
-    6  6  8  -1 
+    6  6  8  -1         (for assumptions it indicates which vertex has these assumptions)
     7  -1 -1 -1  <-- -1 in a row with a header node means nothing else is being marked by this vertex
               ^ -1 in the header means col unused, this is necessary because MPI 
                 forces marking Matrices to be the same size for MPI_Allgather
@@ -76,7 +79,7 @@ void printMarkings(Markings m){
 
 //Sends markings and get makings cube back with a ragged Marking Matrix
 //returns markings that were just updated this round
-Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings){
+void updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings, std::function<void(vertId, vertId)> updateCallback){
     //serialize the marking for MPI
     int mmWidth, mmHeight;
     MPI_Allreduce(&mmWidthLocal, &mmWidth, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
@@ -93,7 +96,7 @@ Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal,
     MarkingCube markingCube = makeMarkingCube(serializedMarkingsCube, mmWidth, mmHeight);
 
     //Update our markings
-    Markings newMarkings;
+    
     for(int rank = 0; rank < markingCube.size(); rank++){
         for(int col = 0; col < markingCube[0].size(); col++){
             //The vertex that did the marking
@@ -104,12 +107,10 @@ Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal,
                 vertId markee = markingCube[rank][col][row];
                 if(markee == -1)
                     break;
-                markings[markee].insert(marker);
-                newMarkings[markee].insert(marker);
+                updateCallback(marker, markee);
             }
         }
     }
-    return newMarkings;
 }
 
 
@@ -123,9 +124,10 @@ bool verify(Proof proof){
 
     while(true){
 
-        for(auto c : vertices)
+        /*for(auto c : vertices)
             std::cout << c << ' ';
-        std::cout<<"<-----"<<myRank<<"-----"<<std::endl;
+        std::cout<<"<-----"<<myRank<<"-----"<<std::endl;*/
+
         //Round robin distribute ownwership of all verts in play to all ranks,
         // one potential optimization would be doing this distribution
         // with respect to a heuristic rather than round robin.
@@ -145,12 +147,14 @@ bool verify(Proof proof){
             if(hasCompleteMarkings(proof, ownerId, markings[ownerId])){
                 Assumptions passumptions = assumptions;
                 bool verified = verifyVertex(proof, ownerId, assumptions);
-                if(!verified){
+                /*if(!verified){
                     std::cout<<"Wrong! : "<< ownerId << " " << proof.nodeLookup[ownerId].formula.toString()<<"\n";
                     printMarkings(passumptions);
                     std::cout<<"new assumptions! :\n";
                     printMarkings(assumptions);
-                }
+                    std::cout<<"markings :\n";
+                    printMarkings(markings);
+                }*/
 
                 failedLocal = failedLocal || !verified;
                 std::vector<vertId> curMarkings;
@@ -184,12 +188,25 @@ bool verify(Proof proof){
         if(!update)
             return true;
 
-        updateAttribute(assumptionMatrix, numMarkingOwners, maxAssumptions, assumptions);
-        Markings newMarkings = updateAttribute(markingMatrix, numMarkingOwners, maxNumChildren, markings);
+        //Share the assumptions
+        updateAttribute(assumptionMatrix, numMarkingOwners, maxAssumptions, assumptions,
+            [&assumptions](vertId vert, vertId assumptionVert){
+                //assumptions map is "vert with assumptions" : "list of assumptions"
+                assumptions[vert].insert(assumptionVert);
+            });
 
-        printMarkings(markings);
+        //Share the markings
+        Markings newMarkings;
+        updateAttribute(markingMatrix, numMarkingOwners, maxNumChildren, markings,
+            [&markings, &newMarkings](vertId marker, vertId markee){
+                //markings map is "vert being marked" : "list of marking verts"
+                markings[markee].insert(marker);
+                newMarkings[markee].insert(marker);
+            });
 
-        //Update ownership map wrt the markings that have just been placed
+        //printMarkings(markings);
+
+        //Update verts in play w.r.t the markings that have just been placed
         for (const std::pair<vertId, std::unordered_set<vertId>>& marks : newMarkings){
             vertices.insert(marks.first);
             for(const vertId marked : marks.second)
@@ -222,7 +239,7 @@ int main(int argc, char** argv){
 
     MPI_Barrier(MPI_COMM_WORLD);
     if(myRank == 0)
-        std::cout<<std::endl<<result<<std::endl;
+        std::cout<<result<<std::endl;
 
     MPI_Finalize();
     return 0;
