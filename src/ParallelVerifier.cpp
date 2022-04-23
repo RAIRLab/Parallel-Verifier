@@ -57,7 +57,6 @@ using MarkingCube = std::vector<MarkingMatrix>;
 
 //Ok this is kind of slow because I copy a bunch of matricies 
 MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int rows){
-    
     MarkingCube returnCube = std::vector<std::vector<std::vector<int>>>(numRanks, std::vector<std::vector<int>>(cols, std::vector<int>(rows, -1)));
     for(int i = 0; i < numRanks; i++)
         for(int j = 0; j < cols; j++)
@@ -66,8 +65,8 @@ MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int r
     return returnCube;
 }
 
-
-void printMarkings(Markings m){
+//Old print function for debugging MPI
+/*void printMarkings(Markings m){
     for (const std::pair<vertId, std::unordered_set<vertId>>& ms : m){
         std::cout<<ms.first<<":";
         for(const vertId mkd : ms.second)
@@ -75,10 +74,12 @@ void printMarkings(Markings m){
         std::cout<<"\n";
     }
     std::cout<<"=====^"<<myRank<<"==============="<<std::endl;
-}
+}*/
 
-//Sends markings and get makings cube back with a ragged Marking Matrix
-//returns markings that were just updated this round
+//Handles updating the shared states (Markings and Assumptions) when provided with the newly calculated
+//Markings or assumptions in the form of a jaggad MarkingMatrix mm. The mmWidthLocal and mmHeightLocal
+//Should be the max width and height of a row/col in mm.
+//preforms all MPI message formatting and provides a callback to update Markings and Assumptions
 void updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings, std::function<void(vertId, vertId)> updateCallback){
     //serialize the marking for MPI
     int mmWidth, mmHeight;
