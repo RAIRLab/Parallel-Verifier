@@ -63,6 +63,17 @@ MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int r
     return returnCube;
 }
 
+
+void printMarkings(Markings m){
+    for (const std::pair<vertId, std::unordered_set<vertId>>& ms : m){
+        std::cout<<ms.first<<":";
+        for(const vertId mkd : ms.second)
+            std::cout<<mkd<<" ";
+        std::cout<<"\n";
+    }
+    std::cout<<"=====^"<<myRank<<"==============="<<std::endl;
+}
+
 //Sends markings and get makings cube back with a ragged Marking Matrix
 //returns markings that were just updated this round
 Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings){
@@ -93,8 +104,8 @@ Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal,
                 vertId markee = markingCube[rank][col][row];
                 if(markee == -1)
                     break;
-                markings[marker].insert(markee);
-                newMarkings[marker].insert(markee);
+                markings[markee].insert(marker);
+                newMarkings[markee].insert(marker);
             }
         }
     }
@@ -110,8 +121,11 @@ bool verify(Proof proof){
 
     std::unordered_set<vertId> vertices = proof.assumptions; //all verticies in play
 
-    while(true){    
-        
+    while(true){
+
+        for(auto c : vertices)
+            std::cout << c << ' ';
+        std::cout<<"<-----"<<myRank<<"-----"<<std::endl;
         //Round robin distribute ownwership of all verts in play to all ranks,
         // one potential optimization would be doing this distribution
         // with respect to a heuristic rather than round robin.
@@ -122,22 +136,33 @@ bool verify(Proof proof){
         
         MarkingMatrix markingMatrix;
         MarkingMatrix assumptionMatrix;
-        bool update = false;        //If no marks were placed, end the program and return true;
-        bool failed = false;        //If a vertexVerify failed, end the program and return false;
+        bool updateLocal = false;        //If no marks were placed, end the program and return true;
+        bool failedLocal = false;        //If a vertexVerify failed, end the program and return false;
         int numMarkingOwners = 0;   //number of verticies this rank owns that will mark this iteration
         int maxNumChildren = 0;     //max number of children to mark
         int maxAssumptions = 0;
         for(const vertId ownerId : owned){
             if(hasCompleteMarkings(proof, ownerId, markings[ownerId])){
-                failed = failed || !verifyVertex(proof, ownerId, assumptions);
+                Assumptions passumptions = assumptions;
+                bool verified = verifyVertex(proof, ownerId, assumptions);
+                if(!verified){
+                    std::cout<<"Wrong! : "<< ownerId << " " << proof.nodeLookup[ownerId].formula.toString()<<"\n";
+                    printMarkings(passumptions);
+                    std::cout<<"new assumptions! :\n";
+                    printMarkings(assumptions);
+                }
+
+                failedLocal = failedLocal || !verified;
                 std::vector<vertId> curMarkings;
                 std::vector<vertId> curAssumptions;
                 //Marking Message generation code
                 curMarkings.push_back(ownerId); //The header contains the marking node
                 curAssumptions.push_back(ownerId); //The header containing the node these are assumptions for
                 //The rest of the col contains the markings
-                for(const vertId childId : proof.nodeLookup[ownerId].children)
+                for(const vertId childId : proof.nodeLookup[ownerId].children){
                     curMarkings.push_back(childId);
+                    updateLocal = true; //We wont end if there is a marking update to do
+                }
                 for(const vertId assumptionId : assumptions[ownerId])
                     curAssumptions.push_back(assumptionId);
                 markingMatrix.push_back(curMarkings);
@@ -145,30 +170,32 @@ bool verify(Proof proof){
                 maxNumChildren = std::max(maxNumChildren, (int)curMarkings.size());
                 maxAssumptions = std::max(maxAssumptions, (int)curAssumptions.size());
                 numMarkingOwners++;
-                update = true;
             }
         }
 
         //check end conditions
         //check that no ranks have failed to verify, if they have end the function and return false
-        MPI_Allreduce(&failed, &failed, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
+        bool failed;
+        MPI_Allreduce(&failedLocal, &failed, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
         if(failed)
             return false;
-        MPI_Allreduce(&update, &update, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
+        bool update;
+        MPI_Allreduce(&updateLocal, &update, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
         if(!update)
             return true;
 
         updateAttribute(assumptionMatrix, numMarkingOwners, maxAssumptions, assumptions);
         Markings newMarkings = updateAttribute(markingMatrix, numMarkingOwners, maxNumChildren, markings);
 
+        printMarkings(markings);
+
         //Update ownership map wrt the markings that have just been placed
-        for (const std::pair<vertId, std::unordered_set<vertId>>& markings : newMarkings){
-            vertices.erase(markings.first);
-            for(const vertId marked : markings.second)
-                vertices.insert(marked);
+        for (const std::pair<vertId, std::unordered_set<vertId>>& marks : newMarkings){
+            vertices.insert(marks.first);
+            for(const vertId marked : marks.second)
+                vertices.erase(marked);
         }
     }
-    return true;
 }
 
 int main(int argc, char** argv){
@@ -192,8 +219,10 @@ int main(int argc, char** argv){
 
     //Verify
     bool result = verify(proof);
+
+    MPI_Barrier(MPI_COMM_WORLD);
     if(myRank == 0)
-        std::cout<<result<<std::endl;
+        std::cout<<std::endl<<result<<std::endl;
 
     MPI_Finalize();
     return 0;
