@@ -1,7 +1,5 @@
 
 #include<mpi.h>
-#include<array>
-#include<memory>
 #include<iostream>
 #include"SharedVerifier.hpp"
 
@@ -55,8 +53,9 @@ void padMarkingMatrix(MarkingMatrix& mm, int mmWidth, int mmHeight){
 using MarkingCube = std::vector<MarkingMatrix>;
 
 //Ok this is kind of slow because I copy a bunch of matricies 
-inline MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int rows){
-    MarkingCube returnCube;
+MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int rows){
+    
+    MarkingCube returnCube = std::vector<std::vector<std::vector<int>>>(numRanks, std::vector<std::vector<int>>(cols, std::vector<int>(rows, -1)));
     for(int i = 0; i < numRanks; i++)
         for(int j = 0; j < cols; j++)
             for(int k = 0; k < rows; k++)
@@ -69,8 +68,8 @@ inline MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols
 Markings updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings){
     //serialize the marking for MPI
     int mmWidth, mmHeight;
-    MPI_Allreduce(&mmWidth, &mmWidthLocal, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-    MPI_Allreduce(&mmHeight, &mmHeightLocal, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&mmWidthLocal, &mmWidth, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&mmHeightLocal, &mmHeight, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
     padMarkingMatrix(mm, mmWidth, mmHeight);
     std::vector<int> serializedMarkings = flattenMarkingMatrix(mm);
 
@@ -142,8 +141,9 @@ bool verify(Proof proof){
                 for(const vertId assumptionId : assumptions[ownerId])
                     curAssumptions.push_back(assumptionId);
                 markingMatrix.push_back(curMarkings);
+                assumptionMatrix.push_back(curAssumptions);
                 maxNumChildren = std::max(maxNumChildren, (int)curMarkings.size());
-                maxAssumptions = std::max(maxNumChildren, (int)curAssumptions.size());
+                maxAssumptions = std::max(maxAssumptions, (int)curAssumptions.size());
                 numMarkingOwners++;
                 update = true;
             }
@@ -183,10 +183,11 @@ int main(int argc, char** argv){
     MPI_File_open(MPI_COMM_WORLD, proofFilePath, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileHandle);
     MPI_Offset fileSize;
     MPI_File_get_size(fileHandle, &fileSize);
-    std::unique_ptr<char> fileContentsPtr = std::make_unique<char>(fileSize+1);
-    MPI_File_read(fileHandle, fileContentsPtr.get(), fileSize, MPI_CHAR, MPI_STATUS_IGNORE);
+    char* fileContentsBuff = new char[fileSize];
+    MPI_File_read(fileHandle, fileContentsBuff, fileSize, MPI_CHAR, MPI_STATUS_IGNORE);
     MPI_File_close(&fileHandle);
-    std::string fileContents = std::string(fileContentsPtr.get());
+    std::string fileContents = std::string(fileContentsBuff);
+    delete[] fileContentsBuff;
     Proof proof(fileContents);
 
     //Verify
