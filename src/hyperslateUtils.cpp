@@ -53,7 +53,7 @@ HyperslateFileData parseHyperslateFile(std::string fileContents){
     sExpression structures = fileExpression["STRUCTURES"];
     for(sExpression& structure : structures.members){
         HyperslateStructure returnStructure;
-        std::vector<id_t> returnPremises;
+        std::vector<vertId> returnPremises;
         for(const sExpression& premise : structure["PREMISES"].members)
             returnPremises.push_back(std::stoi(premise.value));
         returnStructure.premises = returnPremises;

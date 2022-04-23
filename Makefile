@@ -6,20 +6,17 @@ FLAGS = -g
 SOURCES = $(wildcard src/*.cpp)
 OBJECTS = $(SOURCES:src/%.cpp=bin/%.opp)
 
-serial: $(filter-out bin/ParallelVerifier.opp, $(OBJECTS))
-	$(CC) $(FLAGS) -o serialVerif.exe $^
-
 parallel: $(filter-out bin/SerialVerifier.opp, $(OBJECTS))
 	$(CC) $(FLAGS) -o parallelVerif.exe $^
 
-bin/%.opp : src/%.cpp src/%.hpp makeBin
+serial: $(filter-out bin/ParallelVerifier.opp, $(OBJECTS))
+	$(CC) $(FLAGS) -o serialVerif.exe $^
+
+bin/%.opp : src/%.cpp src/%.hpp
 	$(CC) $(FLAGS) -c -o $@ $<
 
-bin/%.opp : src/%.cpp makeBin
+bin/%.opp : src/%.cpp
 	$(CC) $(FLAGS) -c -o $@ $<
-
-makeBin:
-	mkdir -p bin
 
 clean:
 	rm -f bin/*.opp

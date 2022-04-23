@@ -10,10 +10,10 @@ bool verifySimple(Proof& p) {
     Markings markings;
     Assumptions assumptions;
     int numVerified = 0;
-    std::queue<id_t> lastVerified;
+    std::queue<vertId> lastVerified;
 
     // Assumptions are verified by default
-    for (id_t vertex_id: p.assumptions) {
+    for (vertId vertex_id: p.assumptions) {
         verifyVertex(p, vertex_id, assumptions);
         numVerified += 1;
         lastVerified.push(vertex_id);
@@ -21,20 +21,20 @@ bool verifySimple(Proof& p) {
     }
 
     while (!lastVerified.empty()) {
-        const id_t vertex_id = lastVerified.front();
+        const vertId vertex_id = lastVerified.front();
         lastVerified.pop();
 
         // Mark all of a vertex's children
         const ProofNode n = p.nodeLookup.at(vertex_id);
-        for (const id_t child_id: n.children) {
+        for (const vertId child_id: n.children) {
             mark(markings, vertex_id, child_id);
         }
 
         // Check to see if any markings are completed
-        std::vector<id_t> toEraseMarking;
+        std::vector<vertId> toEraseMarking;
         for (auto const& markingIt : markings) {
-            id_t vid = markingIt.first;
-            const std::unordered_set<id_t>& markingList = markingIt.second;
+            vertId vid = markingIt.first;
+            const std::unordered_set<vertId>& markingList = markingIt.second;
             if (hasCompleteMarkings(p, vid, markingList)) {
                 // If marking completed, verify the vertex
                 if (verifyVertex(p, vid, assumptions)) {
@@ -51,7 +51,7 @@ bool verifySimple(Proof& p) {
             }
         }
         // Erased verified vertices in the markings map
-        for (id_t id : toEraseMarking) {
+        for (vertId id : toEraseMarking) {
             markings.erase(id);
         }
     }

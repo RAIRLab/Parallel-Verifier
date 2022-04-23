@@ -14,19 +14,19 @@ enum HyperslateJustification{
     ExistsIntro, ExistsElim, PCOracle, FOLOracle
 };
 
-typedef unsigned int id_t;
+typedef int vertId;
 
 struct HyperslateDescription{
     int x, y;                       //positions of the node in the hyperslate UI
-    id_t id;                        //Internal ID in hyperstate
+    vertId id;                        //Internal ID in hyperstate
     std::string name;               //Hyperslate names
     std::string formula;            //The textual representation of the formula
     HyperslateJustification justification;      //The logical justification
 };
 
 struct HyperslateStructure{
-    id_t conclusion;
-    std::vector<id_t> premises;
+    vertId conclusion;
+    std::vector<vertId> premises;
 };
 
 struct HyperslateInterface{

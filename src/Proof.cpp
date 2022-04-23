@@ -7,7 +7,7 @@ Proof::Proof(std::string slateFileContents)
 {}
 
 Proof::Proof(HyperslateFileData fileData){
-    nodeLookup = std::unordered_map<id_t, ProofNode>();
+    nodeLookup = std::unordered_map<vertId, ProofNode>();
     for(HyperslateDescription descriptionNode : fileData.descriptions){
         ProofNode proofNode;
         proofNode.id = descriptionNode.id;
@@ -18,7 +18,7 @@ Proof::Proof(HyperslateFileData fileData){
         nodeLookup[proofNode.id] = proofNode;
     }
     for(HyperslateStructure connection : fileData.structures){
-        for(id_t premise : connection.premises){
+        for(vertId premise : connection.premises){
             nodeLookup[premise].children.insert(connection.conclusion);
             nodeLookup[connection.conclusion].parents.insert(premise);
         }

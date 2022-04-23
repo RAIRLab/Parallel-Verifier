@@ -369,7 +369,7 @@ bool operator==(const sExpression& s1, const sExpression& s2) {
     }
 
     // Make sure each item in the list are equal
-    for (id_t i = 0; i < s1.members.size(); i++) {
+    for (int i = 0; i < s1.members.size(); i++) {
         if (s1.members[i] != s2.members[i]) {
             return false;
         }
