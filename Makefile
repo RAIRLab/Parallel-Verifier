@@ -19,9 +19,6 @@ parallel: $(filter-out bin/SerialVerifier.opp, $(OBJECTS))
 serial: $(filter-out bin/ParallelVerifier.opp, $(OBJECTS))
 	$(CC) $(FLAGS) -o serialVerif.exe $^
 
-tests:
-
-
 bin/%.opp : src/%.cpp src/%.hpp
 	$(CC) $(FLAGS) -c -o $@ $<
 
