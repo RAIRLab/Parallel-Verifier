@@ -129,6 +129,12 @@ bool verify(Proof proof){
             std::cout << c << ' ';
         std::cout<<"<-----"<<myRank<<"-----"<<std::endl;*/
 
+        /* !!!!!!TODO!!!!
+            James for the love of god remember to come back and make it so we're not distributing round robin
+            on any verts that don't already hasCompleteMarkings. Do the hasCompleteMarkings check at the end
+            of the algo and change verticies to just be the set of verticies that actually needs to be verified
+        */
+
         //Round robin distribute ownwership of all verts in play to all ranks,
         // one potential optimization would be doing this distribution
         // with respect to a heuristic rather than round robin.
