@@ -9,13 +9,15 @@ Proof::Proof(std::string slateFileContents)
 Proof::Proof(HyperslateFileData fileData){
     nodeLookup = std::unordered_map<vertId, ProofNode>();
     for(HyperslateDescription descriptionNode : fileData.descriptions){
-        ProofNode proofNode;
-        proofNode.id = descriptionNode.id;
-        proofNode.justification = descriptionNode.justification;
-        if(proofNode.justification == HyperslateJustification::Assume)
-            assumptions.insert(proofNode.id);
-        proofNode.formula = sExpression(descriptionNode.formula);
-        nodeLookup[proofNode.id] = proofNode;
+        if(descriptionNode.formula != ""){  //Ignore selmers comment nodes
+            ProofNode proofNode;
+            proofNode.id = descriptionNode.id;
+            proofNode.justification = descriptionNode.justification;
+            if(proofNode.justification == HyperslateJustification::Assume)
+                assumptions.insert(proofNode.id);
+            proofNode.formula = sExpression(descriptionNode.formula);
+            nodeLookup[proofNode.id] = proofNode;
+        }
     }
     for(HyperslateStructure connection : fileData.structures){
         for(vertId premise : connection.premises){

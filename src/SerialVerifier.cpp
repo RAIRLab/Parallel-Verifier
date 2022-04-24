@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unordered_map>
 #include"SharedVerifier.hpp"
+#include"timing.hpp"
 
 bool verifySimple(Proof& p) {
     Markings markings;
@@ -67,7 +68,11 @@ int main(int argc, char** argv){
     std::ifstream fileStream(proofFilePath);
     std::string fileConents((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
     Proof proof(fileConents);
+
+    startClock();
     bool result = verifySimple(proof);
+    endClock();
+
     std::cout<<result<<std::endl;
     return 0;
 }

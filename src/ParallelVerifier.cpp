@@ -3,7 +3,7 @@
 #include<functional>
 #include<iostream>
 #include"SharedVerifier.hpp"
-
+#include"timing.hpp"
 
 //MPI globals
 int myRank;
@@ -236,11 +236,12 @@ int main(int argc, char** argv){
     Proof proof(fileContents);
 
     //Verify
+    startClock();
     bool result = verify(proof);
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    if(myRank == 0)
+    if(myRank == 0){
+        endClock();
         std::cout<<result<<std::endl;
+    }
 
     MPI_Finalize();
     return 0;
