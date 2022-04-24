@@ -1,4 +1,5 @@
 bin
+benchmarks
 *.out
 *.o
 *.exe
