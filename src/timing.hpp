@@ -13,11 +13,12 @@ extern "C" {
 #endif // __cplusplus
 
 
-#ifdef __clang__
-static inline uint64_t clock_now() {
+//#ifdef __clang__
+//AiMOS does not like this, for some reason __clang__ is defined 
+/*static inline uint64_t clock_now() {
 	return __builtin_readcyclecounter();
-}
-#elif defined(__GNUC__)
+}*/
+#if defined(__GNUC__)
 #if defined(__i386__) || defined(__x86_64__) || defined(__amd64__)
 #include <x86intrin.h>
 static inline uint64_t clock_now() {
