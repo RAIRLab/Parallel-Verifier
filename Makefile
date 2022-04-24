@@ -4,7 +4,6 @@ CC = mpic++
 
 #Choose MPI Compiler based on architecture
 ifeq ($(shell uname -m), ppc64le)  #AiMOS architecture
-	module load xl_r spectrum-mpi
 	FLAGS = -g				
 else								#Debug when not on AiMOS
 	FLAGS = -g
