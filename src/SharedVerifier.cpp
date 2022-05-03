@@ -544,6 +544,51 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return formula_found;
 }
 
+inline bool is_equals_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "=";
+}
+
+bool verifyEqualsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+bool verifyEqualsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+inline bool is_forall_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "forall";
+}
+
+bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+inline bool is_exists_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "exists";
+}
+
+bool verifyExistsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+bool verifyExistsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
 // Verify that vertex is justified and update assumptions
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
@@ -553,66 +598,41 @@ bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
             assumptions[vertex_id] = {vertex_id};
             return true;
         case AndIntro:
-            // result = verifyAndIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed And Intro: " << result << std::endl;
-            // break;
             return verifyAndIntro(p, vertex_id, assumptions);
         case AndElim:
-            // result = verifyAndElim(p, vertex_id, assumptions);
-            // std::cout << "Passed And Elim: " << result << std::endl;
-            // break;
             return verifyAndElim(p, vertex_id, assumptions);
         case OrIntro:
-            // result = verifyOrIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Or Intro: " << result << std::endl;
-            // break;
             return verifyOrIntro(p, vertex_id, assumptions);
         case OrElim:
-            // result = verifyOrElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Or Elim: " << result << std::endl;
-            // break;
             return verifyOrElim(p, vertex_id, assumptions);
         case NotIntro:
-            // result = verifyNotIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Not Intro: " << result << std::endl;
-            // break;
             return verifyNotIntro(p, vertex_id, assumptions);
         case NotElim:
-            // result = verifyNotElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Not Elim: " << result << std::endl;
-            // break;
             return verifyNotElim(p, vertex_id, assumptions);
         case IfIntro:
-            // result = verifyIfIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed If Intro: " << result << std::endl;
-            // break;
             return verifyIfIntro(p, vertex_id, assumptions);
         case IfElim:
-            // result = verifyIfElim(p, vertex_id, assumptions);
-            // std::cout << "Passed If Elim: " << result << std::endl;
-            // break;
             return verifyIfElim(p, vertex_id, assumptions);
         case IffIntro:
-            // result = verifyIffIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Iff Intro: " << result << std::endl;
-            // break;
             return verifyIffIntro(p, vertex_id, assumptions);
         case IffElim:
-            // result = verifyIffElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Iff Elim: " << result << std::endl;
-            // break;
             return verifyIffElim(p, vertex_id, assumptions);
+        case EqIntro:
+            return verifyEqualsIntro(p, vertex_id, assumptions);
+        case EqElim:
+            return verifyEqualsElim(p, vertex_id, assumptions);
+        case ForallIntro:
+            return verifyForallIntro(p, vertex_id, assumptions);
+        case ForallElim:
+            return verifyForallElim(p, vertex_id, assumptions);
+        case ExistsIntro:
+            return verifyExistsIntro(p, vertex_id, assumptions);
+        case ExistsElim:
+            return verifyExistsElim(p, vertex_id, assumptions);
         default:
             std::cout << "Unknown Justification" << std::endl;
             break;
     }
-
-    // std::cout << "Formula Passed: " << p.nodeLookup.at(vertex_id).formula.toString() << std::endl;
-    // std::cout << "New Assumptions" << std::endl;
-    // for (const vertId a : assumptions[vertex_id]) {
-    //     const ProofNode& aNode = p.nodeLookup.at(a);
-    //     std::cout << "Assumption: " << aNode.formula.toString() << std::endl;
-    // }
 
     return result;
 }
