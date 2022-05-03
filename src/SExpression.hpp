@@ -30,6 +30,8 @@ struct sExpression{
 
     //These only work if type is list
     sExpression& operator[](const size_t index);          //Access values based on indicies
+    const sExpression& at(const size_t index) const;
+
     sExpression& operator[](const std::string&& key);     //Access values based on keywords
 
     sExpression::Type getTypeAt(const size_t index) const;             

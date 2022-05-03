@@ -317,6 +317,12 @@ sExpression& sExpression::operator[](const size_t index){
     return members[index];
 }
 
+const sExpression& sExpression::at(const size_t index) const{
+    if(type != sExpression::Type::List)
+        throw std::runtime_error("S-Expression Error: can not index a non-list type S-Expression");
+    return members[index];
+}
+
 /*
     Returns a reffrence to the sExpression following a key in the current sExpression
 */
