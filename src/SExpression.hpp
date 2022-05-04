@@ -4,6 +4,7 @@
 
 #include<string>
 #include<vector>
+#include<queue>
 #include<iostream>
 
 struct sExpression{
@@ -35,6 +36,11 @@ struct sExpression{
     sExpression::Type getTypeAt(const size_t index) const;             
     std::string getValueAt(const size_t index) const;             //returns the value in the sExpression at index if its not a sub list
     unsigned int getNumAt(const size_t) const;                    //same as getValue but if type == num casts it to an int first
+
+    bool contains(sExpression& t) const;
+    sExpression atPosition(std::queue<uid_t> pos) const;
+    std::queue<uid_t> positionOf(const sExpression& t) const;
+    std::queue<uid_t> positionOf(const sExpression& t, std::queue<uid_t> pos) const;
 };
 
 // For equaliity

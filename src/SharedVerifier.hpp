@@ -46,3 +46,18 @@ bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
 bool is_not_vertex(const ProofNode& pn);
 bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
 bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+
+// Equality
+inline bool is_equals_vertex(const ProofNode& pn);
+bool verifyEqualsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+bool verifyEqualsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+
+// Forall
+inline bool is_forall_vertex(const ProofNode& pn);
+bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+
+// Exists
+inline bool is_exists_vertex(const ProofNode& pn);
+bool verifyExistsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+bool verifyExistsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
