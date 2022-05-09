@@ -439,14 +439,8 @@ sExpression sExpression::atPosition(std::queue<uid_t> pos) const {
     return this->atPosition(pos);
 }
 
-namespace std {
-    template<>
-    struct hash<sExpression> {
-        size_t operator()(const sExpression& s) const {
-            hash<string> hasher;
-            return hasher(s.toString());
-        }
-    };
+std::size_t std::hash<sExpression>::operator()(const sExpression &expr) const{
+    return std::hash<std::string>()(expr.toString(false));
 }
 
 

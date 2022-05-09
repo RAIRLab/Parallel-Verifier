@@ -50,6 +50,14 @@ bool operator!=(const sExpression& s1, const sExpression& s2);
 //For using sExpressions with std::cout
 std::ostream& operator<<(std::ostream& os, const sExpression& object);
 
+//sExpression hashing
+namespace std{
+    template <>
+    struct hash<sExpression>{
+        std::size_t operator()(const sExpression& k) const;
+    };
+}
+
 #endif
 
 
