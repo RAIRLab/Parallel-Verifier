@@ -377,7 +377,7 @@ bool operator==(const sExpression& s1, const sExpression& s2) {
     return true;
 }
 
-bool sExpression::contains(sExpression& t) const {
+bool sExpression::contains(const sExpression& t) const {
     if (type != sExpression::Type::List) { return false; }
 
     bool within = false;
@@ -400,7 +400,7 @@ std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t
         return pos;
     }
 
-    if (this->type != sExpression::Type::List) {\
+    if (this->type != sExpression::Type::List) {
         throw std::out_of_range("Subterm is not within term");
     }
 

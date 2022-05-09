@@ -14,7 +14,7 @@ extern "C" {
 
 
 //#ifdef __clang__
-//AiMOS does not like this, for some reason __clang__ is defined 
+//AiMOS does not like this, for some reason __clang__ is defined for the xlrc compiler
 /*static inline uint64_t clock_now() {
 	return __builtin_readcyclecounter();
 }*/
@@ -46,11 +46,11 @@ uint64_t clock_now(void)
 
 uint64_t startTime;
 
-void startClock(){
+inline void startClock(){
     startTime = clock_now();
 }
 
-void endClock(){
+inline void endClock(){
     uint64_t endTime = clock_now();
     uint64_t totalCycles = endTime-startTime;
     double secs = totalCycles/(double)clockFreq;
