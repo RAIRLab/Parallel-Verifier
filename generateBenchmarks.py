@@ -1,6 +1,8 @@
 
 #James Oswald 
 
+from pathlib import Path
+
 
 #Hyperparamters ======================================================
 
@@ -111,6 +113,8 @@ def genTreeTopology(treeLevels: int):
     genTreeFormulas(formulas, descriptions, connections, treeLevels)
     writeSltFile(f"benchmarks/Tree{treeLevels}.slt", descriptions, connections)
 
+
+Path("benchmarks").mkdir(parents=True, exist_ok=True)
 
 for ll in lineLengths:
     genLineTopology(ll)
