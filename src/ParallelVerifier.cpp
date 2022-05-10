@@ -129,17 +129,24 @@ bool verify(Proof proof){
             std::cout << c << ' ';
         std::cout<<"<-----"<<myRank<<"-----"<<std::endl;*/
 
-        /* !!!!!!TODO!!!!
+        /* Old TODO
             James for the love of god remember to come back and make it so we're not distributing round robin
             on any verts that don't already hasCompleteMarkings. Do the hasCompleteMarkings check at the end
             of the algo and change verticies to just be the set of verticies that actually needs to be verified
         */
 
+        //New TODO this is still probably sub optimal, ideally this can be computed at the end
+        std::unordered_set<vertId> completeVerts;
+        for(vertId vertexId : vertices)
+            if(hasCompleteMarkings(proof, vertexId, markings[vertexId]))
+                completeVerts.insert(vertexId);
+        
+
         //Round robin distribute ownwership of all verts in play to all ranks,
         // one potential optimization would be doing this distribution
         // with respect to a heuristic rather than round robin.
         std::unordered_set<vertId> owned; //verticies this rank "owns" (will attempt to verify) for this iteration 
-        std::vector<vertId> allVerts(vertices.begin(), vertices.end());
+        std::vector<vertId> allVerts(completeVerts.begin(), completeVerts.end());
         for(int i = myRank; i < allVerts.size(); i += numRanks)
             owned.insert(allVerts[i]);
         
@@ -151,7 +158,7 @@ bool verify(Proof proof){
         int maxNumChildren = 0;     //max number of children to mark
         int maxAssumptions = 0;
         for(const vertId ownerId : owned){
-            if(hasCompleteMarkings(proof, ownerId, markings[ownerId])){
+            //if(hasCompleteMarkings(proof, ownerId, markings[ownerId])){
                 Assumptions passumptions = assumptions;
                 bool verified = verifyVertex(proof, ownerId, assumptions);
                 /*if(!verified){
@@ -181,7 +188,7 @@ bool verify(Proof proof){
                 maxNumChildren = std::max(maxNumChildren, (int)curMarkings.size());
                 maxAssumptions = std::max(maxAssumptions, (int)curAssumptions.size());
                 numMarkingOwners++;
-            }
+            //}
         }
 
         //check end conditions

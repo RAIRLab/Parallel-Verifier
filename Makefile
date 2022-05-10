@@ -13,10 +13,10 @@ SOURCES = $(wildcard src/*.cpp)
 OBJECTS = $(SOURCES:src/%.cpp=bin/%.opp)
 
 parallel: $(filter-out bin/SerialVerifier.opp, $(OBJECTS))
-	$(CC) $(FLAGS) -o parallelVerif.exe $^
+	$(CC) $(FLAGS) -o bin/parallelVerif.exe $^
 
 serial: $(filter-out bin/ParallelVerifier.opp, $(OBJECTS))
-	$(CC) $(FLAGS) -o serialVerif.exe $^
+	$(CC) $(FLAGS) -o bin/serialVerif.exe $^
 
 bin/%.opp : src/%.cpp src/%.hpp
 	$(CC) $(FLAGS) -c -o $@ $<
