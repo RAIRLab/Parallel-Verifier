@@ -3,7 +3,6 @@
 
 from pathlib import Path
 
-
 #Hyperparamters ======================================================
 
 #Line Proof Topology
