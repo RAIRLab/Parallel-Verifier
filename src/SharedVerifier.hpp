@@ -7,7 +7,6 @@
 #include <queue>
 #include "Proof.hpp"
 
-#define CLOCK_RATE 512000000
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 using Markings = std::unordered_map<vertId, std::unordered_set<vertId>>;
@@ -21,43 +20,3 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_
 
 //Infrence Rule Verification and helpers
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-//And
-bool is_and_vertex(const ProofNode& pn);
-bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-//Or
-bool is_or_vertex(const ProofNode& pn);
-bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-//If
-bool is_if_vertex(const ProofNode& pn);
-bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-//Iff
-bool is_iff_vertex(const ProofNode& pn);
-bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-//Not
-bool is_not_vertex(const ProofNode& pn);
-bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-// Equality
-inline bool is_equals_vertex(const ProofNode& pn);
-bool verifyEqualsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyEqualsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-// Forall
-inline bool is_forall_vertex(const ProofNode& pn);
-bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-
-// Exists
-inline bool is_exists_vertex(const ProofNode& pn);
-bool verifyExistsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-bool verifyExistsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions);

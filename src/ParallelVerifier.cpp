@@ -135,7 +135,7 @@ bool verify(Proof proof){
             of the algo and change verticies to just be the set of verticies that actually needs to be verified
         */
 
-        //New TODO this is still probably sub optimal, ideally this can be computed at the end
+        //New TODO this is still probably sub-optimal, ideally this can be computed at the end instead of placing into verts
         std::unordered_set<vertId> completeVerts;
         for(vertId vertexId : vertices)
             if(hasCompleteMarkings(proof, vertexId, markings[vertexId]))
