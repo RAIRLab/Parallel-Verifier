@@ -1,6 +1,7 @@
 
 
 #include"SharedVerifier.hpp"
+#include"Substitution.hpp"
 
 //Marking code ====================================================================================
 
@@ -544,6 +545,210 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return formula_found;
 }
 
+inline bool is_equals_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "=";
+}
+
+bool verifyEqualsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    if (!is_equals_vertex(pn)) {
+        return false;
+    }
+
+    bool result = pn.formula.members[1] == pn.formula.members[2];
+
+    // No assumptions for equals intro
+    if (result) {
+        assumptions[vertex_id] = {};
+    }
+
+    return result;
+}
+
+bool verifyEqualsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure we have two parent nodes
+    if (pn.parents.size() != 2) {
+        return false;
+    }
+
+    const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
+    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
+    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+
+    // REPLACE THIS PART
+    const bool result = \
+        // secondParent is the antecedant of firstParent
+        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[1]) || \
+        // firstParent is the antecedant of secondParent
+        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
+
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[parents[0]];
+        assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
+    }
+
+    return result;
+}
+
+inline bool is_forall_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "forall" && \
+       pn.formula.members[1].type == sExpression::Type::Symbol;
+}
+
+// NOT DONE
+bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure node is a forall node
+    if (!is_forall_vertex(pn)) {
+        return false;
+    }
+
+    // Make sure we have one parent node
+    if (pn.parents.size() != 1) {
+        return false;
+    }
+
+    // Grab bound variable
+    const sExpression& bound_var = pn.formula.members[1];
+
+    // Find a position where the bound variable is used
+    std::queue<uid_t> bound_var_pos = std::queue<uid_t>();
+    try {
+        bound_var_pos = pn.formula.positionOf(bound_var); 
+    } catch (...) {
+        // Bound variable is not in formula
+        return false;
+    }
+
+    // TODO: Make sure it's not an already existing bound variable
+
+    const vertId parentId = *pn.parents.begin();
+    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+
+    // Find out its corresponding subterm in the parent formula
+    sExpression oldSubterm; 
+    try {
+        oldSubterm = parent_pn.formula.atPosition(bound_var_pos);
+    } catch (...) {
+        // That position does not exist in the new formula
+        return false;
+    }
+
+    // TODO: Check to make sure oldSubterm does not apepar
+    // free in any in-scope assumptions
+
+
+    // Create substitution
+    Substitution sigma = Substitution();
+    try {
+        sigma.add(bound_var, oldSubterm);
+    } catch (...) {
+        // Any of the possible substitution errors
+        // Likely occurs check
+        return false;
+    }
+
+    // Check that oldTerm * sigma == newTerm
+    bool result = sigma.apply(pn.formula) == parent_pn.formula;
+
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[parentId];
+    }
+
+    return result; 
+}
+
+// NOT DONE
+bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+
+    // Make sure we have one parent node
+    if (pn.parents.size() != 1) {
+        return false;
+    }
+
+    const vertId parentId = *pn.parents.begin();
+    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+
+    // Make sure parent is a forall node
+    if (!is_forall_vertex(parent_pn)) {
+        return false;
+    }
+
+    // Grab bound variable
+    const sExpression& bound_var = parent_pn.formula.members[1];
+
+    // Find a position where the bound variable is used
+    std::queue<uid_t> bound_var_pos = std::queue<uid_t>();
+    try {
+        bound_var_pos = parent_pn.formula.positionOf(bound_var); 
+    } catch (...) {
+        // Bound variable is not in parent formula
+        return false;
+    }
+
+    // Find out its corresponding subterm in the new formula
+    sExpression newSubterm; 
+    try {
+        newSubterm = pn.formula.atPosition(bound_var_pos);
+    } catch (...) {
+        // That position does not exist in the new formula
+        return false;
+    }
+
+    // TODO: Grab set of bound variables and make sure they're not in newSubterm
+
+    // Create substitution
+    Substitution sigma = Substitution();
+    try {
+        sigma.add(bound_var, newSubterm);
+    } catch (...) {
+        // Any of the possible substitution errors
+        // Likely occurs check
+        return false;
+    }
+
+    // Check that oldTerm * sigma == newTerm
+    bool result = sigma.apply(parent_pn.formula) == pn.formula;
+
+
+    // Update Assumptions
+    if (result) {
+        assumptions[vertex_id] = assumptions[parentId];
+    }
+
+    return result; 
+}
+
+inline bool is_exists_vertex(const ProofNode& pn) {
+    return pn.formula.type == sExpression::Type::List && \
+       pn.formula.members.size() == 3 && \
+       pn.formula.members[0].type == sExpression::Type::Symbol && \
+       pn.formula.members[0].value == "exists" && \
+       pn.formula.members[1].type == sExpression::Type::Symbol;
+}
+
+bool verifyExistsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
+bool verifyExistsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+    return false; // TODO
+}
+
 // Verify that vertex is justified and update assumptions
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
@@ -553,66 +758,41 @@ bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
             assumptions[vertex_id] = {vertex_id};
             return true;
         case AndIntro:
-            // result = verifyAndIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed And Intro: " << result << std::endl;
-            // break;
             return verifyAndIntro(p, vertex_id, assumptions);
         case AndElim:
-            // result = verifyAndElim(p, vertex_id, assumptions);
-            // std::cout << "Passed And Elim: " << result << std::endl;
-            // break;
             return verifyAndElim(p, vertex_id, assumptions);
         case OrIntro:
-            // result = verifyOrIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Or Intro: " << result << std::endl;
-            // break;
             return verifyOrIntro(p, vertex_id, assumptions);
         case OrElim:
-            // result = verifyOrElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Or Elim: " << result << std::endl;
-            // break;
             return verifyOrElim(p, vertex_id, assumptions);
         case NotIntro:
-            // result = verifyNotIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Not Intro: " << result << std::endl;
-            // break;
             return verifyNotIntro(p, vertex_id, assumptions);
         case NotElim:
-            // result = verifyNotElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Not Elim: " << result << std::endl;
-            // break;
             return verifyNotElim(p, vertex_id, assumptions);
         case IfIntro:
-            // result = verifyIfIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed If Intro: " << result << std::endl;
-            // break;
             return verifyIfIntro(p, vertex_id, assumptions);
         case IfElim:
-            // result = verifyIfElim(p, vertex_id, assumptions);
-            // std::cout << "Passed If Elim: " << result << std::endl;
-            // break;
             return verifyIfElim(p, vertex_id, assumptions);
         case IffIntro:
-            // result = verifyIffIntro(p, vertex_id, assumptions);
-            // std::cout << "Passed Iff Intro: " << result << std::endl;
-            // break;
             return verifyIffIntro(p, vertex_id, assumptions);
         case IffElim:
-            // result = verifyIffElim(p, vertex_id, assumptions);
-            // std::cout << "Passed Iff Elim: " << result << std::endl;
-            // break;
             return verifyIffElim(p, vertex_id, assumptions);
+        case EqIntro:
+            return verifyEqualsIntro(p, vertex_id, assumptions);
+        case EqElim:
+            return verifyEqualsElim(p, vertex_id, assumptions);
+        case ForallIntro:
+            return verifyForallIntro(p, vertex_id, assumptions);
+        case ForallElim:
+            return verifyForallElim(p, vertex_id, assumptions);
+        case ExistsIntro:
+            return verifyExistsIntro(p, vertex_id, assumptions);
+        case ExistsElim:
+            return verifyExistsElim(p, vertex_id, assumptions);
         default:
             std::cout << "Unknown Justification" << std::endl;
             break;
     }
-
-    // std::cout << "Formula Passed: " << p.nodeLookup.at(vertex_id).formula.toString() << std::endl;
-    // std::cout << "New Assumptions" << std::endl;
-    // for (const vertId a : assumptions[vertex_id]) {
-    //     const ProofNode& aNode = p.nodeLookup.at(a);
-    //     std::cout << "Assumption: " << aNode.formula.toString() << std::endl;
-    // }
 
     return result;
 }

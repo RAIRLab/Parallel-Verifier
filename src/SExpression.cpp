@@ -383,3 +383,70 @@ bool operator==(const sExpression& s1, const sExpression& s2) {
     return true;
 }
 
+bool sExpression::contains(const sExpression& t) const {
+    if (type != sExpression::Type::List) { return false; }
+
+    bool within = false;
+    for (int i = 0; i < members.size(); i++) {
+        within |= (members[i] == t); if (within) { break; }
+        within |= members[i].contains(t); if (within) { break; }
+    }
+
+    return within;
+}
+
+// Finds the first position that matches the subterm t
+std::queue<uid_t> sExpression::positionOf(const sExpression& t) const {
+    return this->positionOf(t, std::queue<uid_t>());
+}
+
+// Finds the first position that matches the subterm t
+std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t> pos) const {
+    if (*this == t) {
+        return pos;
+    }
+
+    if (this->type != sExpression::Type::List) {
+        throw std::out_of_range("Subterm is not within term");
+    }
+
+    for (int i = 0; i < this->members.size(); i++) {
+        try {
+            std::queue<uid_t> newPos = pos;
+            pos.push(i);
+            std::queue<uid_t> result = this->members[i].positionOf(t, newPos);
+            return result;
+        } catch (...) { }
+    }
+
+    throw std::out_of_range("Subterm is not within term");
+}
+
+// Returns the subterm at the specified position
+// [] is the whole term
+// Each index in the pos variable represents the position of the argument
+// starting at 0.
+sExpression sExpression::atPosition(std::queue<uid_t> pos) const {
+    if (pos.size() == 0) {
+        sExpression result = *this;
+        return result;
+    }
+
+    if (this->type != sExpression::Type::List) {
+        throw std::out_of_range("Position does not exist for this term");
+    }
+
+    const uid_t pos_id = pos.front();
+    pos.pop();
+    if (pos_id >= this->members.size()) {
+        throw std::out_of_range("Position does not exist for this term");
+    }
+
+    return this->atPosition(pos);
+}
+
+std::size_t std::hash<sExpression>::operator()(const sExpression &expr) const{
+    return std::hash<std::string>()(expr.toString(false));
+}
+
+
