@@ -45,8 +45,7 @@ bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumption
         // Bound variable is not in formula
         return false;
     }
-
-
+    
     // TODO: Make sure it's not an already existing bound variable
 
     const vertId parentId = *pn.parents.begin();

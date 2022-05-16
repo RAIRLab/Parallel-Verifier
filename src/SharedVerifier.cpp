@@ -1,9 +1,21 @@
 
 #include<unordered_map>
 #include"SharedVerifier.hpp"
-#include"Substitution.hpp"
 
-//Marking code ====================================================================================
+// Misc Shared Code ===========================================================================
+
+//Returns the file path that needs to be read
+const char* VerifierInit(int argc, char** argv){
+    // If no arguments are passed, print help
+    if (argc < 2) {
+        std::cout << "Usage: ./verif.exe [hyperslate_file]" << std::endl;
+        exit(1);
+    }
+    // Parse and create hypergraph on each rank
+    return argv[1];
+}
+
+// Markings ====================================================================================
 
 // Update dest's marking vector to contain source -Brandon
 void mark(Markings& markings, vertId source, vertId dest) {
@@ -26,7 +38,7 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_
     return markingList.size() == markingsNeeded;
 }
 
-//Infrence Rule Verification Helpers ==============================================================
+//Infrence Rule Verification ==============================================================
 
 #include"InferenceRules/assume.cpp"
 #include"InferenceRules/and.cpp"
@@ -56,21 +68,10 @@ const RuleMap rules = {
 };
 
 // Verify that vertex is justified and update assumptions
-bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
-    RuleMap::const_iterator rule = rules.find(pn.justification);
-    if(rule == rules.end())
+    RuleMap::const_iterator rule = rules.find(pn.justification);        //Lookup the rule, O(1)
+    if(rule == rules.end())                                             //If it dosn't exist, throw error
         throw std::runtime_error("Verification Error: Unknown Rule");
-    return rule->second(p, vertex_id, assumptions);
-}
-
-//Returns the file path that needs to be read
-const char* VerifierInit(int argc, char** argv){
-    // If no arguments are passed, print help
-    if (argc < 2) {
-        std::cout << "Usage: ./verif.exe [hyperslate_file]" << std::endl;
-        exit(1);
-    }
-    // Parse and create hypergraph on each rank
-    return argv[1];
+    return rule->second(p, vertex_id, assumptions);                     //Call the respective verif function
 }
