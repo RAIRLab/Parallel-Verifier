@@ -53,8 +53,8 @@ Token::Token(TokenType type_, std::string value_)
 ///@{
     
 //Lexer Globals
-const std::unordered_set<char> ingnoreChars({' ', '\t', '\n'});                 //Ignored characters when parsing 
-const std::unordered_set<char> endingChars({' ', '(', ')', '\t', '\n'});        //Tokens that end a previous token if encountered
+const std::unordered_set<char> ingnoreChars({' ', '\t', '\n'});            //Ignored characters when parsing 
+const std::unordered_set<char> endingChars({' ', '(', ')', '\t', '\n'});   //Tokens that end a previous token if encountered
 
 //Lexer helper functions
 
@@ -354,7 +354,6 @@ std::string sExpression::getValueAt(const size_t index) const{
     return members[index].value;
 }   
 
-
 unsigned int sExpression::getNumAt(const size_t index) const{
     if(members[index].type != sExpression::Type::Number)
         throw std::runtime_error("S-Expression Error: item at index " + std::to_string(index) + " is not a number");
@@ -407,7 +406,7 @@ std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t
     }
 
     if (this->type != sExpression::Type::List) {
-        throw std::out_of_range("Subterm is not within term");
+        throw std::out_of_range("S-Expression Error: Subterm is not within term");
     }
 
     for (int i = 0; i < this->members.size(); i++) {
@@ -419,7 +418,7 @@ std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t
         } catch (...) { }
     }
 
-    throw std::out_of_range("Subterm is not within term");
+    throw std::out_of_range("S-Expression Error: Subterm is not within term");
 }
 
 // Returns the subterm at the specified position
@@ -433,13 +432,13 @@ sExpression sExpression::atPosition(std::queue<uid_t> pos) const {
     }
 
     if (this->type != sExpression::Type::List) {
-        throw std::out_of_range("Position does not exist for this term");
+        throw std::out_of_range("S-Expression Error: Position does not exist for this term");
     }
 
     const uid_t pos_id = pos.front();
     pos.pop();
     if (pos_id >= this->members.size()) {
-        throw std::out_of_range("Position does not exist for this term");
+        throw std::out_of_range("S-Expression Error: Position does not exist for this term");
     }
 
     return this->atPosition(pos);
