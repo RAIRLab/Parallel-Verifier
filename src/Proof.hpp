@@ -7,12 +7,26 @@
 #include"SExpression.hpp"
 #include"hyperslateUtils.hpp"
 
+enum sExpressionSymbolType {
+    Predicate,
+    Function,
+    BoundVar,
+    ConstFreeVar // I don't think we would be able to distinguish
+};
+
+using SymbolTypeMap = std::unordered_map<sExpression, sExpressionSymbolType>;
+
 struct ProofNode{
     vertId id;
-    HyperslateJustification justification;
     sExpression formula;
+    HyperslateJustification justification;
     std::unordered_set<vertId> parents;
     std::unordered_set<vertId> children;
+    SymbolTypeMap symbolTypeLookup;
+
+    // Constructor
+    ProofNode(int vertid, sExpression formula, HyperslateJustification justification);
+    ProofNode() = default;
 };
 
 struct Proof{

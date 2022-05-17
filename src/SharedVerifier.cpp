@@ -17,7 +17,7 @@ const char* VerifierInit(int argc, char** argv){
 
 // Markings ====================================================================================
 
-// Update dest's marking vector to contain source -Brandon
+// Update dest's marking vector to contain source
 void mark(Markings& markings, vertId source, vertId dest) {
     Markings::iterator it = markings.find(dest);
     if (it == markings.end()) {

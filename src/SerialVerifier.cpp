@@ -18,7 +18,6 @@ bool verifySimple(Proof& p) {
         verifyVertex(p, vertex_id, assumptions);
         numVerified += 1;
         lastVerified.push(vertex_id);
-        // std::cout << "Verified " << vertex_id << std::endl;
     }
 
     while (!lastVerified.empty()) {
@@ -43,7 +42,6 @@ bool verifySimple(Proof& p) {
                     // and have their markings removed.
                     lastVerified.push(vid);
                     toEraseMarking.push_back(vid);
-                    // std::cout << "Verified " << vid << std::endl;
                     numVerified += 1;
                 } else {
                     // One false vertex means its all false
