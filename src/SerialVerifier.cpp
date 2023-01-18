@@ -8,57 +8,60 @@
 #include"timing.hpp"
 
 bool verifySimple(Proof& p) {
-    Markings markings;
+
+    // VertexId -> Layer Number
+    std::unordered_map<vertId, int> layerNum;
+    
+    // Iterate through all the nodes starting
+    // from the assumptions down to the leaves
+    std::queue<std::tuple<vertId, int>> nodes;
+    // Assumptions are at layer 0
+    for (vertId vertexId: p.assumptions) {
+        nodes.push(std::make_tuple(vertexId, 0))
+    }
+    int maxLayerNum = 0;
+    while (!nodes.empty()) {
+        // Grab next vertexId
+        const vertId vertexId, const int layer;
+        std::tie(vertexId, layer) = nodes.front();
+        nodes.pop();
+
+        // Replace any lower value layer number with the current layer
+        // number
+        layerNum[vertexId] = layer;
+
+        // Keep track of the max layer number
+        if (layer > maxLayerNum) {
+            maxLayerNum = layer;
+        }
+
+        // Trascend downward: Add children to nodes
+        for (const vertId childId: n.children) {
+            nodes.push(std::make_tuple(childId, layer + 1))
+        }
+    }
+
+    // Construct layers from layerNum map
+    std::vector<std::queue<vertId>> layers;
+    for (int i = 0; i < maxLayerNum; i++) {
+        layers[i] = std::queue<vertId>;
+    }
+    for (const auto & [ vertexId, layer ] : layerNum) {
+        layers[layer].push(vertexId);
+    }
+
     Assumptions assumptions;
-    int numVerified = 0;
-    std::queue<vertId> lastVerified;
 
-    // Assumptions are verified by default
-    for (vertId vertex_id: p.assumptions) {
-        verifyVertex(p, vertex_id, assumptions);
-        numVerified += 1;
-        lastVerified.push(vertex_id);
-    }
-
-    while (!lastVerified.empty()) {
-        const vertId vertex_id = lastVerified.front();
-        lastVerified.pop();
-
-        // Mark all of a vertex's children
-        const ProofNode n = p.nodeLookup.at(vertex_id);
-        for (const vertId child_id: n.children) {
-            mark(markings, vertex_id, child_id);
-        }
-
-        // Check to see if any markings are completed
-        std::vector<vertId> toEraseMarking;
-        for (auto const& markingIt : markings) {
-            vertId vid = markingIt.first;
-            const std::unordered_set<vertId>& markingList = markingIt.second;
-            if (hasCompleteMarkings(p, vid, markingList)) {
-                // If marking completed, verify the vertex
-                if (verifyVertex(p, vid, assumptions)) {
-                    // Verified vertices are the new starting points
-                    // and have their markings removed.
-                    lastVerified.push(vid);
-                    toEraseMarking.push_back(vid);
-                    numVerified += 1;
-                } else {
-                    // One false vertex means its all false
-                    return false;
-                }
+    for (const std::queue<vertId> currentLayer: layers) {
+        for (const vertId n: currentLayer) {
+            if (!verifyVertex(p, vid, assumptions)) {
+                return false;
             }
-        }
-        // Erased verified vertices in the markings map
-        for (vertId id : toEraseMarking) {
-            markings.erase(id);
+            // Assumptions are updated within verifyVertex function
         }
     }
 
-    // If the number verified matches the graph node size,
-    // then the whole graph was verified successfully.
-    // std::cout << "Verified " << numVerified << "/" << p.nodeLookup.size() << std::endl;
-    return numVerified == p.nodeLookup.size();
+    return true;
 }
 
 int main(int argc, char** argv){
