@@ -4,9 +4,9 @@ CC = mpic++
 
 #Choose MPI Compiler based on architecture
 ifeq ($(shell uname -m), ppc64le)   #AiMOS architecture
-	FLAGS = -std=c++11 -O3				
+	FLAGS = -std=c++20 -O3				
 else								#Debug when not on AiMOS
-	FLAGS = -g
+	FLAGS = -std=c++20 -O3 -Wall -g
 endif
 
 SOURCES = $(wildcard src/*.cpp)

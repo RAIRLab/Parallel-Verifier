@@ -9,52 +9,59 @@
 
 bool verifySimple(Proof& p) {
 
-    // VertexId -> Layer Number
-    std::unordered_map<vertId, int> layerNum;
+    const auto [layerNum, maxLayerNum] = [&p](){
+        // VertexId -> Layer Number
+        std::unordered_map<vertId, int> layerNum;
     
-    // Iterate through all the nodes starting
-    // from the assumptions down to the leaves
-    std::queue<std::tuple<vertId, int>> nodes;
-    // Assumptions are at layer 0
-    for (vertId vertexId: p.assumptions) {
-        nodes.push(std::make_tuple(vertexId, 0))
-    }
-    int maxLayerNum = 0;
-    while (!nodes.empty()) {
-        // Grab next vertexId
-        const vertId vertexId, const int layer;
-        std::tie(vertexId, layer) = nodes.front();
-        nodes.pop();
+        // Iterate through all the nodes starting
+        // from the assumptions down to the leaves
+        std::queue<std::tuple<vertId, int>> nodes;
 
-        // Replace any lower value layer number with the current layer
-        // number
-        layerNum[vertexId] = layer;
-
-        // Keep track of the max layer number
-        if (layer > maxLayerNum) {
-            maxLayerNum = layer;
+        // Assumptions are at layer 0
+        for (vertId vertexId: p.assumptions) {
+            nodes.push(std::make_tuple(vertexId, 0));
         }
 
-        // Trascend downward: Add children to nodes
-        for (const vertId childId: n.children) {
-            nodes.push(std::make_tuple(childId, layer + 1))
+        int maxLayerNum = 0;
+        while (!nodes.empty()) {
+            // Grab next vertexId
+            const auto [vertexId, layer] = nodes.front();
+            nodes.pop();
+
+            // Replace any lower value layer number with the current layer
+            // number
+            layerNum[vertexId] = layer;
+
+            // Keep track of the max layer number
+            if (layer > maxLayerNum) {
+                maxLayerNum = layer;
+            }
+
+            // Trascend downward: Add children to nodes
+            const auto n = p.nodeLookup[vertexId];
+            for (const vertId &childId: n.children) {
+                nodes.push(std::make_tuple(childId, layer + 1));
+            }
         }
-    }
+        return std::make_tuple(layerNum, maxLayerNum);
+    }();
+
 
     // Construct layers from layerNum map
-    std::vector<std::queue<vertId>> layers;
-    for (int i = 0; i < maxLayerNum; i++) {
-        layers[i] = std::queue<vertId>;
-    }
-    for (const auto & [ vertexId, layer ] : layerNum) {
-        layers[layer].push(vertexId);
-    }
+    const auto layers = [&maxLayerNum, &layerNum](){
+        std::vector<std::vector<vertId>> result(maxLayerNum + 1, std::vector<vertId>());
+        for (const auto & [ vertexId, layer ] : layerNum) {
+            result.at(layer).push_back(vertexId);
+        }
+        return result;
+    }();
+
 
     Assumptions assumptions;
 
-    for (const std::queue<vertId> currentLayer: layers) {
-        for (const vertId n: currentLayer) {
-            if (!verifyVertex(p, vid, assumptions)) {
+    for (const auto &currentLayer : layers) {
+        for (const auto &n : currentLayer) {
+            if (!verifyVertex(p, n, assumptions)) {
                 return false;
             }
             // Assumptions are updated within verifyVertex function
