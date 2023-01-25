@@ -7,7 +7,7 @@
 #include"SharedVerifier.hpp"
 #include"timing.hpp"
 
-bool verifySimple(const Proof& p) {
+std::vector<std::vector<vertId>> computeLayers(const Proof& p) {
     const auto [layerNum, maxLayerNum] = [&p]() {
         // VertexId -> Layer Number
         std::unordered_map<vertId, int> layerNum;
@@ -55,8 +55,12 @@ bool verifySimple(const Proof& p) {
         return result;
     }();
 
+    return layers;
+}
 
+bool verifySimple(const Proof& p) {
     Assumptions assumptions;
+    const auto layers = computeLayers(p);
 
     for (const auto &currentLayer : layers) {
         for (const auto &n : currentLayer) {

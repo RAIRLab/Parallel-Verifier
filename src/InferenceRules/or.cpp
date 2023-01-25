@@ -78,8 +78,6 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const ProofNode& orParent = p.nodeLookup.at(orParentId);
-    const ProofNode& parentNode2 = p.nodeLookup.at(parentId2);
-    const ProofNode& parentNode3 = p.nodeLookup.at(parentId3);
 
     // Check Assumptions
     bool left_side_check = false;
