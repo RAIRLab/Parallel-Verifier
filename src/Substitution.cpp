@@ -64,7 +64,7 @@ sExpression Substitution::apply(const sExpression& term) const {
         sExpression result = sExpression();
         result.type = sExpression::Type::List;
         result.members = std::vector<sExpression>();
-        for (int i = 0; i < term.members.size(); i++) {
+        for (size_t i = 0; i < term.members.size(); i++) {
             result.members.push_back(this->apply(term.members[i]));
         }
         return result;

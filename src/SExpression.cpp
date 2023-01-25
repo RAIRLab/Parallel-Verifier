@@ -62,7 +62,7 @@ const std::unordered_set<char> endingChars({' ', '(', ')', '\t', '\n'});   //Tok
 inline void addStringToken(const std::string& expressionString, int &i, std::vector<Token>& tokens){
     bool foundEndOfString = false;
     std::string tokenValue = "";
-    int j;
+    size_t j;
     for(j = i+1; j<expressionString.length(); j++){
         char strCur = expressionString[j];
         char strLast = expressionString[j-1];
@@ -84,7 +84,7 @@ inline void addStringToken(const std::string& expressionString, int &i, std::vec
 
 inline void addKeyToken(const std::string& expressionString, int &i, std::vector<Token>& tokens){
     std::string tokenValue = "";
-    int j;
+    size_t j;
     //Grab chars for our token until we hit an end character or reach the end of the expression string
     for(j = i+1; j<expressionString.length(); j++){
         char curKeyChar = expressionString[j];
@@ -100,7 +100,7 @@ inline void addKeyToken(const std::string& expressionString, int &i, std::vector
 inline void addNormalToken(const std::string& expressionString, int &i, std::vector<Token>& tokens){
     bool numeric = true;    //Keep track of weather or not the token is a numeric (an unsigned int)
     std::string tokenValue = "";
-    int j;
+    size_t j;
     //Grab chars for our token until we hit an end character or reach the end of the expression string
     for(j = i; j < expressionString.length(); j++){  
         char strCur = expressionString[j];
@@ -129,7 +129,7 @@ inline void addNormalToken(const std::string& expressionString, int &i, std::vec
  */
 std::vector<Token> lex(const std::string& expressionString){
     std::vector<Token> tokens; 
-    for(int i = 0; i < expressionString.length(); i++){
+    for(int i = 0; static_cast<size_t>(i) < expressionString.length(); i++){
         char curChar = expressionString[i];
         if(curChar == '('){
             tokens.emplace_back(TokenType::Left_Parenthesis, "(");
@@ -171,7 +171,7 @@ std::vector<Token> lex(const std::string& expressionString){
 inline std::vector<Token> grabSubExpression(const std::vector<Token>& tokens, int& i){
     int parenthesisCounter = 1;
     bool foundMatch = false;
-    int j;
+    size_t j;
     for(j = i+1; j < tokens.size()-1; j++){ //find the index of the closing parenthisis and store it in j
         if(tokens[j].type == TokenType::Right_Parenthesis && parenthesisCounter == 1){
             foundMatch = true;
@@ -211,7 +211,7 @@ inline void parserRecursiveCase(const std::vector<Token>& tokens, sExpression& e
     expression.type = sExpression::Type::List;
     expression.members = std::vector<sExpression>();
     std::vector<Token> subTokens;
-    for(int i = 1; i < tokens.size()-1; i++){
+    for(int i = 1; static_cast<size_t>(i) < tokens.size()-1; i++){
         if(tokens[i].type == TokenType::Left_Parenthesis){
             subTokens = grabSubExpression(tokens, i);
         }else{
@@ -329,7 +329,7 @@ const sExpression& sExpression::at(const size_t index) const{
 sExpression& sExpression::operator[](const std::string&& key){
     if(type != sExpression::Type::List)
         throw std::runtime_error("S-Expression Error: Can not lookup key in a non-list type S-Expression");
-    for(int i = 0; i < members.size(); i++)
+    for(size_t i = 0; i < members.size(); i++)
         if(members[i].type == sExpression::Type::Keyword && members[i].value == key){
             if(i == members.size()-1)
                 throw std::runtime_error("S-Expression Error: Key found at end of list without pair");
@@ -374,7 +374,7 @@ bool operator==(const sExpression& s1, const sExpression& s2) {
     }
 
     // Make sure each item in the list are equal
-    for (int i = 0; i < s1.members.size(); i++) {
+    for (size_t i = 0; i < s1.members.size(); i++) {
         if (s1.members[i] != s2.members[i]) {
             return false;
         }
@@ -386,7 +386,7 @@ bool sExpression::contains(const sExpression& t) const {
     if (type != sExpression::Type::List) { return false; }
 
     bool within = false;
-    for (int i = 0; i < members.size(); i++) {
+    for (size_t i = 0; i < members.size(); i++) {
         within |= (members[i] == t); if (within) { break; }
         within |= members[i].contains(t); if (within) { break; }
     }
@@ -409,7 +409,7 @@ std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t
         throw std::out_of_range("S-Expression Error: Subterm is not within term");
     }
 
-    for (int i = 0; i < this->members.size(); i++) {
+    for (size_t i = 0; i < this->members.size(); i++) {
         try {
             std::queue<uid_t> newPos = pos;
             pos.push(i);
