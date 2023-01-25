@@ -102,22 +102,43 @@ bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
     const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
 
-    const bool result =  \
-        // secondParent is either the antecedant or consequent of firstParent
-        (is_iff_vertex(firstParent) && \
-            (secondParent.formula == firstParent.formula.members[1] || \
-            secondParent.formula == firstParent.formula.members[2])
-        ) || \
-        // firstParent is either the antecedant or consequent of secondParent
-        (is_iff_vertex(secondParent) && \
-            (firstParent.formula == secondParent.formula.members[1] || \
-            firstParent.formula == secondParent.formula.members[2])
-        );
+    int parentMatchInd = -1;
 
-    if (result) {
-        assumptions[vertex_id] = assumptions[parents[0]];
-        assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
+    // Check that the current node matches one of the parents
+    if (is_iff_vertex(firstParent) && \
+            (pn.formula == firstParent.formula.members[1] || \
+            pn.formula == firstParent.formula.members[2])) {
+                parentMatchInd = 0;
+    } else if (is_iff_vertex(secondParent) && \
+            (pn.formula == secondParent.formula.members[1] || \
+            pn.formula == secondParent.formula.members[2])) {
+                parentMatchInd = 1;
+    } else {
+        return false;
     }
 
-    return result;
+    // Check that the parents match each other
+    if (parentMatchInd == 1) {
+        // First parent is either the antecedant
+        // or consequent of the second parent.
+        bool syntax_check1 = firstParent.formula == secondParent.formula.members[0] || \
+            firstParent.formula == secondParent.formula.members[1];
+        if (!syntax_check1) {
+            return false;
+        }
+    } else {
+        // Second parent is either the antecedant
+        // or consequent of the first parent
+        bool syntax_check1 = secondParent.formula  == firstParent.formula.members[0] || \
+            secondParent.formula  == firstParent.formula.members[1];
+        if (!syntax_check1) {
+            return false;
+        }
+    }
+
+    // Update Assumptions
+    assumptions[vertex_id] = assumptions[parents[0]];
+    assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
+
+    return true;
 }
