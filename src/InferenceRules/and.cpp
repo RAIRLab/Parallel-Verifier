@@ -23,27 +23,26 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     }
 
     // Make sure the subformulas match the parents
-    bool match_parent1 = false;
-    bool match_parent2 = false;
-    vertId parent1Id;
-    vertId parent2Id;
-    for (vertId parent_id : pn.parents) {
-        const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
-        if (!match_parent1 && parent_pn.formula == pn.formula.members[1]) {
-            match_parent1 = true;
-            parent1Id = parent_id;
-        } else if (!match_parent2 && parent_pn.formula == pn.formula.members[2]) {
-            match_parent2 = true;
-            parent2Id = parent_id;
+    const auto [parent1Id, parent2Id] = [&pn, &p]() {
+        optVertId parent1Id = {}, parent2Id = {};
+        for (vertId parent_id : pn.parents) {
+            const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
+            if (!parent1Id && parent_pn.formula == pn.formula.members[1]) {
+                parent1Id = parent_id;
+            } else if (!parent2Id && parent_pn.formula == pn.formula.members[2]) {
+                parent2Id = parent_id;
+            }
         }
-    }
+        return std::make_tuple(parent1Id, parent2Id);
+    }();
 
-    const bool result = match_parent1 && match_parent2;
+
+    const bool result = parent1Id && parent2Id;
 
     // Update assumptions with union
     if (result) {
-        assumptions[vertex_id] = assumptions[parent1Id];
-        assumptions[vertex_id].insert(assumptions[parent2Id].begin(), assumptions[parent2Id].end());
+        assumptions[vertex_id] = assumptions[parent1Id.value()];
+        assumptions[vertex_id].insert(assumptions[parent2Id.value()].begin(), assumptions[parent2Id.value()].end());
     }
 
     return result;

@@ -3,8 +3,9 @@
 #define HYPERSLATEUTILS_H
 
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
+#include <optional>
 
 //Possible justifications (infrence rules) on a node
 enum HyperslateJustification{
@@ -15,6 +16,7 @@ enum HyperslateJustification{
 };
 
 typedef int vertId;
+typedef std::optional<vertId> optVertId;
 
 struct HyperslateDescription{
     int x, y;                       //positions of the node in the hyperslate UI

@@ -45,39 +45,31 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    vertId orParentId;
-    vertId parentId2;
-    vertId parentId3;
-    bool orParentFound = false;
-    bool parentId2Found = false;
-    bool parentId3Found = false;
+    optVertId orParentId = {}, parentId2 = {}, parentId3 = {};
     for (const vertId parentId : pn.parents) {
         const ProofNode& parentNode = p.nodeLookup.at(parentId);
         if (parentNode.formula == pn.formula) {
-            if (!parentId2Found) {
+            if (!parentId2) {
                 parentId2 = parentId;
-                parentId2Found = true;
             } else {
                 parentId3 = parentId;
-                parentId3Found = true;
             }
         } else {
             // Parent vertices that don't match us must be OR rooted.
             if (!is_or_vertex(parentNode)) {
                 return false;
             }
-            orParentFound = true;
             orParentId = parentId;
         }
     }
 
     // Syntax check: Two of the parents must match the current formula
     // One of the nodes must be OR rooted
-    if (!parentId2Found || !parentId3Found || !orParentFound) {
+    if (!orParentId || !parentId2 || !parentId3) {
         return false;
     }
 
-    const ProofNode& orParent = p.nodeLookup.at(orParentId);
+    const ProofNode& orParent = p.nodeLookup.at(orParentId.value());
 
     // Check Assumptions
     bool left_side_check = false;
@@ -85,7 +77,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     bool right_side_check = false;
     vertId parent3AssumptionId;
 
-    for (const vertId a : assumptions[parentId2]) {
+    for (const vertId a : assumptions[parentId2.value()]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
@@ -99,7 +91,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         }
     }
 
-    for (const vertId a : assumptions[parentId3]) {
+    for (const vertId a : assumptions[parentId3.value()]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
@@ -117,11 +109,11 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const bool result = left_side_check && right_side_check;
     // Update Assumptions
     if (result) {
-        assumptions[vertex_id] = assumptions[orParentId];
+        assumptions[vertex_id] = assumptions[orParentId.value()];
 
-        std::unordered_set<vertId> parent2Assumptions = assumptions[parentId2];
+        std::unordered_set<vertId> parent2Assumptions = assumptions[parentId2.value()];
         parent2Assumptions.erase(parent2AssumptionId);
-        std::unordered_set<vertId> parent3Assumptions = assumptions[parentId3];
+        std::unordered_set<vertId> parent3Assumptions = assumptions[parentId3.value()];
         parent3Assumptions.erase(parent3AssumptionId);
 
         assumptions[vertex_id].insert(parent2Assumptions.begin(), parent2Assumptions.end());

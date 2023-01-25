@@ -33,23 +33,22 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     // Make sure the antecedant is in the assumptions of the parent
-    bool antecedant_matched = false;
-    vertId antecedantId = 0;
+    optVertId antecedantId = {};
     for (const vertId a : assumptions[parentId]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
-            antecedant_matched = true;
             antecedantId = a;
         }
     }
 
     // Update Assumptions
-    if (antecedant_matched) {
+    if (antecedantId) {
         assumptions[vertex_id] = assumptions[parentId];
-        assumptions[vertex_id].erase(antecedantId);
+        assumptions[vertex_id].erase(antecedantId.value());
+        return true;
     }
 
-    return antecedant_matched;
+    return false;
 }
 
 bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
@@ -64,11 +63,19 @@ bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
     const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
 
+    // Check the the current node matches the consequent of the if vertex
+    if (is_if_vertex(firstParent) && pn.formula != firstParent.formula.members[1]) {
+        return false;
+    } else if (is_if_vertex(secondParent) && pn.formula != secondParent.formula.members[1]) {
+        return false;
+    }
+
+    // Check that the other parent node matches the antecedant of the if vertex
     const bool result = \
         // secondParent is the antecedant of firstParent
-        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[1]) || \
+        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[0]) || \
         // firstParent is the antecedant of secondParent
-        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
+        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[0]);
 
     // Update Assumptions
     if (result) {

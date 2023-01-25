@@ -36,22 +36,19 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
         return false;
     }
 
-    bool formula_found = false;
-    vertId formula_id = 0;
+    optVertId formula_id = {};
     // Make sure the current formula is a negation of an assumption
     for (const vertId a : assumptions[parents[0]]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
-            formula_found = true;
             formula_id = a;
             break;
         }
     }
-    if (!formula_found) {
+    if (!formula_id) {
         for (const vertId a : assumptions[parents[1]]) {
             const ProofNode& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
-                formula_found = true;
                 formula_id = a;
                 break;
             }
@@ -59,13 +56,14 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     }
 
     // Update Assumptions
-    if (formula_found) {
+    if (formula_id) {
         assumptions[vertex_id] = assumptions[parents[0]];
         assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
-        assumptions[vertex_id].erase(formula_id);
+        assumptions[vertex_id].erase(formula_id.value());
+        return true;
     }
 
-    return formula_found;
+    return false;
 }
 
 bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
@@ -90,22 +88,19 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    bool formula_found = false;
-    vertId formula_id = 0;
+    optVertId formula_id = {};
     // Make sure the current formula is a positive of an assumption
     for (const vertId a : assumptions[parents[0]]) {
         const ProofNode& aNode = p.nodeLookup.at(a);
         if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
-            formula_found = true;
             formula_id = a;
             break;
         }
     }
-    if (!formula_found) {
+    if (!formula_id) {
         for (const vertId a : assumptions[parents[1]]) {
             const ProofNode& aNode = p.nodeLookup.at(a);
             if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
-                formula_found = true;
                 formula_id = a;
                 break;
             }
@@ -113,11 +108,12 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     // Update Assumptions
-    if (formula_found) {
+    if (formula_id) {
         assumptions[vertex_id] = assumptions[parents[0]];
         assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
-        assumptions[vertex_id].erase(formula_id);
+        assumptions[vertex_id].erase(formula_id.value());
+        return true;
     }
 
-    return formula_found;
+    return false;
 }
