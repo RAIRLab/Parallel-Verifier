@@ -1,4 +1,5 @@
 
+
 #include<mpi.h>
 #include<functional>
 #include<iostream>
@@ -13,7 +14,7 @@ int numRanks;
 Marking Matrices are how we pass markings and assumptions to other MPI ranks.
 (The name "marking matrix" is a holdover from before I used them for assumptions)
 Since in our model, one rank can own multiple vertices who can potentially mark at the same time,
-we need to be able to pass markings from multiple verticies in a singe MPI structure.
+we need to be able to pass markings from multiple vertices in a singe MPI structure.
 Sample marking matrix:
     1  2  3  -1   <--- Special header row specifies which vertex (id) is doing the marking
     6  6  8  -1         (for assumptions it indicates which vertex has these assumptions)
@@ -23,7 +24,7 @@ Sample marking matrix:
                 (The global agreed upon size must be computed via MPI_Allreduce beforehand)
     This marking matrix can be read as: 
     "vertex 1 marks 6 and 7, vertex 2 marks 6, vertex 3 marks 8"
-    Alterntively if interpreted as an assumption matrix:
+    Alternatively if interpreted as an assumption matrix:
     "vertex 1 assumes 6 and 7, vertex 2 assumes 6, vertex 3 assumes 8"
 */
 using MarkingMatrix = std::vector<std::vector<vertId>>;
@@ -50,12 +51,12 @@ void padMarkingMatrix(MarkingMatrix& mm, int mmWidth, int mmHeight){
 }
 
 /*
-    the marking cube is a stack of marking matrixs created by MPI_Allgather
-    the outrmost dimention is the rank.
+    the marking cube is a stack of marking matrices created by MPI_Allgather
+    the outermost dimension is the rank.
 */
 using MarkingCube = std::vector<MarkingMatrix>;
 
-//Ok this is kind of slow because I copy a bunch of matricies 
+//Ok this is kind of slow because I copy a bunch of matrices 
 MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int rows){
     MarkingCube returnCube = std::vector<std::vector<std::vector<int>>>(numRanks, std::vector<std::vector<int>>(cols, std::vector<int>(rows, -1)));
     for(int i = 0; i < numRanks; i++)
@@ -77,7 +78,7 @@ MarkingCube makeMarkingCube(const std::vector<int>& allgathered, int cols, int r
 }*/
 
 //Handles updating the shared states (Markings and Assumptions) when provided with the newly calculated
-//Markings or assumptions in the form of a jaggad MarkingMatrix mm. The mmWidthLocal and mmHeightLocal
+//Markings or assumptions in the form of a jagged MarkingMatrix mm. The mmWidthLocal and mmHeightLocal
 //Should be the max width and height of a row/col in mm.
 //preforms all MPI message formatting and provides a callback to update Markings and Assumptions
 void updateAttribute(MarkingMatrix& mm, int mmWidthLocal, int mmHeightLocal, Markings& markings, std::function<void(vertId, vertId)> updateCallback){
@@ -121,7 +122,7 @@ bool verify(Proof proof){
     Assumptions assumptions;
     Markings markings;
 
-    std::unordered_set<vertId> vertices = proof.assumptions; //all verticies in play
+    std::unordered_set<vertId> vertices = proof.assumptions; //all vertices in play
 
     while(true){
 
@@ -131,21 +132,21 @@ bool verify(Proof proof){
 
         /* Old TODO
             James for the love of god remember to come back and make it so we're not distributing round robin
-            on any verts that don't already hasCompleteMarkings. Do the hasCompleteMarkings check at the end
-            of the algo and change verticies to just be the set of verticies that actually needs to be verified
+            on any vertices that don't already hasCompleteMarkings. Do the hasCompleteMarkings check at the end
+            of the algo and change vertices to just be the set of vertices that actually needs to be verified
         */
 
-        //New TODO this is still probably sub-optimal, ideally this can be computed at the end instead of placing into verts
+        //New TODO this is still probably sub-optimal, ideally this can be computed at the end instead of placing into vertices
         std::unordered_set<vertId> completeVerts;
         for(vertId vertexId : vertices)
             if(hasCompleteMarkings(proof, vertexId, markings[vertexId]))
                 completeVerts.insert(vertexId);
         
 
-        //Round robin distribute ownwership of all verts in play to all ranks,
+        //Round robin distribute ownership of all verts in play to all ranks,
         // one potential optimization would be doing this distribution
         // with respect to a heuristic rather than round robin.
-        std::unordered_set<vertId> owned; //verticies this rank "owns" (will attempt to verify) for this iteration 
+        std::unordered_set<vertId> owned; //vertices this rank "owns" (will attempt to verify) for this iteration 
         std::vector<vertId> allVerts(completeVerts.begin(), completeVerts.end());
         for(int i = myRank; i < allVerts.size(); i += numRanks)
             owned.insert(allVerts[i]);
@@ -154,7 +155,7 @@ bool verify(Proof proof){
         MarkingMatrix assumptionMatrix;
         bool updateLocal = false;        //If no marks were placed, end the program and return true;
         bool failedLocal = false;        //If a vertexVerify failed, end the program and return false;
-        int numMarkingOwners = 0;   //number of verticies this rank owns that will mark this iteration
+        int numMarkingOwners = 0;   //number of vertices this rank owns that will mark this iteration
         int maxNumChildren = 0;     //max number of children to mark
         int maxAssumptions = 0;
         for(const vertId ownerId : owned){

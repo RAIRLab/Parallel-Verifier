@@ -48,5 +48,17 @@
         "iostream": "cpp",
         "set": "cpp",
         "map": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "Allgather",
+        "allgathered",
+        "Allreduce",
+        "Elim",
+        "hypergraph",
+        "hyperslate",
+        "lary",
+        "markee",
+        "passumptions",
+        "Verts"
+    ]
 }

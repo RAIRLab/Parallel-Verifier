@@ -22,7 +22,7 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
         return false;
     }
 
-    // Make sure the subformulas match the parents
+    // Make sure the sub-formulas match the parents
     const auto [parent1Id, parent2Id] = [&pn, &p]() {
         optVertId parent1Id = {}, parent2Id = {};
         for (vertId parent_id : pn.parents) {
@@ -65,9 +65,9 @@ bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const bool result = \
-        // Check if the formula matches the left parent subformula
+        // Check if the formula matches the left parent sub-formula
         pn.formula == parent_pn.formula.members[1] || \
-        // Check if the formula matches the right parent subformula
+        // Check if the formula matches the right parent sub-formula
         pn.formula == parent_pn.formula.members[2];
 
     // Update assumptions

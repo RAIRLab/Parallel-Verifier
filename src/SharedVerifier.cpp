@@ -38,17 +38,17 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_
     return markingList.size() == markingsNeeded;
 }
 
-//Infrence Rule Verification ==============================================================
+//Inference Rule Verification ==============================================================
 
-#include"InferenceRules/assume.cpp"
-#include"InferenceRules/and.cpp"
-#include"InferenceRules/or.cpp"
-#include"InferenceRules/not.cpp"
-#include"InferenceRules/if.cpp"
-#include"InferenceRules/iff.cpp"
-#include"InferenceRules/equals.cpp"
-#include"InferenceRules/forall.cpp"
-#include"InferenceRules/exists.cpp"
+#include"InferenceRules/assume.hpp"
+#include"InferenceRules/and.hpp"
+#include"InferenceRules/or.hpp"
+#include"InferenceRules/not.hpp"
+#include"InferenceRules/if.hpp"
+#include"InferenceRules/iff.hpp"
+#include"InferenceRules/equals.hpp"
+#include"InferenceRules/forall.hpp"
+#include"InferenceRules/exists.hpp"
 
 //Macro to generate rule table members since they all follow the same naming scheme
 #define INTRO_ELIM_RULES(N) {N##Intro, verify##N##Intro}, {N##Elim, verify##N##Elim}
@@ -71,7 +71,7 @@ const RuleMap rules = {
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
     RuleMap::const_iterator rule = rules.find(pn.justification);        //Lookup the rule, O(1)
-    if(rule == rules.end())                                             //If it dosn't exist, throw error
+    if(rule == rules.end())                                             //If it doesn't exist, throw error
         throw std::runtime_error("Verification Error: Unknown Rule");
     return rule->second(p, vertex_id, assumptions);                     //Call the respective verif function
 }
