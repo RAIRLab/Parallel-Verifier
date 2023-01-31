@@ -1,32 +1,6 @@
 
 #include"Proof.hpp"
 
-//This lets us construct the proof from the raw .slt file contents
-Proof::Proof(std::string slateFileContents)
-:Proof(parseHyperslateFile(slateFileContents))
-{}
-
-Proof::Proof(HyperslateFileData fileData){
-    nodeLookup = std::unordered_map<vertId, ProofNode>();
-    for(HyperslateDescription descriptionNode : fileData.descriptions){
-        if(descriptionNode.formula != ""){  //Ignore selmers comment nodes
-            ProofNode proofNode(
-                descriptionNode.id,
-                sExpression(descriptionNode.formula),
-                descriptionNode.justification
-            );
-            if(proofNode.justification == HyperslateJustification::Assume)
-                assumptions.insert(proofNode.id);
-            nodeLookup[proofNode.id] = proofNode;
-        }
-    }
-    for(HyperslateStructure connection : fileData.structures){
-        for(vertId premise : connection.premises){
-            nodeLookup[premise].children.insert(connection.conclusion);
-            nodeLookup[connection.conclusion].parents.insert(premise);
-        }
-    }
-}
 
 std::unordered_set<std::string> reservedWords = {
     "and", "or", "iff", "imp", "not",
@@ -36,14 +10,12 @@ std::unordered_set<std::string> reservedWords = {
 SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermediateResult, bool predicateFound = false) {
     // TODO: Should we do anything if we find conflicting symbol types?
 
-    /*
-        Base cases
-    */
+    /* Base cases */
     // (1) Formula is a symbol
     if (formula.type == sExpression::Type::Symbol) {
         intermediateResult[formula] = (predicateFound)?
-            sExpressionSymbolType::ConstFreeVar:
-            sExpressionSymbolType::Predicate;
+            Proof::SymbolType::ConstFreeVar:
+            Proof::SymbolType::Predicate;
         return intermediateResult;
     }
     // (2) Formula is not a list
@@ -58,8 +30,8 @@ SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermed
     sExpression first = formula.members.at(0);
     if (formula.members.size() == 1) {
         intermediateResult[first] = (predicateFound)?
-            sExpressionSymbolType::ConstFreeVar:
-            sExpressionSymbolType::Predicate;
+            Proof::SymbolType::ConstFreeVar:
+            Proof::SymbolType::Predicate;
         return intermediateResult;
     }
 
@@ -73,8 +45,8 @@ SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermed
     std::unordered_set<std::string>::const_iterator containsReservedWord = reservedWords.find(first.value);
     if (containsReservedWord == reservedWords.end()) {
         intermediateResult[first] = (predicateFound)?
-            sExpressionSymbolType::ConstFreeVar:
-            sExpressionSymbolType::Predicate;
+            Proof::SymbolType::ConstFreeVar:
+            Proof::SymbolType::Predicate;
         predicateFound = true;
     }
     // Case 1: Formula is a quantifier
@@ -83,7 +55,7 @@ SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermed
         formula.members.size() == 3
     ) {
         sExpression second = formula.members.at(1);
-        intermediateResult[second] = sExpressionSymbolType::BoundVar;
+        intermediateResult[second] = Proof::SymbolType::BoundVar;
         sExpression third = formula.members.at(2);
         return compute_symbol_types(third, intermediateResult, predicateFound);
     }
@@ -102,8 +74,8 @@ SymbolTypeMap compute_symbol_types(sExpression& formula) {
     return compute_symbol_types(formula, intermediateResult, true);
 }
 
-ProofNode::ProofNode(int vertid, sExpression f, HyperslateJustification j) {
-    id = vertid;
+Proof::Node::Node(int vertId, sExpression f, Proof::Justification j) {
+    id = vertId;
     formula = f;
     justification = j;
     symbolTypeLookup = compute_symbol_types(formula);

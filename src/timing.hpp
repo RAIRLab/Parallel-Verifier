@@ -1,4 +1,6 @@
 
+//Timings file provided by Christopher Carothers in his Parallel Computing Class
+
 #pragma once
 
 #define clockFreq 512000000

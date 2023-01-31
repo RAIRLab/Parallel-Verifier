@@ -47,16 +47,24 @@
         "typeinfo": "cpp",
         "iostream": "cpp",
         "set": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp",
+        "iomanip": "cpp"
     },
     "cSpell.words": [
         "Allgather",
         "allgathered",
         "Allreduce",
+        "Carothers",
         "Elim",
         "hypergraph",
         "hyperslate",
+        "jank",
         "lary",
+        "Lazyslate",
         "markee",
         "passumptions",
         "Verts"

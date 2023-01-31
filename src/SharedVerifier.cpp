@@ -2,20 +2,21 @@
 #include<unordered_map>
 #include"SharedVerifier.hpp"
 
-// Misc Shared Code ===========================================================================
+// Misc Shared Code ===========================================================
 
 //Returns the file path that needs to be read
 const char* VerifierInit(int argc, char** argv){
     // If no arguments are passed, print help
-    if (argc < 2) {
-        std::cout << "Usage: ./verif.exe [hyperslate_file]" << std::endl;
+    if (argc != 2) {
+        std::cout << "Usage: ./verif.exe [ProofFile]" << std::endl;
         exit(1);
     }
     // Parse and create hypergraph on each rank
     return argv[1];
 }
 
-// Markings ====================================================================================
+
+// Markings ===================================================================
 
 // Update dest's marking vector to contain source
 void mark(Markings& markings, vertId source, vertId dest) {
@@ -27,8 +28,10 @@ void mark(Markings& markings, vertId source, vertId dest) {
 }
 
 //Returns true if the node at vertex_id in proof p has a full list of markings
-bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_set<vertId>& markingList) {
-    const std::unordered_map<HyperslateJustification, size_t> numMarkingsMap = {
+bool hasCompleteMarkings(const Proof& p, vertId vertex_id, \
+                         const std::unordered_set<vertId>& markingList) {
+    const std::unordered_map<HyperslateJustification, size_t> numMarkingsMap = 
+    {
         {Assume, 0}, {AndIntro, 2}, {AndElim, 1},
         {OrIntro, 1}, {OrElim, 3}, {NotIntro, 2},
         {NotElim, 2}, {IfIntro, 1}, {IfElim, 2},
@@ -38,7 +41,7 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_
     return markingList.size() == markingsNeeded;
 }
 
-//Inference Rule Verification ==============================================================
+//Inference Rule Verification =================================================
 
 #include"InferenceRules/assume.hpp"
 #include"InferenceRules/and.hpp"
@@ -70,8 +73,10 @@ const RuleMap rules = {
 // Verify that vertex is justified and update assumptions
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
     const ProofNode& pn = p.nodeLookup.at(vertex_id);
-    RuleMap::const_iterator rule = rules.find(pn.justification);        //Lookup the rule, O(1)
-    if(rule == rules.end())                                             //If it doesn't exist, throw error
+    //Lookup the rule, O(1)
+    RuleMap::const_iterator rule = rules.find(pn.justification);        
+    if(rule == rules.end()) //If it doesn't exist, throw error
         throw std::runtime_error("Verification Error: Unknown Rule");
-    return rule->second(p, vertex_id, assumptions);                     //Call the respective verif function
+    //Call the respective verification function
+    return rule->second(p, vertex_id, assumptions);  
 }

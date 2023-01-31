@@ -6,13 +6,13 @@ project("Parallel Verifier" VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
-cmake_policy(SET CMP0076 NEW)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Executables =================================================================
 
 add_executable(SerialVerifier)
 add_executable(ParallelVerifier)
+add_executable(ProofConverter)
 
 # Packages ====================================================================
 
@@ -57,3 +57,6 @@ target_sources(ParallelVerifier PRIVATE
     src/ParallelVerifier.cpp
 )
 
+target_sources(ProofConverter PRIVATE
+    src/ProofConverter.cpp
+)

@@ -13,8 +13,11 @@ struct sExpression{
 
     //Data
     sExpression::Type type;
-    std::string value;                 //Only valid if type != List
-    std::vector<sExpression> members;  //Only Valid if type == List
+
+    union {
+        std::string value;                 //Only valid if type != List
+        std::vector<sExpression> members;  //Only Valid if type == List
+    };
 
     //Members
     sExpression();                                             //Default constructor
@@ -23,8 +26,8 @@ struct sExpression{
     sExpression(const sExpression&& toMove);                   //Move constructor
     ~sExpression();                                            //Deconstructor
     
-    sExpression& operator=(const sExpression&& toMove);         //Move assignment
-    sExpression& operator=(const sExpression& toCopy);         //Move assignment
+    sExpression& operator=(const sExpression&& toMove);      //Move assignment
+    sExpression& operator=(const sExpression& toCopy);       //Move assignment
     
     std::string toString(bool expand = false) const;
     void print(bool expand = false) const;
@@ -45,7 +48,7 @@ struct sExpression{
     std::queue<uid_t> positionOf(const sExpression& t, std::queue<uid_t> pos) const;
 };
 
-// For equaliity
+// For equality
 bool operator==(const sExpression& s1, const sExpression& s2);
 bool operator!=(const sExpression& s1, const sExpression& s2);
 

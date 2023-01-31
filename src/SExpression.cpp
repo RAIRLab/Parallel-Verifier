@@ -22,13 +22,13 @@
 // Token Helper Class ===================================================================
 
 /**
- * @brief Enum contating possible token types
- * Some members of this Enum corespond directly to sExpression::Type members values
+ * @brief Enum containing possible token types
+ * Some members of this Enum correspond directly to sExpression::Type members values
  * and are directly converted to them within parserBaseCase(). This must be kept in
  * mind in the event of future modification. 
  */
 enum class TokenType{
-    Keyword = 0,            ///< Tokens begining with :
+    Keyword = 0,            ///< Tokens beginning with :
     Number = 1,             ///< Tokens containing unsigned Ints (At the moment other numeric types are unsupported by the lexer)
     String = 2,             ///< Tokens enclosed in quotes
     Symbol = 3,             ///< Tokens containing any other valid identifier or name
@@ -241,7 +241,7 @@ sExpression parseTokens(const std::vector<Token>& tokens){
 //sExpression members ==================================================================
 
 sExpression::sExpression()
-:type(sExpression::Type::Keyword), value(""), members(0){
+:type(sExpression::Type::Keyword){
 }
 
 //Initialize this s-expression object from an s-expression string
