@@ -55,7 +55,7 @@ No I don't think I will
 
 Takes a path and stores all its data in a C struct with structure and typing 
 */
-hyperslate::FileData parseFile(const std::string& fileContents){
+hyperslate::FileData parse(const std::string& fileContents){
     sExpression fileExpression(fileContents);
 
     //Pull the descriptions

@@ -7,6 +7,7 @@
             ],
             "defines": [],
             "compilerPath": "/usr/bin/mpic++",
+            "cppStandard": "gnu++20",
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],

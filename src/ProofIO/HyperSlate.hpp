@@ -50,6 +50,6 @@ namespace hyperslate {
         std::string backgroundColor;
     };
 
-    FileData parseHyperslateFile(std::string fileContents);
-
+    FileData parse(std::string fileContents);
+    Proof constructProof(const hyperslate::FileData& fileData);
 }

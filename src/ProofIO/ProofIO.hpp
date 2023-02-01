@@ -9,6 +9,9 @@
 namespace ProofIO {
 
     struct ProofData {
+        ProofData();
+        ~ProofData();
+        ProofData(const ProofData& copy);
         enum Tag {Hyperslate, Lazyslate} tag;
         union {
             hyperslate::FileData hyperslateData;

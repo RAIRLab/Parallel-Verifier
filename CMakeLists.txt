@@ -19,6 +19,12 @@ add_executable(ProofConverter)
 find_package(MPI REQUIRED)
 target_link_libraries(ParallelVerifier MPI::MPI_CXX)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+target_link_libraries(ParallelVerifier ${JSONCPP_LIBRARIES})
+
+
 # Sources =====================================================================
 
 set(INFERENCE_RULES
@@ -33,10 +39,18 @@ set(INFERENCE_RULES
     src/InferenceRules/or.hpp
 )
 
+set(PROOF_IO
+    src/ProofIO/HyperSlate.hpp
+    src/ProofIO/HyperSlate.cpp
+    src/ProofIO/Lazyslate.hpp
+    src/ProofIO/Lazyslate.cpp
+    src/ProofIO/ProofIO.hpp
+    src/ProofIO/ProofIO.cpp
+)
+
 set(SHARED_VERIFIER_SOURCES
+    ${PROOF_IO}
     ${INFERENCE_RULES}
-    src/hyperslateUtils.cpp
-    src/hyperslateUtils.hpp
     src/Proof.cpp
     src/Proof.hpp
     src/SExpression.cpp

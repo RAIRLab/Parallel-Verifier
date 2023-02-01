@@ -1,18 +1,27 @@
 
 
+#include "../Proof.hpp"
+
 namespace lazyslate {
 
-    struct FileData : public ProofData{
-        std::vector<Structure> structures;    //The nodes (including justifications)
-        std::vector<Description> descriptions; //The connections between nodes
-        
-        //For some unknown reason, in hyperslate files, :BACKGROUND-COLOR and :CONNECTOR-TYPE
-        //are on the same level as :DESCRIPTIONS and :STRUCTURES, and not included in the 
-        //:INTERFACE. We model this in the struct because sure why not. 
-
-        Interface interface; 
-        std::string connectorType;      
-        std::string backgroundColor;
+    struct Node {
+        size_t id;
+        std::string name;
+        std::string justification;
+        size_t x, y;
     };
+
+    struct Link {
+        size_t fromNodeId;
+        size_t toNodeId;
+    };
+
+    struct FileData {
+        std::vector<Node> nodes;
+        std::vector<Link> links;
+    };
+
+    FileData parse(const std::string& fileContents);
+    Proof constructProof(const FileData&);
 
 }
