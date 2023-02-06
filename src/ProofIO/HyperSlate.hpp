@@ -5,8 +5,7 @@
 #include <vector>
 #include <optional>
 
-#include "Proof.hpp"
-#include "ProofIO.hpp"
+#include "../Proof.hpp"
 
 namespace hyperslate { 
 
@@ -37,7 +36,7 @@ namespace hyperslate {
         std::string proofSystem; 
     };
 
-    struct FileData : public ProofData{
+    struct FileData{
         std::vector<Structure> structures;    //The nodes (including justifications)
         std::vector<Description> descriptions; //The connections between nodes
         
@@ -50,6 +49,6 @@ namespace hyperslate {
         std::string backgroundColor;
     };
 
-    FileData parse(std::string fileContents);
+    FileData parse(const std::string& fileContents);
     Proof constructProof(const hyperslate::FileData& fileData);
-}
+};

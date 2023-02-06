@@ -20,6 +20,8 @@ struct Proof{
         ConstFreeVar // I don't think we would be able to distinguish
     };
 
+    using SymbolTypeMap = std::unordered_map<sExpression, Proof::SymbolType>;
+
     enum class Justification{
         Assume, AndIntro, AndElim, OrIntro, OrElim,
         NotIntro, NotElim, IfIntro, IfElim, IffIntro, IffElim,
@@ -51,6 +53,10 @@ struct Proof{
     std::unordered_map<vertId, Node> nodeLookup; 
     //We need to know our initial assumptions for our algs
     std::unordered_set<vertId> assumptions;
+
+    // Methods ================================================================
+    Proof() = default;
+    Proof(std::string filename);
+    std::string toString() const;
 };
 
-using SymbolTypeMap = std::unordered_map<sExpression, Proof::SymbolType>;

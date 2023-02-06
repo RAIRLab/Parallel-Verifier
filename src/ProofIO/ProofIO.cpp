@@ -1,5 +1,6 @@
 
 #include "ProofIO.hpp"
+#include <iostream>
 #include <cstdio>
 #include <string>
 #include <filesystem>
@@ -19,8 +20,8 @@ ProofData::~ProofData(){
             lazyslateData.~FileData();
             break;
         default:
-            throw std::runtime_error("ProofIO Error: could not destruct "\
-            "ProofData object, invalid proof type");
+            std::cerr<<"ProofIO Error: could not destruct "\
+            "ProofData object, invalid proof type";
     }
 }
 
@@ -63,11 +64,14 @@ ProofData ProofIO::loadData(std::string filename) {
     std::string fileExtension = filePath.extension();
     ProofData returnData;
     if (fileExtension == ".slt") {
-        returnData.tag == ProofData::Tag::Hyperslate;
-        returnData.hyperslateData == hyperslate::parse(fileContents);
+        returnData.tag = ProofData::Tag::Hyperslate;
+        returnData.hyperslateData = hyperslate::parse(fileContents);
     } else if (fileExtension == ".json") {
-        returnData.tag == ProofData::Tag::Lazyslate;
+        returnData.tag = ProofData::Tag::Lazyslate;
         returnData.lazyslateData = lazyslate::parse(fileContents);
+    }else{
+        throw std::runtime_error("ProofIO error: Unsupported File Type \"" 
+                                  + fileExtension + "\"");
     }
     return returnData;
 }
@@ -83,4 +87,5 @@ Proof ProofIO::loadProof(std::string filename) {
             return lazyslate::constructProof(data.lazyslateData);
             break;
     }
+    throw std::runtime_error("ProofIO error: Invalid ProofData Tag");
 }

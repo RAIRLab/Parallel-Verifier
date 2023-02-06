@@ -1,13 +1,14 @@
 
 #include"Proof.hpp"
 
+#include "ProofIO/ProofIO.hpp"
 
 std::unordered_set<std::string> reservedWords = {
     "and", "or", "iff", "imp", "not",
     "forall", "exists"
 };
 
-SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermediateResult, bool predicateFound = false) {
+Proof::SymbolTypeMap compute_symbol_types(sExpression& formula, Proof::SymbolTypeMap& intermediateResult, bool predicateFound = false) {
     // TODO: Should we do anything if we find conflicting symbol types?
 
     /* Base cases */
@@ -69,8 +70,8 @@ SymbolTypeMap compute_symbol_types(sExpression& formula, SymbolTypeMap& intermed
     return intermediateResult;
 }
 
-SymbolTypeMap compute_symbol_types(sExpression& formula) {
-    SymbolTypeMap intermediateResult;
+Proof::SymbolTypeMap compute_symbol_types(sExpression& formula) {
+    Proof::SymbolTypeMap intermediateResult;
     return compute_symbol_types(formula, intermediateResult, true);
 }
 
@@ -79,4 +80,16 @@ Proof::Node::Node(int vertId, sExpression f, Proof::Justification j) {
     formula = f;
     justification = j;
     symbolTypeLookup = compute_symbol_types(formula);
+}
+
+Proof::Proof(std::string filename){
+    *this = ProofIO::loadProof(filename);
+}
+
+std::string Proof::toString() const {
+    std::string returnString;
+    for(auto [id, node] : this->nodeLookup){
+        returnString += id;
+    }
+    return returnString;
 }

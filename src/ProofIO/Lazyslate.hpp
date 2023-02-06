@@ -1,4 +1,5 @@
 
+#pragma once
 
 #include "../Proof.hpp"
 
@@ -8,6 +9,7 @@ namespace lazyslate {
         size_t id;
         std::string name;
         std::string justification;
+        std::string expression;
         size_t x, y;
     };
 

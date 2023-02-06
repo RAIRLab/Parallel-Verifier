@@ -55,7 +55,7 @@ No I don't think I will
 
 Takes a path and stores all its data in a C struct with structure and typing 
 */
-hyperslate::FileData parse(const std::string& fileContents){
+hyperslate::FileData hyperslate::parse(const std::string& fileContents){
     sExpression fileExpression(fileContents);
 
     //Pull the descriptions
@@ -105,11 +105,11 @@ hyperslate::FileData parse(const std::string& fileContents){
     return returnData;
 }
 
-Proof constructProof(const hyperslate::FileData& fileData){
+Proof hyperslate::constructProof(const hyperslate::FileData& fileData){
     Proof proof;
     proof.nodeLookup = std::unordered_map<vertId, Proof::Node>();
     for(hyperslate::Description descriptionNode : fileData.descriptions){
-        if(descriptionNode.formula != ""){  //Ignore selmers comment nodes
+        if(descriptionNode.formula != ""){  //Ignore Selmer's comment nodes
             Proof::Node proofNode(
                 descriptionNode.id,
                 sExpression(descriptionNode.formula),
@@ -126,5 +126,7 @@ Proof constructProof(const hyperslate::FileData& fileData){
             proof.nodeLookup[connection.conclusion].parents.insert(premise);
         }
     }
+
+    return proof;
 }
 

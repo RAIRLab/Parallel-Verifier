@@ -52,7 +52,8 @@
         "codecvt": "cpp",
         "ctime": "cpp",
         "ratio": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "cstring": "cpp"
     },
     "cSpell.words": [
         "Allgather",
@@ -65,8 +66,10 @@
         "jank",
         "lary",
         "Lazyslate",
+        "libjsoncpp",
         "markee",
         "passumptions",
+        "Selmer's",
         "Verts"
     ]
 }
