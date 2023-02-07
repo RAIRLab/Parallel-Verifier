@@ -3,7 +3,7 @@
 #include"../Proof.hpp"
 #include"../SharedVerifier.hpp"
 
-inline bool is_and_vertex(const ProofNode& pn) {
+inline bool is_and_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -11,7 +11,7 @@ inline bool is_and_vertex(const ProofNode& pn) {
 }
 
 bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_and_vertex(pn)) {
         return false;
@@ -26,7 +26,7 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     const auto [parent1Id, parent2Id] = [&pn, &p]() {
         optVertId parent1Id = {}, parent2Id = {};
         for (vertId parent_id : pn.parents) {
-            const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
+            const Proof::Node& parent_pn = p.nodeLookup.at(parent_id);
             if (!parent1Id && parent_pn.formula == pn.formula.members[1]) {
                 parent1Id = parent_id;
             } else if (!parent2Id && parent_pn.formula == pn.formula.members[2]) {
@@ -49,7 +49,7 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
 }
 
 bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have one parent node
     if (pn.parents.size() != 1) {
@@ -58,7 +58,7 @@ bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     // Grab parent node
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     if (!is_and_vertex(parent_pn)) {
         return false;

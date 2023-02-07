@@ -1,7 +1,7 @@
 
 //This file implements the construction of lazyslate proof parsing via libjsoncpp json parsing
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include "Lazyslate.hpp"
 

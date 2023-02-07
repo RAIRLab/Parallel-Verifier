@@ -4,7 +4,7 @@
 #include"../Proof.hpp"
 #include"../SharedVerifier.hpp"
 
-inline bool is_or_vertex(const ProofNode& pn) {
+inline bool is_or_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -12,7 +12,7 @@ inline bool is_or_vertex(const ProofNode& pn) {
 }
 
 bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_or_vertex(pn)) {
         return false;
@@ -25,7 +25,7 @@ bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     // Make sure the subformulas match the parents
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     const bool result = parent_pn.formula == pn.formula.members[1] || parent_pn.formula == pn.formula.members[2];
 
@@ -38,7 +38,7 @@ bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have three parent nodes
     if (pn.parents.size() != 3) {
@@ -47,7 +47,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     optVertId orParentId = {}, parentId2 = {}, parentId3 = {};
     for (const vertId parentId : pn.parents) {
-        const ProofNode& parentNode = p.nodeLookup.at(parentId);
+        const Proof::Node& parentNode = p.nodeLookup.at(parentId);
         if (parentNode.formula == pn.formula) {
             if (!parentId2) {
                 parentId2 = parentId;
@@ -69,7 +69,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    const ProofNode& orParent = p.nodeLookup.at(orParentId.value());
+    const Proof::Node& orParent = p.nodeLookup.at(orParentId.value());
 
     // Check Assumptions
     bool left_side_check = false;
@@ -78,7 +78,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     vertId parent3AssumptionId;
 
     for (const vertId a : assumptions[parentId2.value()]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
             parent2AssumptionId = a;
@@ -92,7 +92,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     for (const vertId a : assumptions[parentId3.value()]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
             parent3AssumptionId = a;

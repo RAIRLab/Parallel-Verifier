@@ -5,7 +5,7 @@
 #include"../SharedVerifier.hpp"
 
 
-inline bool is_if_vertex(const ProofNode& pn) {
+inline bool is_if_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
            pn.formula.members.size() == 3 && \
            pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -13,7 +13,7 @@ inline bool is_if_vertex(const ProofNode& pn) {
 }
 
 bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_if_vertex(pn)) {
         return false;
@@ -25,7 +25,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Make sure parent is the consequent
     if (parent_pn.formula != pn.formula.members[2]) {
@@ -35,7 +35,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     // Make sure the antecedant is in the assumptions of the parent
     optVertId antecedantId = {};
     for (const vertId a : assumptions[parentId]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
             antecedantId = a;
         }
@@ -52,7 +52,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
@@ -60,8 +60,8 @@ bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     // Check the the current node matches the consequent of the if vertex
     if (is_if_vertex(firstParent) && pn.formula != firstParent.formula.members[1]) {

@@ -4,7 +4,7 @@
 #include"../Substitution.hpp"
 #include"../SharedVerifier.hpp"
 
-inline bool is_exists_vertex(const ProofNode& pn) {
+inline bool is_exists_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \

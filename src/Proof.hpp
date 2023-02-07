@@ -4,6 +4,8 @@
 
 #include<unordered_set>
 #include<unordered_map>
+#include<optional>
+
 #include"SExpression.hpp"
 
 typedef int vertId;
@@ -47,7 +49,7 @@ struct Proof{
     //Representation ====================================================== 
     /*
         O(1) access to node data based on vertId as index
-        This prevents us from using pointers on ProofNodes which would not translate between ranks.
+        This prevents us from using pointers on Proof::Nodes which would not translate between ranks.
         Allows proofs to easily be serialized for message passing.
     */
     std::unordered_map<vertId, Node> nodeLookup; 

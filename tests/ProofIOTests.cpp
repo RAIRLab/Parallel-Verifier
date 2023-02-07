@@ -1,15 +1,15 @@
 
 
-#include "../src/ProofIO/ProofIO.hpp"
+#include "../src/Proof.hpp"
 
 int main(){
     try{
-        Proof lazyslateBased = ProofIO::loadProof("allRulesProof.json");
+        Proof lazyslateBased("allRulesProof.json");
         std::cout<< lazyslateBased.assumptions.size()<<std::endl;
-        Proof hyperslateBased = ProofIO::loadProof("Branch1-12.slt");
+        Proof hyperslateBased("Branch1-12.slt");
         std::cout<< hyperslateBased.assumptions.size()<<std::endl;
     }catch(std::exception e){
-        std::cerr<<e.what();
+        std::cerr<<e.what()<<std::endl;
         return 1;
     }
     

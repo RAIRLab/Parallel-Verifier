@@ -30,12 +30,14 @@ void mark(Markings& markings, vertId source, vertId dest) {
 //Returns true if the node at vertex_id in proof p has a full list of markings
 bool hasCompleteMarkings(const Proof& p, vertId vertex_id, \
                          const std::unordered_set<vertId>& markingList) {
-    const std::unordered_map<HyperslateJustification, size_t> numMarkingsMap = 
+    const std::unordered_map<Proof::Justification, size_t> numMarkingsMap = 
     {
-        {Assume, 0}, {AndIntro, 2}, {AndElim, 1},
-        {OrIntro, 1}, {OrElim, 3}, {NotIntro, 2},
-        {NotElim, 2}, {IfIntro, 1}, {IfElim, 2},
-        {IffIntro, 2}, {IffElim, 2}
+        {Proof::Justification::Assume, 0}, {Proof::Justification::AndIntro, 2},
+        {Proof::Justification::AndElim, 1}, {Proof::Justification::OrIntro, 1},
+        {Proof::Justification::OrElim, 3}, {Proof::Justification::NotIntro, 2},
+        {Proof::Justification::NotElim, 2}, {Proof::Justification::IfIntro, 1},
+        {Proof::Justification::IfElim, 2}, {Proof::Justification::IffIntro, 2},
+        {Proof::Justification::IffElim, 2}
     };
     size_t markingsNeeded = numMarkingsMap.at(p.nodeLookup.at(vertex_id).justification);
     return markingList.size() == markingsNeeded;
@@ -54,13 +56,14 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, \
 #include"InferenceRules/exists.hpp"
 
 //Macro to generate rule table members since they all follow the same naming scheme
-#define INTRO_ELIM_RULES(N) {N##Intro, verify##N##Intro}, {N##Elim, verify##N##Elim}
+#define INTRO_ELIM_RULES(N) {Proof::Justification:: N##Intro,\
+verify##N##Intro}, {Proof::Justification:: N##Elim, verify##N##Elim}
 
 //Rule Lookup table
 using VerificationFunction = bool(*)(const Proof&, vertId, Assumptions&);
-using RuleMap = std::unordered_map<HyperslateJustification, VerificationFunction>;
+using RuleMap = std::unordered_map<Proof::Justification, VerificationFunction>;
 const RuleMap rules = {
-    {Assume, verifyAssumption}, 
+    {Proof::Justification::Assume, verifyAssumption}, 
     INTRO_ELIM_RULES(And),
     INTRO_ELIM_RULES(Or),
     INTRO_ELIM_RULES(If),
@@ -72,7 +75,7 @@ const RuleMap rules = {
 
 // Verify that vertex is justified and update assumptions
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     //Lookup the rule, O(1)
     RuleMap::const_iterator rule = rules.find(pn.justification);        
     if(rule == rules.end()) //If it doesn't exist, throw error

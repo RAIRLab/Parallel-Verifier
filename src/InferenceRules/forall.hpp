@@ -5,7 +5,7 @@
 #include"../Substitution.hpp"
 #include"../SharedVerifier.hpp"
 
-inline bool is_forall_vertex(const ProofNode& pn) {
+inline bool is_forall_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -16,7 +16,7 @@ inline bool is_forall_vertex(const ProofNode& pn) {
 // NOT DONE
 bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure node is a forall node
     if (!is_forall_vertex(pn)) {
@@ -49,7 +49,7 @@ bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumption
     // TODO: Make sure it's not an already existing bound variable
 
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Find out its corresponding subterm in the parent formula
     sExpression oldSubterm; 
@@ -87,7 +87,7 @@ bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumption
 
 // NOT DONE
 bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have one parent node
     if (pn.parents.size() != 1) {
@@ -95,7 +95,7 @@ bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions
     }
 
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Make sure parent is a forall node
     if (!is_forall_vertex(parent_pn)) {

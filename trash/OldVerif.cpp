@@ -60,7 +60,7 @@ bool hasCompleteMarkings(const Proof& p, vertId vertex_id, const std::unordered_
     return markingList.size() == markingsNeeded;
 }
 
-inline bool is_and_vertex(const ProofNode& pn) {
+inline bool is_and_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -68,7 +68,7 @@ inline bool is_and_vertex(const ProofNode& pn) {
 }
 
 bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_and_vertex(pn)) {
         return false;
@@ -85,7 +85,7 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     vertId parent1Id;
     vertId parent2Id;
     for (vertId parent_id : pn.parents) {
-        const ProofNode& parent_pn = p.nodeLookup.at(parent_id);
+        const Proof::Node& parent_pn = p.nodeLookup.at(parent_id);
         if (!match_parent1 && parent_pn.formula == pn.formula.members[1]) {
             match_parent1 = true;
             parent1Id = parent_id;
@@ -107,7 +107,7 @@ bool verifyAndIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
 }
 
 bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have one parent node
     if (pn.parents.size() != 1) {
@@ -116,7 +116,7 @@ bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     // Grab parent node
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     if (!is_and_vertex(parent_pn)) {
         return false;
@@ -136,7 +136,7 @@ bool verifyAndElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return result;
 }
 
-inline bool is_or_vertex(const ProofNode& pn) {
+inline bool is_or_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -144,7 +144,7 @@ inline bool is_or_vertex(const ProofNode& pn) {
 }
 
 bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_or_vertex(pn)) {
         return false;
@@ -157,7 +157,7 @@ bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     // Make sure the subformulas match the parents
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     const bool result = parent_pn.formula == pn.formula.members[1] || parent_pn.formula == pn.formula.members[2];
 
@@ -170,7 +170,7 @@ bool verifyOrIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have three parent nodes
     if (pn.parents.size() != 3) {
@@ -184,7 +184,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     bool parentId2Found = false;
     bool parentId3Found = false;
     for (const vertId parentId : pn.parents) {
-        const ProofNode& parentNode = p.nodeLookup.at(parentId);
+        const Proof::Node& parentNode = p.nodeLookup.at(parentId);
         if (parentNode.formula == pn.formula) {
             if (!parentId2Found) {
                 parentId2 = parentId;
@@ -209,9 +209,9 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    const ProofNode& orParent = p.nodeLookup.at(orParentId);
-    const ProofNode& parentNode2 = p.nodeLookup.at(parentId2);
-    const ProofNode& parentNode3 = p.nodeLookup.at(parentId3);
+    const Proof::Node& orParent = p.nodeLookup.at(orParentId);
+    const Proof::Node& parentNode2 = p.nodeLookup.at(parentId2);
+    const Proof::Node& parentNode3 = p.nodeLookup.at(parentId3);
 
     // Check Assumptions
     bool left_side_check = false;
@@ -220,7 +220,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     vertId parent3AssumptionId;
 
     for (const vertId a : assumptions[parentId2]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
             parent2AssumptionId = a;
@@ -234,7 +234,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     for (const vertId a : assumptions[parentId3]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
             parent3AssumptionId = a;
@@ -265,7 +265,7 @@ bool verifyOrElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return result;
 }
 
-inline bool is_if_vertex(const ProofNode& pn) {
+inline bool is_if_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
            pn.formula.members.size() == 3 && \
            pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -273,7 +273,7 @@ inline bool is_if_vertex(const ProofNode& pn) {
 }
 
 bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_if_vertex(pn)) {
         return false;
@@ -285,7 +285,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const vertId parentId = *pn.parents.begin();
-    const ProofNode& parent_pn = p.nodeLookup.at(parentId);
+    const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Make sure parent is the consequent
     if (parent_pn.formula != pn.formula.members[2]) {
@@ -296,7 +296,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     bool antecedant_matched = false;
     vertId antecedantId = 0;
     for (const vertId a : assumptions[parentId]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
             antecedant_matched = true;
             antecedantId = a;
@@ -313,7 +313,7 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
@@ -321,8 +321,8 @@ bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool result = \
         // secondParent is the antecedant of firstParent
@@ -339,7 +339,7 @@ bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return result;
 }
 
-inline bool is_iff_vertex(const ProofNode& pn) {
+inline bool is_iff_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
            pn.formula.members.size() == 3 && \
            pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -347,7 +347,7 @@ inline bool is_iff_vertex(const ProofNode& pn) {
 }
 
 bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_iff_vertex(pn)) {
         return false;
@@ -359,8 +359,8 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     bool forward_check = false;
     vertId forward_id;
@@ -371,7 +371,7 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     if (!forward_check && firstParent.formula == pn.formula.members[2]) {
         // Make sure the antecedant is in the assumptions of the parent
         for (const vertId a : assumptions[parents[0]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
                 forward_id = a;
@@ -381,7 +381,7 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     } else if (!forward_check && secondParent.formula == pn.formula.members[2]) {
         // Make sure the antecedant is in the assumptions of the parent
         for (const vertId a : assumptions[parents[1]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
                 forward_id = a;
@@ -394,7 +394,7 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     if (!backward_check && firstParent.formula == pn.formula.members[1]) {
         // Make sure the consequent is in the assumptions of the parent
         for (const vertId a : assumptions[parents[0]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
                 backward_id = a;
@@ -404,7 +404,7 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     } else if (!backward_check && secondParent.formula == pn.formula.members[1]) {
         // Make sure the consequent is in the assumptions of the parent
         for (const vertId a : assumptions[parents[1]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
                 backward_id = a;
@@ -427,7 +427,7 @@ bool verifyIffIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
 }
 
 bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
@@ -435,8 +435,8 @@ bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool result =  \
         // secondParent is either the antecedant or consequent of firstParent
@@ -458,7 +458,7 @@ bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return result;
 }
 
-inline bool is_not_vertex(const ProofNode& pn) {
+inline bool is_not_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 2 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -466,7 +466,7 @@ inline bool is_not_vertex(const ProofNode& pn) {
 }
 
 bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_not_vertex(pn)) {
         return false;
@@ -478,8 +478,8 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool syntax_result = \
         // Check to see if the first parent is the neagtion of the second
@@ -495,7 +495,7 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     vertId formula_id = 0;
     // Make sure the current formula is a negation of an assumption
     for (const vertId a : assumptions[parents[0]]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
             formula_found = true;
             formula_id = a;
@@ -504,7 +504,7 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
     }
     if (!formula_found) {
         for (const vertId a : assumptions[parents[1]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
                 formula_found = true;
                 formula_id = a;
@@ -524,7 +524,7 @@ bool verifyNotIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) 
 }
 
 bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
@@ -532,8 +532,8 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     const bool syntax_result = \
         // Check to see if the first parent is the neagtion of the second
@@ -549,7 +549,7 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     vertId formula_id = 0;
     // Make sure the current formula is a positive of an assumption
     for (const vertId a : assumptions[parents[0]]) {
-        const ProofNode& aNode = p.nodeLookup.at(a);
+        const Proof::Node& aNode = p.nodeLookup.at(a);
         if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
             formula_found = true;
             formula_id = a;
@@ -558,7 +558,7 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
     if (!formula_found) {
         for (const vertId a : assumptions[parents[1]]) {
-            const ProofNode& aNode = p.nodeLookup.at(a);
+            const Proof::Node& aNode = p.nodeLookup.at(a);
             if (is_not_vertex(aNode) && aNode.formula.members[1] == pn.formula) {
                 formula_found = true;
                 formula_id = a;
@@ -579,7 +579,7 @@ bool verifyNotElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
 // Verify that vertex is justified and update assumptions
 bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     bool result = false;
     switch (pn.justification) {
         case Assume:
@@ -643,7 +643,7 @@ bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     // std::cout << "Formula Passed: " << p.nodeLookup.at(vertex_id).formula.toString() << std::endl;
     // std::cout << "New Assumptions" << std::endl;
     // for (const vertId a : assumptions[vertex_id]) {
-    //     const ProofNode& aNode = p.nodeLookup.at(a);
+    //     const Proof::Node& aNode = p.nodeLookup.at(a);
     //     std::cout << "Assumption: " << aNode.formula.toString() << std::endl;
     // }
 
@@ -669,7 +669,7 @@ bool verifySimple(Proof& p) {
         lastVerified.pop();
 
         // Mark all of a vertex's children
-        const ProofNode n = p.nodeLookup.at(vertex_id);
+        const Proof::Node n = p.nodeLookup.at(vertex_id);
         for (const vertId child_id: n.children) {
             mark(markings, vertex_id, child_id);
         }

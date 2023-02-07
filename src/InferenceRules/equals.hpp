@@ -4,9 +4,9 @@
 #include"../Proof.hpp"
 #include"../SharedVerifier.hpp"
 
-extern bool is_if_vertex(const ProofNode&);
+extern bool is_if_vertex(const Proof::Node&);
 
-inline bool is_equals_vertex(const ProofNode& pn) {
+inline bool is_equals_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
        pn.formula.members.size() == 3 && \
        pn.formula.members[0].type == sExpression::Type::Symbol && \
@@ -14,7 +14,7 @@ inline bool is_equals_vertex(const ProofNode& pn) {
 }
 
 bool verifyEqIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_equals_vertex(pn)) {
         return false;
@@ -31,7 +31,7 @@ bool verifyEqIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 }
 
 bool verifyEqElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
-    const ProofNode& pn = p.nodeLookup.at(vertex_id);
+    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
     if (pn.parents.size() != 2) {
@@ -39,8 +39,8 @@ bool verifyEqElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     }
 
     const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
-    const ProofNode& firstParent = p.nodeLookup.at(parents[0]);
-    const ProofNode& secondParent = p.nodeLookup.at(parents[1]);
+    const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
+    const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     //TODO: What is going on here? 
     // REPLACE THIS PART
