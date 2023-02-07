@@ -12,6 +12,8 @@ ProofData::ProofData()
 } 
 
 ProofData::~ProofData(){
+    //This was only required when we had it as an anonymous union
+    /*
     switch(this->tag) {
         case ProofData::Tag::Hyperslate:
             hyperslateData.~FileData();
@@ -23,6 +25,7 @@ ProofData::~ProofData(){
             std::cerr<<"ProofIO Error: could not destruct "\
             "ProofData object, invalid proof type";
     }
+    */
 }
 
 ProofData::ProofData(const ProofData& copy) {
@@ -47,7 +50,7 @@ std::string readFileContents(FILE* inputFile){
     size_t fileSize = std::ftell(inputFile);
     returnString.resize(fileSize);
     std::rewind(inputFile);
-    fread(&returnString[1], 1, fileSize, inputFile);
+    fread(&returnString[0], 1, fileSize, inputFile);
     return returnString;
 }
 

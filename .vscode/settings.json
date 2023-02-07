@@ -64,12 +64,15 @@
         "hypergraph",
         "hyperslate",
         "jank",
+        "jsoncpp",
         "lary",
         "Lazyslate",
         "libjsoncpp",
         "markee",
         "passumptions",
         "Selmer's",
+        "SEXPRESSION",
+        "tokenizes",
         "Verts"
     ]
 }

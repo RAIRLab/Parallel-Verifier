@@ -6,10 +6,8 @@
 
 set -e
 SCRIPTDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-mkdir -p $SCRIPTDIR/build-debug 
-cd $SCRIPTDIR/build-debug 
+mkdir -p $SCRIPTDIR/build
+cd $SCRIPTDIR/build
 cmake ../ -D CMAKE_BUILD_TYPE=Debug
 make
-mkdir -p $SCRIPTDIR/bin
-cp bin/* $SCRIPTDIR/bin
 cd $SCRIPTDIR

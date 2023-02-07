@@ -33,7 +33,7 @@ std::tuple<std::unordered_map<vertId, size_t>, size_t> computerLayerMap(const Pr
         // Keep track of the max layer number
         maxLayerNum = std::max(maxLayerNum, layer);
 
-        // Trascend downward: Add children to nodes
+        // Transcend downward: Add children to nodes
         const auto n = p.nodeLookup.at(vertexId);
         for (const vertId &childId : n.children) {
             nodes.push(std::make_tuple(childId, layer + 1));
@@ -74,8 +74,8 @@ bool verifySimple(const Proof& p) {
 int main(int argc, char** argv) {
     const char* proofFilePath = VerifierInit(argc, argv);
     std::ifstream fileStream(proofFilePath);
-    std::string fileConents((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
-    Proof proof(fileConents);
+    std::string fileContents((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+    Proof proof(fileContents);
 
     startClock();
     bool result = verifySimple(proof);

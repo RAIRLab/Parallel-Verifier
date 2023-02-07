@@ -2,7 +2,7 @@
  * @file SExpression.cpp
  * @author James Oswald (jamesoswald111@gmail.com, oswalj@rpi.edu)
  * @date 3/27/22
- * @brief The implmentation of SExpression class
+ * @brief The implementation of SExpression class
  * 
  * This file implements the sExpression class outlined in SExpression.hpp 
  * along with various other utils that make this possible such: as a combine
@@ -53,12 +53,12 @@ Token::Token(TokenType type_, std::string value_)
 ///@{
     
 //Lexer Globals
-const std::unordered_set<char> ingnoreChars({' ', '\t', '\n'});            //Ignored characters when parsing 
+const std::unordered_set<char> ignoreChars({' ', '\t', '\n'});            //Ignored characters when parsing 
 const std::unordered_set<char> endingChars({' ', '(', ')', '\t', '\n'});   //Tokens that end a previous token if encountered
 
 //Lexer helper functions
 
-//starting at position i of sExpressionString, adds a token with all chars untill a " is hit
+//starting at position i of sExpressionString, adds a token with all chars until a " is hit
 inline void addStringToken(const std::string& expressionString, int &i, std::vector<Token>& tokens){
     bool foundEndOfString = false;
     std::string tokenValue = "";
@@ -139,7 +139,7 @@ std::vector<Token> lex(const std::string& expressionString){
             addStringToken(expressionString, i, tokens);
         }else if(curChar == ':'){                                      
             addKeyToken(expressionString, i, tokens);
-        }else if(ingnoreChars.find(curChar) == ingnoreChars.end()){  //Both Symbols and Numbers
+        }else if(ignoreChars.find(curChar) == ignoreChars.end()){  //Both Symbols and Numbers
             addNormalToken(expressionString, i, tokens);
         }
     }
@@ -157,9 +157,9 @@ std::vector<Token> lex(const std::string& expressionString){
  *   @brief A helper for the parser
  *   @param tokens the list of tokens to grab the sub expression from
  *   @param i the token index to begin grabbing the sub expression at
- *   @pre i must be the index of a left parenthisis expression. 
+ *   @pre i must be the index of a left parenthesis expression. 
  *   Starting at position i, will grab a subexpression from the token array and
- *   move i to the position after the matching parenthisis. 
+ *   move i to the position after the matching parenthesis. 
  *   ```
  *   For example:
  *       tokens = ( ...  (a (b c)) ...)
@@ -172,7 +172,7 @@ inline std::vector<Token> grabSubExpression(const std::vector<Token>& tokens, in
     int parenthesisCounter = 1;
     bool foundMatch = false;
     size_t j;
-    for(j = i+1; j < tokens.size()-1; j++){ //find the index of the closing parenthisis and store it in j
+    for(j = i+1; j < tokens.size()-1; j++){ //find the index of the closing parenthesis and store it in j
         if(tokens[j].type == TokenType::Right_Parenthesis && parenthesisCounter == 1){
             foundMatch = true;
             break;
@@ -225,7 +225,7 @@ inline void parserRecursiveCase(const std::vector<Token>& tokens, sExpression& e
 
 // Parser ===============================================================================
 
-//Recusive s-expression parser
+//Recursive s-expression parser
 sExpression parseTokens(const std::vector<Token>& tokens){
     sExpression expression; 
     if(tokens.size() == 0){
@@ -241,7 +241,7 @@ sExpression parseTokens(const std::vector<Token>& tokens){
 //sExpression members ==================================================================
 
 sExpression::sExpression()
-:type(sExpression::Type::Keyword){
+:type(sExpression::Type::Keyword), value(""){
 }
 
 //Initialize this s-expression object from an s-expression string
@@ -324,7 +324,7 @@ const sExpression& sExpression::at(const size_t index) const{
 }
 
 /*
-    Returns a reffrence to the sExpression following a key in the current sExpression
+    Returns a reference to the sExpression following a key in the current sExpression
 */
 sExpression& sExpression::operator[](const std::string&& key){
     if(type != sExpression::Type::List)
@@ -394,19 +394,19 @@ bool sExpression::contains(const sExpression& t) const {
     return within;
 }
 
-// Finds the first position that matches the subterm t
+// Finds the first position that matches the sub-term t
 std::queue<uid_t> sExpression::positionOf(const sExpression& t) const {
     return this->positionOf(t, std::queue<uid_t>());
 }
 
-// Finds the first position that matches the subterm t
+// Finds the first position that matches the sub-term t
 std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t> pos) const {
     if (*this == t) {
         return pos;
     }
 
     if (this->type != sExpression::Type::List) {
-        throw std::out_of_range("S-Expression Error: Subterm is not within term");
+        throw std::out_of_range("S-Expression Error: Sub-term is not within term");
     }
 
     for (size_t i = 0; i < this->members.size(); i++) {
@@ -418,10 +418,10 @@ std::queue<uid_t> sExpression::positionOf(const sExpression& t, std::queue<uid_t
         } catch (...) { }
     }
 
-    throw std::out_of_range("S-Expression Error: Subterm is not within term");
+    throw std::out_of_range("S-Expression Error: Sub-term is not within term");
 }
 
-// Returns the subterm at the specified position
+// Returns the sub-term at the specified position
 // [] is the whole term
 // Each index in the pos variable represents the position of the argument
 // starting at 0.

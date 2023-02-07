@@ -14,10 +14,10 @@ struct sExpression{
     //Data
     sExpression::Type type;
 
-    union {
+    //union {
         std::string value;                 //Only valid if type != List
         std::vector<sExpression> members;  //Only Valid if type == List
-    };
+    //};
 
     //Members
     sExpression();                                             //Default constructor

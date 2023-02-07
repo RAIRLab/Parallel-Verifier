@@ -18,8 +18,9 @@ FileData lazyslate::parse(const std::string& fileContents) {
     lazyslate::FileData returnData;
     Json::Value root;
     Json::Reader reader;
-    reader.parse(fileContents, root, false);
-    if(!root || !root.isObject()) {
+    bool success = reader.parse(fileContents, root, false);
+    if(!success || !root || !root.isObject()) {
+        std::cerr<<reader.getFormattedErrorMessages()<<std::endl;
         throwFailure("failed to parse json file");
     }
 
@@ -70,7 +71,7 @@ FileData lazyslate::parse(const std::string& fileContents) {
 
     for(const Json::Value& jsonLink : links) {
         Link proofLink;
-        if(!jsonLink || !jsonLink.isArray() || !(jsonLink.size() != 2)){
+        if(!jsonLink || !jsonLink.isArray() || jsonLink.size() != 2){
             throwFailure("link corrupted");
         }
         Json::Value fromNodeId = jsonLink[0];
