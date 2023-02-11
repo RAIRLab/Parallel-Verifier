@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../Proof.hpp"
+#include "Proof.hpp"
 
 namespace lazyslate {
 

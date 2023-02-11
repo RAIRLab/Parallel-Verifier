@@ -6,7 +6,7 @@
 #include<unordered_map>
 #include<optional>
 
-#include"SExpression.hpp"
+#include"../SExpression/SExpression.hpp"
 
 typedef int vertId;
 typedef std::optional<vertId> optVertId;

@@ -10,3 +10,6 @@ Just natural deduction propositional calculus for now.
 
 * [MPI](https://www.open-mpi.org/) (We use Open-MPI for local debugging and MPICH for benchmarks)
 * [jsoncpp](https://github.com/open-source-parsers/jsoncpp)
+
+## Notes
+* Include Path Syntax as option 2 from https://stackoverflow.com/a/52144130/6342516.

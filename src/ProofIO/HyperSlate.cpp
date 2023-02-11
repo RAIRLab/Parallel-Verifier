@@ -3,7 +3,6 @@
 #include<unordered_map>
 #include<string>
 
-#include "../SExpression.hpp"
 #include "HyperSlate.hpp"
 
 //Maps hyperslate justification strings to hyperslate justification enums

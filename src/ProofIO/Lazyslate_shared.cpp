@@ -2,8 +2,6 @@
 
 #include "Lazyslate.hpp"
 
-#include "../Proof.hpp"
-
 const std::unordered_map<std::string, Proof::Justification> \
 justificationMap = {
     {"assume", Proof::Justification::Assume}, 

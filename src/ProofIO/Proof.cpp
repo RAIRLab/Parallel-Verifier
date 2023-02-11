@@ -1,7 +1,7 @@
 
 #include"Proof.hpp"
 
-#include "ProofIO/ProofIO.hpp"
+#include "ProofIO.hpp"
 
 std::unordered_set<std::string> reservedWords = {
     "and", "or", "iff", "imp", "not",

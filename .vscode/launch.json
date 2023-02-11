@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "SexpressionTest",
+            "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/ProofIOTest",
-            "args": ["proofs/hyperslate/proofs/AllFirstOrderJusts.slt"],
+            "program": "${workspaceFolder}/build/bin/SerialVerifier",
+            "args": ["proofs/lazyslate/ourFavorite.json"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -1,11 +1,14 @@
 
 #include<unordered_map>
 #include"SharedVerifier.hpp"
+#include"timing.hpp"
+
+using namespace SharedVerifier;
 
 // Misc Shared Code ===========================================================
 
 //Returns the file path that needs to be read
-const char* VerifierInit(int argc, char** argv){
+const char* SharedVerifier::init(int argc, char** argv){
     // If no arguments are passed, print help
     if (argc != 2) {
         std::cout << "Usage: ./verif.exe [ProofFile]" << std::endl;
@@ -16,31 +19,19 @@ const char* VerifierInit(int argc, char** argv){
 }
 
 
-// Markings ===================================================================
+// Timings ----------------------------------------------------------------------
 
-// Update dest's marking vector to contain source
-void mark(Markings& markings, vertId source, vertId dest) {
-    Markings::iterator it = markings.find(dest);
-    if (it == markings.end()) {
-        markings[dest] = std::unordered_set<vertId>();
-    }
-    markings.at(dest).insert(source);
+static uint64_t startTime; //Uh oh a global
+
+void SharedVerifier::startClock(){
+    startTime = clock_now();
 }
 
-//Returns true if the node at vertex_id in proof p has a full list of markings
-bool hasCompleteMarkings(const Proof& p, vertId vertex_id, \
-                         const std::unordered_set<vertId>& markingList) {
-    const std::unordered_map<Proof::Justification, size_t> numMarkingsMap = 
-    {
-        {Proof::Justification::Assume, 0}, {Proof::Justification::AndIntro, 2},
-        {Proof::Justification::AndElim, 1}, {Proof::Justification::OrIntro, 1},
-        {Proof::Justification::OrElim, 3}, {Proof::Justification::NotIntro, 2},
-        {Proof::Justification::NotElim, 2}, {Proof::Justification::IfIntro, 1},
-        {Proof::Justification::IfElim, 2}, {Proof::Justification::IffIntro, 2},
-        {Proof::Justification::IffElim, 2}
-    };
-    size_t markingsNeeded = numMarkingsMap.at(p.nodeLookup.at(vertex_id).justification);
-    return markingList.size() == markingsNeeded;
+void SharedVerifier::endClock(){
+    uint64_t endTime = clock_now();
+    uint64_t totalCycles = endTime-startTime;
+    double secs = totalCycles/(double)clockFreq;
+    printf("%lf Seconds, %ld Clock Cycles\n", secs, totalCycles);
 }
 
 //Inference Rule Verification =================================================
@@ -74,7 +65,7 @@ const RuleMap rules = {
 };
 
 // Verify that vertex is justified and update assumptions
-bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
+bool SharedVerifier::verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     //Lookup the rule, O(1)
     RuleMap::const_iterator rule = rules.find(pn.justification);        
@@ -82,4 +73,12 @@ bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
         throw std::runtime_error("Verification Error: Unknown Rule");
     //Call the respective verification function
     return rule->second(p, vertex_id, assumptions);  
+}
+
+bool SharedVerifier::verifyVertexSyntax(const Proof& p, vertId vertex_id){
+    return true;
+}
+
+bool SharedVerifier::verifyVertexSemantics(const Proof& p, vertId vertex_id, Assumptions& assumptions){
+    return true;
 }

@@ -1,9 +1,8 @@
 
 
 #pragma once
-#include"../Proof.hpp"
+#include"../../ProofIO/Proof.hpp"
 #include"../SharedVerifier.hpp"
-
 
 inline bool is_if_vertex(const Proof::Node& pn) {
     return pn.formula.type == sExpression::Type::List && \
@@ -32,19 +31,19 @@ bool verifyIfIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    // Make sure the antecedant is in the assumptions of the parent
-    optVertId antecedantId = {};
+    // Make sure the antecedent is in the assumptions of the parent
+    optVertId antecedentId = {};
     for (const vertId a : assumptions[parentId]) {
         const Proof::Node& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
-            antecedantId = a;
+            antecedentId = a;
         }
     }
 
     // Update Assumptions
-    if (antecedantId) {
+    if (antecedentId) {
         assumptions[vertex_id] = assumptions[parentId];
-        assumptions[vertex_id].erase(antecedantId.value());
+        assumptions[vertex_id].erase(antecedentId.value());
         return true;
     }
 

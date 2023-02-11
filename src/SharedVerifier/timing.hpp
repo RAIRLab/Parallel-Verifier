@@ -46,16 +46,5 @@ uint64_t clock_now(void)
 }
 #endif // __cplusplus
 
-uint64_t startTime;
 
-inline void startClock(){
-    startTime = clock_now();
-}
-
-inline void endClock(){
-    uint64_t endTime = clock_now();
-    uint64_t totalCycles = endTime-startTime;
-    double secs = totalCycles/(double)clockFreq;
-    printf("%lf Seconds, %ld Clock Cycles\n", secs, totalCycles);
-}
 

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "../src/SExpression.hpp"
+#include "../src/SExpression/SExpression.hpp"
 
 int main(int argc, char** argv){
     assert(argc == 2);

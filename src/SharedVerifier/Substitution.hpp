@@ -4,7 +4,8 @@
 #include<unordered_map>
 #include<map>
 #include<vector>
-#include"SExpression.hpp"
+
+#include"../SExpression/SExpression.hpp"
 
 struct Substitution {
     std::unordered_map<sExpression, sExpression> variableTermMap;

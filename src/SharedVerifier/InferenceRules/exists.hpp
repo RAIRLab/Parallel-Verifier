@@ -1,6 +1,6 @@
 
 #pragma once
-#include"../Proof.hpp"
+#include"../../ProofIO/Proof.hpp"
 #include"../Substitution.hpp"
 #include"../SharedVerifier.hpp"
 

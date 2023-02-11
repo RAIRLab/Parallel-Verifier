@@ -1,7 +1,7 @@
 
 
 #pragma once
-#include"../Proof.hpp"
+#include"../../ProofIO/Proof.hpp"
 #include"../SharedVerifier.hpp"
 
 extern bool is_if_vertex(const Proof::Node&);

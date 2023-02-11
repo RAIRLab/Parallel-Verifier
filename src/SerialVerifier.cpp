@@ -4,8 +4,9 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
-#include"SharedVerifier.hpp"
-#include"timing.hpp"
+#include "SharedVerifier/SharedVerifier.hpp"
+
+using SharedVerifier::Assumptions;
 
 std::tuple<std::unordered_map<vertId, size_t>, size_t> computerLayerMap(const Proof& p) {
     // VertexId -> Layer Number
@@ -61,7 +62,7 @@ bool verifySimple(const Proof& p) {
 
     for (const auto &currentLayer : layers) {
         for (const auto &n : currentLayer) {
-            if (!verifyVertex(p, n, assumptions)) {
+            if (!SharedVerifier::verifyVertex(p, n, assumptions)) {
                 return false;
             }
             // Assumptions are updated within verifyVertex function
@@ -72,15 +73,13 @@ bool verifySimple(const Proof& p) {
 }
 
 int main(int argc, char** argv) {
-    const char* proofFilePath = VerifierInit(argc, argv);
-    std::ifstream fileStream(proofFilePath);
-    std::string fileContents((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
-    Proof proof(fileContents);
+    const char* proofFilePath = SharedVerifier::init(argc, argv);
+    Proof proof(proofFilePath);
 
-    startClock();
+    SharedVerifier::startClock();
     bool result = verifySimple(proof);
-    endClock();
+    SharedVerifier::endClock();
 
     std::cout << result << std::endl;
-    return 0;
+    return !result;
 }

@@ -5,7 +5,7 @@
 
 #include "Lazyslate.hpp"
 
-#include "../Proof.hpp"
+#include "Proof.hpp"
 
 using namespace lazyslate;
 
