@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/SerialVerifier",
-            "args": ["proofs/lazyslate/ourFavorite.json"],
+            "args": ["proofs/lazyslate/allRulesProof.json"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

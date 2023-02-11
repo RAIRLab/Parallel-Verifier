@@ -59,6 +59,7 @@ const RuleMap rules = {
     INTRO_ELIM_RULES(Or),
     INTRO_ELIM_RULES(If),
     INTRO_ELIM_RULES(Iff),
+    INTRO_ELIM_RULES(Not),
     INTRO_ELIM_RULES(Eq),
     INTRO_ELIM_RULES(Forall),
     INTRO_ELIM_RULES(Exists)

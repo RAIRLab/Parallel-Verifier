@@ -59,7 +59,7 @@ FileData lazyslate::parse(const std::string& fileContents) {
         proofNode.expression = expression.asString();
         proofNode.justification = justification.asString();
         proofNode.x = xPosition.asUInt64();
-        proofNode.y = xPosition.asUInt64();
+        proofNode.y = yPosition.asUInt64();
         returnData.nodes.push_back(proofNode);
     }
 
@@ -75,7 +75,7 @@ FileData lazyslate::parse(const std::string& fileContents) {
             throwFailure("link corrupted");
         }
         Json::Value fromNodeId = jsonLink[0];
-        Json::Value toNodeId = jsonLink[0];
+        Json::Value toNodeId = jsonLink[1];
         if(!fromNodeId || !fromNodeId.isIntegral()
         || !toNodeId || !toNodeId.isIntegral()
         ){

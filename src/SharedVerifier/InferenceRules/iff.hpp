@@ -121,16 +121,16 @@ bool verifyIffElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     if (parentMatchInd == 1) {
         // First parent is either the antecedant
         // or consequent of the second parent.
-        bool syntax_check1 = firstParent.formula == secondParent.formula.members[0] || \
-            firstParent.formula == secondParent.formula.members[1];
+        bool syntax_check1 = firstParent.formula == secondParent.formula.members[1] || \
+            firstParent.formula == secondParent.formula.members[2];
         if (!syntax_check1) {
             return false;
         }
     } else {
         // Second parent is either the antecedant
         // or consequent of the first parent
-        bool syntax_check1 = secondParent.formula  == firstParent.formula.members[0] || \
-            secondParent.formula  == firstParent.formula.members[1];
+        bool syntax_check1 = secondParent.formula  == firstParent.formula.members[1] || \
+            secondParent.formula  == firstParent.formula.members[2];
         if (!syntax_check1) {
             return false;
         }

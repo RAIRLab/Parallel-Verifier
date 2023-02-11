@@ -3,11 +3,9 @@
 #include<cstdio>
 #include<filesystem>
 
-#include "ProofIO/ProofIO.hpp"
-
 namespace fs = std::filesystem;
 
-std::pair<Proof,FILE*> argParse(int argc, char** argv) {
+std::pair<FILE*, FILE*> argParse(int argc, char** argv) {
     if (argc < 2 || argc > 3) {
         std::cerr << "Usage: ProofConverter [outputFile.json] inputFile.slt"
         << std::endl;
@@ -34,6 +32,20 @@ std::pair<Proof,FILE*> argParse(int argc, char** argv) {
     return std::make_pair(inputFile, outputFile);
 }
 
-int main(int argc, char** argv){
+//Takes in a file and returns the contents as a string
+//Optimized for speed
+std::string readFileContents(FILE* inputFile){
+    std::string returnString;
+    std::fseek(inputFile, 0, SEEK_END);
+    size_t fileSize = std::ftell(inputFile);
+    returnString.resize(fileSize);
+    std::rewind(inputFile);
+    fread(&returnString[1], 1, fileSize, inputFile);
+    return returnString;
+}
 
+int main(int argc, char** argv) {
+    const auto [inputFile, outputFile] = argParse(argc, argv);
+    std::string inputFileContents = readFileContents(inputFile);
+    
 }

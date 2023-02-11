@@ -63,18 +63,18 @@ bool verifyIfElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     // Check the the current node matches the consequent of the if vertex
-    if (is_if_vertex(firstParent) && pn.formula != firstParent.formula.members[1]) {
+    if (is_if_vertex(firstParent) && pn.formula != firstParent.formula.members[2]) {
         return false;
-    } else if (is_if_vertex(secondParent) && pn.formula != secondParent.formula.members[1]) {
+    } else if (is_if_vertex(secondParent) && pn.formula != secondParent.formula.members[2]) {
         return false;
     }
 
     // Check that the other parent node matches the antecedant of the if vertex
     const bool result = \
         // secondParent is the antecedant of firstParent
-        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[0]) || \
+        (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[1]) || \
         // firstParent is the antecedant of secondParent
-        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[0]);
+        (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
 
     // Update Assumptions
     if (result) {
