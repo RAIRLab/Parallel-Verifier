@@ -46,20 +46,28 @@ DepthMap getDepthMap(const Proof& p){
     }
 
     using PotentialMemberIterator = std::unordered_set<VertId>::const_iterator;
-    size_t membersPerRank = (size_t)ceil(potentialLayerMembers.size() / \
-                                         (double)numRanks);
-    
-    //Buffers for storing the MPI communications 
-    std::unique_ptr<int[]> vertIdSendBuf(new int[membersPerRank]);
-    std::unique_ptr<int[]> vertIdReceiveBuf(new int[membersPerRank*numRanks]);
-    std::unique_ptr<bool[]> inLayerSendBuf(new bool[membersPerRank]);
-    std::unique_ptr<bool[]> inLayerReceiveBuf(new bool[membersPerRank*numRanks]);
-
     size_t currentLayer = 1;
     while(potentialLayerMembers.size() != 0){
+        //Compute rank communication
+        size_t membersPerRank = (size_t)ceil(potentialLayerMembers.size() / \
+                                (double)numRanks);
+        
+        std::cout<<"MPR: "<<myRank<<":"<<membersPerRank<<std::endl;
+
+        //Buffers for storing the MPI communications 
+        std::unique_ptr<int[]> vertIdSendBuf(new int[membersPerRank]);
+        std::unique_ptr<int[]> vertIdReceiveBuf(new int[membersPerRank*numRanks]);
+        std::unique_ptr<bool[]> inLayerSendBuf(new bool[membersPerRank]);
+        std::unique_ptr<bool[]> inLayerReceiveBuf(new bool[membersPerRank*numRanks]);
+
+        std::cout<<"On Layer :"<<myRank<<":"<<currentLayer<<std::endl;
+
         PotentialMemberIterator iter = potentialLayerMembers.begin();
         PotentialMemberIterator endIter = potentialLayerMembers.end();
         std::advance(iter, membersPerRank*myRank);
+
+        std::cout<<"Offset: "<<myRank<<":"<<membersPerRank*myRank<<std::endl;
+
         for(size_t i = 0; i < membersPerRank && iter != endIter; iter++, i++){
             vertIdSendBuf[i] = *iter;
             inLayerSendBuf[i] = allParentsInDepthMap(p, *iter, depthMap);
@@ -77,7 +85,6 @@ DepthMap getDepthMap(const Proof& p){
         for(size_t i = 0; i < originalSize; i++){
             VertId completed = vertIdReceiveBuf[i];
             if(inLayerReceiveBuf[i]){
-                
                 depthMap.insert({completed, currentLayer});
                 potentialLayerMembers.erase(completed);
                 for(VertId compChild : p.nodeLookup.at(completed).children){
