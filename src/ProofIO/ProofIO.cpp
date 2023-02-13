@@ -54,7 +54,7 @@ std::string readFileContents(FILE* inputFile){
     return returnString;
 }
 
-ProofData ProofIO::loadData(std::string filename) {
+ProofData ProofIO::loadProofData(std::string filename) {
     FILE* inputFile = std::fopen(filename.c_str(), "r");
     if(!inputFile){
         throw std::runtime_error("ProofIO Error: Unable to open file \"" \
@@ -80,8 +80,8 @@ ProofData ProofIO::loadData(std::string filename) {
 }
 
 
-Proof ProofIO::loadProof(std::string filename) {
-    ProofData data = loadData(filename);
+Proof ProofIO::loadProofFromFile(std::string filename) {
+    ProofData data = loadProofData(filename);
     switch (data.tag) {
         case ProofData::Tag::Hyperslate:
             return hyperslate::constructProof(data.hyperslateData);
@@ -91,4 +91,9 @@ Proof ProofIO::loadProof(std::string filename) {
             break;
     }
     throw std::runtime_error("ProofIO error: Invalid ProofData Tag");
+}
+
+Proof ProofIO::loadFromJSONContents(const std::string& fileContents){
+    lazyslate::FileData data = lazyslate::parse(fileContents);
+    return lazyslate::constructProof(data);
 }

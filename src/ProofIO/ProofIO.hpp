@@ -20,6 +20,7 @@ namespace ProofIO {
         lazyslate::FileData lazyslateData;
     };
 
-    ProofData loadData(std::string filename);
-    Proof loadProof(std::string filename);
+    ProofData loadProofData(std::string filename);
+    Proof loadProofFromFile(std::string filename);
+    Proof loadFromJSONContents(const std::string& fileContents);
 }
