@@ -75,8 +75,8 @@ Proof::SymbolTypeMap compute_symbol_types(sExpression& formula) {
     return compute_symbol_types(formula, intermediateResult, true);
 }
 
-Proof::Node::Node(int vertId, sExpression f, Proof::Justification j) {
-    id = vertId;
+Proof::Node::Node(int VertId, sExpression f, Proof::Justification j) {
+    id = VertId;
     formula = f;
     justification = j;
     symbolTypeLookup = compute_symbol_types(formula);

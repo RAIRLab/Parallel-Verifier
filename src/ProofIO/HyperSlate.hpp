@@ -19,15 +19,15 @@ namespace hyperslate {
 
     struct Description{
         int x, y;                       //positions of the node in the hyperslate UI
-        vertId id;                        //Internal ID in hyperslate
+        VertId id;                        //Internal ID in hyperslate
         std::string name;               //Hyperslate names
         std::string formula;            //The textual representation of the formula
         Justification justification;      //The logical justification
     };
 
     struct Structure{
-        vertId conclusion;
-        std::vector<vertId> premises;
+        VertId conclusion;
+        std::vector<VertId> premises;
     };
 
     struct Interface{

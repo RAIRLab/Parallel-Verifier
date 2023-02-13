@@ -4,15 +4,16 @@ add_library(SharedVerifier STATIC)
 target_link_libraries(SharedVerifier SExpression ProofIO)
 
 set(INFERENCE_RULES
-    InferenceRules/and.hpp
-    InferenceRules/assume.hpp
-    InferenceRules/equals.hpp
-    InferenceRules/exists.hpp
-    InferenceRules/forall.hpp
-    InferenceRules/if.hpp
-    InferenceRules/iff.hpp
-    InferenceRules/not.hpp
-    InferenceRules/or.hpp
+    InferenceRules/rules.hpp
+    InferenceRules/and.cpp
+    InferenceRules/assume.cpp
+    InferenceRules/equals.cpp
+    InferenceRules/exists.cpp
+    InferenceRules/forall.cpp
+    InferenceRules/if.cpp
+    InferenceRules/iff.cpp
+    InferenceRules/not.cpp
+    InferenceRules/or.cpp
 )
 
 target_sources(SharedVerifier PRIVATE

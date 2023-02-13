@@ -1,5 +1,8 @@
 
 
+//This file is not supported
+/*
+
 #pragma once
 #include"../../ProofIO/Proof.hpp"
 #include"../SharedVerifier.hpp"
@@ -13,7 +16,7 @@ inline bool is_equals_vertex(const Proof::Node& pn) {
        pn.formula.members[0].value == "=";
 }
 
-bool verifyEqIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyEqIntro(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     if (!is_equals_vertex(pn)) {
@@ -30,7 +33,7 @@ bool verifyEqIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
     return result;
 }
 
-bool verifyEqElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyEqElim(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have two parent nodes
@@ -38,16 +41,16 @@ bool verifyEqElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
         return false;
     }
 
-    const std::vector<vertId> parents(pn.parents.begin(), pn.parents.end());
+    const std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
     const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
     const Proof::Node& secondParent = p.nodeLookup.at(parents[1]);
 
     //TODO: What is going on here? 
     // REPLACE THIS PART
     const bool result = \
-        // secondParent is the antecedant of firstParent
+        // secondParent is the antecedent of firstParent
         (is_if_vertex(firstParent) && secondParent.formula == firstParent.formula.members[1]) || \
-        // firstParent is the antecedant of secondParent
+        // firstParent is the antecedent of secondParent
         (is_if_vertex(secondParent) && firstParent.formula == secondParent.formula.members[1]);
 
     // Update Assumptions
@@ -58,3 +61,4 @@ bool verifyEqElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
 
     return result;
 }
+*/

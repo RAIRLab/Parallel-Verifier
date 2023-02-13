@@ -9,9 +9,9 @@
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
-namespace SharedVerifier{
+using Assumptions = std::unordered_map<VertId, std::unordered_set<VertId>>;
 
-    using Assumptions = std::unordered_map<vertId, std::unordered_set<vertId>>;
+namespace SharedVerifier{
 
     const char* init(int argc, char** argv);
     
@@ -19,9 +19,9 @@ namespace SharedVerifier{
     void endClock();
 
     //Inference Rule Verification and helpers
-    bool verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions);
-    bool verifyVertexSyntax(const Proof& p, vertId vertex_id);
-    bool verifyVertexSemantics(const Proof& p, vertId vertex_id, Assumptions& assumptions);
+    bool verifyVertex(const Proof& p, const VertId vertexId, Assumptions& assumptions);
+    bool verifyVertexSyntax(const Proof& p, const VertId vertexId);
+    bool verifyVertexSemantics(const Proof& p, const VertId vertexId, Assumptions& assumptions);
 }
 
 

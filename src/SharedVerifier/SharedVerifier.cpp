@@ -2,6 +2,7 @@
 #include<unordered_map>
 #include"SharedVerifier.hpp"
 #include"timing.hpp"
+#include"InferenceRules/rules.hpp"
 
 using namespace SharedVerifier;
 
@@ -36,50 +37,61 @@ void SharedVerifier::endClock(){
 
 //Inference Rule Verification =================================================
 
-#include"InferenceRules/assume.hpp"
-#include"InferenceRules/and.hpp"
-#include"InferenceRules/or.hpp"
-#include"InferenceRules/not.hpp"
-#include"InferenceRules/if.hpp"
-#include"InferenceRules/iff.hpp"
-#include"InferenceRules/equals.hpp"
-#include"InferenceRules/forall.hpp"
-#include"InferenceRules/exists.hpp"
+//Struct to store verification functions
+struct VerificationFunctions{
+    bool (*syntax)(const Proof&, const VertId);
+    bool (*semantics)(const Proof&, const VertId, Assumptions&);
+};
 
-//Macro to generate rule table members since they all follow the same naming scheme
-#define INTRO_ELIM_RULES(N) {Proof::Justification:: N##Intro,\
-verify##N##Intro}, {Proof::Justification:: N##Elim, verify##N##Elim}
+//Macro to generate rule table members, they all follow the same naming scheme
+#define INTRO_ELIM_RULES(N) \
+{Proof::Justification:: N##Intro,\
+ VerificationFunctions{verify##N##IntroSyntax, verify##N##IntroSemantics}},\
+{Proof::Justification:: N##Elim,\
+ VerificationFunctions{verify##N##ElimSyntax, verify##N##ElimSemantics}}
 
 //Rule Lookup table
-using VerificationFunction = bool(*)(const Proof&, vertId, Assumptions&);
-using RuleMap = std::unordered_map<Proof::Justification, VerificationFunction>;
+using RuleMap = \
+    std::unordered_map<Proof::Justification, VerificationFunctions>;
+
 const RuleMap rules = {
-    {Proof::Justification::Assume, verifyAssumption}, 
+    {
+        Proof::Justification::Assume,
+        VerificationFunctions{verifyAssumptionSyntax, verifyAssumptionSemantics}
+    },
     INTRO_ELIM_RULES(And),
     INTRO_ELIM_RULES(Or),
     INTRO_ELIM_RULES(If),
     INTRO_ELIM_RULES(Iff),
     INTRO_ELIM_RULES(Not),
-    INTRO_ELIM_RULES(Eq),
-    INTRO_ELIM_RULES(Forall),
-    INTRO_ELIM_RULES(Exists)
+    //INTRO_ELIM_RULES(Eq),
+    //INTRO_ELIM_RULES(Forall),
+    //INTRO_ELIM_RULES(Exists)
 };
 
-// Verify that vertex is justified and update assumptions
-bool SharedVerifier::verifyVertex(const Proof& p, vertId vertex_id, Assumptions& assumptions){
-    const Proof::Node& pn = p.nodeLookup.at(vertex_id);
-    //Lookup the rule, O(1)
-    RuleMap::const_iterator rule = rules.find(pn.justification);        
+const VerificationFunctions& getRuleVerifiers(const Proof& p, 
+                                              const VertId vertexId){
+    const Proof::Node& pn = p.nodeLookup.at(vertexId);
+    RuleMap::const_iterator rule = rules.find(pn.justification);
     if(rule == rules.end()) //If it doesn't exist, throw error
         throw std::runtime_error("Verification Error: Unknown Rule");
-    //Call the respective verification function
-    return rule->second(p, vertex_id, assumptions);  
+    return rule->second;
 }
 
-bool SharedVerifier::verifyVertexSyntax(const Proof& p, vertId vertex_id){
-    return true;
+bool SharedVerifier::verifyVertexSyntax(const Proof& p, const VertId vertexId){
+    return getRuleVerifiers(p, vertexId).syntax(p, vertexId);
 }
 
-bool SharedVerifier::verifyVertexSemantics(const Proof& p, vertId vertex_id, Assumptions& assumptions){
-    return true;
+bool SharedVerifier::verifyVertexSemantics(const Proof& p, 
+                                           const VertId vertexId,
+                                           Assumptions& assumptions){
+    return getRuleVerifiers(p, vertexId).semantics(p, vertexId, assumptions);
+}
+
+// Verify that vertex is justified and update assumptions
+bool SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
+                                  Assumptions& assumptions){
+    const VerificationFunctions& verifiers = getRuleVerifiers(p, vertexId);
+    return verifiers.syntax(p, vertexId) &&\
+           verifiers.semantics(p, vertexId, assumptions);
 }

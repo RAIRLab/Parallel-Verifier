@@ -1,5 +1,6 @@
 
-
+//Not supported in current version
+/*
 #pragma once
 #include"../../ProofIO/Proof.hpp"
 #include"../Substitution.hpp"
@@ -14,7 +15,7 @@ inline bool is_forall_vertex(const Proof::Node& pn) {
 }
 
 // NOT DONE
-bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyForallIntro(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
@@ -48,11 +49,11 @@ bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumption
     
     // TODO: Make sure it's not an already existing bound variable
 
-    const vertId parentId = *pn.parents.begin();
+    const VertId parentId = *pn.parents.begin();
     const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Find out its corresponding subterm in the parent formula
-    sExpression oldSubterm; 
+    sExpression oldSub-term; 
     try {
         oldSubterm = parent_pn.formula.atPosition(bound_var_pos);
     } catch (...) {
@@ -86,7 +87,7 @@ bool verifyForallIntro(const Proof& p, vertId vertex_id, Assumptions& assumption
 }
 
 // NOT DONE
-bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyForallElim(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
 
     // Make sure we have one parent node
@@ -94,7 +95,7 @@ bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions
         return false;
     }
 
-    const vertId parentId = *pn.parents.begin();
+    const VertId parentId = *pn.parents.begin();
     const Proof::Node& parent_pn = p.nodeLookup.at(parentId);
 
     // Make sure parent is a forall node
@@ -147,3 +148,5 @@ bool verifyForallElim(const Proof& p, vertId vertex_id, Assumptions& assumptions
 
     return result; 
 }
+
+*/

@@ -23,7 +23,7 @@ justificationMap = {
 
 Proof lazyslate::constructProof(const lazyslate::FileData& fileData){
     Proof proof;
-    proof.nodeLookup = std::unordered_map<vertId, Proof::Node>();
+    proof.nodeLookup = std::unordered_map<VertId, Proof::Node>();
     for(lazyslate::Node node : fileData.nodes){
         if(justificationMap.find(node.justification) == justificationMap.end())
             throw std::runtime_error("ProofIO Error: proof construction "\

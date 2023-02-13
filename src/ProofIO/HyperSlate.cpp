@@ -77,7 +77,7 @@ hyperslate::FileData hyperslate::parse(const std::string& fileContents){
     sExpression structures = fileExpression["STRUCTURES"];
     for(sExpression& structure : structures.members){
         hyperslate::Structure returnStructure;
-        std::vector<vertId> returnPremises;
+        std::vector<VertId> returnPremises;
         for(const sExpression& premise : structure["PREMISES"].members)
             returnPremises.push_back(std::stoi(premise.value));
         returnStructure.premises = returnPremises;
@@ -106,7 +106,7 @@ hyperslate::FileData hyperslate::parse(const std::string& fileContents){
 
 Proof hyperslate::constructProof(const hyperslate::FileData& fileData){
     Proof proof;
-    proof.nodeLookup = std::unordered_map<vertId, Proof::Node>();
+    proof.nodeLookup = std::unordered_map<VertId, Proof::Node>();
     for(hyperslate::Description descriptionNode : fileData.descriptions){
         if(descriptionNode.formula != ""){  //Ignore Selmer's comment nodes
             Proof::Node proofNode(
@@ -120,7 +120,7 @@ Proof hyperslate::constructProof(const hyperslate::FileData& fileData){
         }
     }
     for(hyperslate::Structure connection : fileData.structures){
-        for(vertId premise : connection.premises){
+        for(VertId premise : connection.premises){
             proof.nodeLookup[premise].children.insert(connection.conclusion);
             proof.nodeLookup[connection.conclusion].parents.insert(premise);
         }

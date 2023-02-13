@@ -8,8 +8,8 @@
 
 #include"../SExpression/SExpression.hpp"
 
-typedef int vertId;
-typedef std::optional<vertId> optVertId;
+typedef int VertId;
+typedef std::optional<VertId> optVertId;
 
 struct Proof{
 
@@ -33,28 +33,28 @@ struct Proof{
     };
 
     struct Node{
-        vertId id;
+        VertId id;
         sExpression formula;
         Justification justification;
-        std::unordered_set<vertId> parents;
-        std::unordered_set<vertId> children;
+        std::unordered_set<VertId> parents;
+        std::unordered_set<VertId> children;
         SymbolTypeMap symbolTypeLookup;
 
         // Constructor
-        Node(int vertId, sExpression formula, Justification justification);
+        Node(int VertId, sExpression formula, Justification justification);
         Node() = default;
     };
 
 
     //Representation ====================================================== 
     /*
-        O(1) access to node data based on vertId as index
+        O(1) access to node data based on VertId as index
         This prevents us from using pointers on Proof::Nodes which would not translate between ranks.
         Allows proofs to easily be serialized for message passing.
     */
-    std::unordered_map<vertId, Node> nodeLookup; 
+    std::unordered_map<VertId, Node> nodeLookup; 
     //We need to know our initial assumptions for our algs
-    std::unordered_set<vertId> assumptions;
+    std::unordered_set<VertId> assumptions;
 
     // Methods ================================================================
     Proof() = default;

@@ -1,4 +1,6 @@
 
+//Not supported in current version
+/*
 #pragma once
 #include"../../ProofIO/Proof.hpp"
 #include"../Substitution.hpp"
@@ -12,10 +14,12 @@ inline bool is_exists_vertex(const Proof::Node& pn) {
        pn.formula.members[1].type == sExpression::Type::Symbol;
 }
 
-bool verifyExistsIntro(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyExistsIntro(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     return false; // TODO
 }
 
-bool verifyExistsElim(const Proof& p, vertId vertex_id, Assumptions& assumptions) {
+bool verifyExistsElim(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
     return false; // TODO
 }
+
+*/
