@@ -73,9 +73,11 @@ DepthMap getDepthMap(const Proof& p){
                       MPI_CXX_BOOL, (void*)inLayerReceiveBuf.get(), \
                       membersPerRank, MPI_CXX_BOOL, MPI_COMM_WORLD);
         
-        for(size_t i = 0; i < potentialLayerMembers.size(); i++){
+        size_t originalSize = potentialLayerMembers.size();
+        for(size_t i = 0; i < originalSize; i++){
+            VertId completed = vertIdReceiveBuf[i];
             if(inLayerReceiveBuf[i]){
-                VertId completed = vertIdReceiveBuf[i];
+                
                 depthMap.insert({completed, currentLayer});
                 potentialLayerMembers.erase(completed);
                 for(VertId compChild : p.nodeLookup.at(completed).children){
