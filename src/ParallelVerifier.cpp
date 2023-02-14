@@ -16,6 +16,19 @@ int numRanks;
 
 using DepthMap = std::unordered_map<VertId, size_t>;
 
+//Pseudo-Marking struct
+struct Marking{
+    VertId node;
+    bool completed;
+};
+
+void MPIDebugPrint(std::string message, int rank = -1){
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(rank == -1 || myRank == rank){
+        std::cout<<"Rank "<<myRank<<":"<<message<<std::endl;
+    }
+}
+
 // Takes in a proof, a nodeId, and a depthMap, returns true if all of a nodes 
 // parents are in the depth map 
 bool allParentsInDepthMap(const Proof& p, VertId node,
@@ -28,6 +41,31 @@ bool allParentsInDepthMap(const Proof& p, VertId node,
     }
     return true;
 }
+
+//Takes in an an item count and determines
+//how many items are optimally allocated to each rank
+//O(numRanks)
+std::vector<int> getRankSizes(int numItems){
+    int baseSize = numItems / numRanks;
+    std::vector<int> rankSizes(numRanks, baseSize);
+    for(int i = 0; i < numItems % numRanks; i++){
+        rankSizes[i]++;
+    }
+    return rankSizes;
+}
+
+//Takes in an rankSizes map and computes the displacements
+//for MPI_AllGatherV
+//O(numRanks)
+std::vector<int> getRankDisplacements(const std::vector<int>& rankSizes){
+    std::vector<int> displacements(rankSizes.size());
+    displacements[0] = 0;
+    for(int i = 1; i < rankSizes.size(); i++){
+        displacements[i] = displacements[i-1] + rankSizes[i-1];
+    }
+    return displacements;
+}
+
 
 //Takes a proof and returns a map from vertices to 
 //their maximum distance to an assumption 
@@ -48,41 +86,48 @@ DepthMap getDepthMap(const Proof& p){
     using PotentialMemberIterator = std::unordered_set<VertId>::const_iterator;
     size_t currentLayer = 1;
     while(potentialLayerMembers.size() != 0){
-        //Compute rank communication
-        size_t membersPerRank = (size_t)ceil(potentialLayerMembers.size() / \
-                                (double)numRanks);
         
-        std::cout<<"MPR: "<<myRank<<":"<<membersPerRank<<std::endl;
-
+        size_t numItems = potentialLayerMembers.size();
+        std::vector<int> rankSizes = getRankSizes(numItems);
+        std::vector<int> rankDisplacements = getRankDisplacements(rankSizes);
+        int myItemCount = rankSizes[myRank];
+        int myDisplacement = rankDisplacements[myRank];
+        
         //Buffers for storing the MPI communications 
-        std::unique_ptr<int[]> vertIdSendBuf(new int[membersPerRank]);
-        std::unique_ptr<int[]> vertIdReceiveBuf(new int[membersPerRank*numRanks]);
-        std::unique_ptr<bool[]> inLayerSendBuf(new bool[membersPerRank]);
-        std::unique_ptr<bool[]> inLayerReceiveBuf(new bool[membersPerRank*numRanks]);
+        std::vector<int> vertIdSendBuf(myItemCount);
+        std::vector<int> vertIdReceiveBuf(numItems);
+        std::vector<uint8_t> inLayerSendBuf(myItemCount);
+        std::vector<uint8_t> inLayerReceiveBuf(numItems);
 
-        std::cout<<"On Layer :"<<myRank<<":"<<currentLayer<<std::endl;
+        MPIDebugPrint("Layer: " + std::to_string(currentLayer));
 
         PotentialMemberIterator iter = potentialLayerMembers.begin();
         PotentialMemberIterator endIter = potentialLayerMembers.end();
-        std::advance(iter, membersPerRank*myRank);
 
-        std::cout<<"Offset: "<<myRank<<":"<<membersPerRank*myRank<<std::endl;
+        MPIDebugPrint("Before Advance:");
 
-        for(size_t i = 0; i < membersPerRank && iter != endIter; iter++, i++){
+        std::advance(iter, myDisplacement);
+
+        MPIDebugPrint("Offset: " + std::to_string(myDisplacement));
+
+        //Compute if a node is on a layer in parallel
+        for(size_t i = 0; i < myItemCount && iter != endIter; i++, iter++){
             vertIdSendBuf[i] = *iter;
-            inLayerSendBuf[i] = allParentsInDepthMap(p, *iter, depthMap);
+            inLayerSendBuf[i] = 
+                (uint8_t)allParentsInDepthMap(p, *iter, depthMap);
         }
-        
+
         //Share the information about who's on the current layer
-        MPI_Allgather((void*)vertIdSendBuf.get(), membersPerRank,\
-                      MPI_INT, (void*)vertIdReceiveBuf.get(), \
-                      membersPerRank, MPI_INT, MPI_COMM_WORLD);
-        MPI_Allgather((void*)inLayerSendBuf.get(), membersPerRank,\
-                      MPI_CXX_BOOL, (void*)inLayerReceiveBuf.get(), \
-                      membersPerRank, MPI_CXX_BOOL, MPI_COMM_WORLD);
-        
-        size_t originalSize = potentialLayerMembers.size();
-        for(size_t i = 0; i < originalSize; i++){
+        MPI_Allgatherv((void*)vertIdSendBuf.data(), myItemCount,\
+                      MPI_INT, (void*)vertIdReceiveBuf.data(), \
+                      rankSizes.data(), rankDisplacements.data(),\
+                      MPI_INT, MPI_COMM_WORLD);
+        MPI_Allgatherv((void*)inLayerSendBuf.data(), myItemCount,\
+                      MPI_UINT8_T, (void*)inLayerReceiveBuf.data(),\
+                      rankSizes.data(), rankDisplacements.data(),\
+                      MPI_INT, MPI_COMM_WORLD);
+
+        for(int i = 0; i < numItems; i++){
             VertId completed = vertIdReceiveBuf[i];
             if(inLayerReceiveBuf[i]){
                 depthMap.insert({completed, currentLayer});

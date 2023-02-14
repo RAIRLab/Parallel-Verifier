@@ -58,6 +58,7 @@
     "cSpell.words": [
         "Allgather",
         "allgathered",
+        "Allgatherv",
         "Allreduce",
         "Carothers",
         "Elim",

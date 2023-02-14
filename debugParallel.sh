@@ -1,0 +1,1 @@
+mpirun -n 2 xterm -hold -e gdb -ex run --args build/bin/ParallelVerifier proofs/lazyslate/allRulesProof.json

@@ -24,7 +24,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/ParallelVerifier",
-            "args": ["proofs/lazyslate/allRulesProof.json"],
+            "args": ["proofs/lazyslate/ourFavorite.json"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
