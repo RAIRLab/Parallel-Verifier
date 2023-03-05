@@ -16,7 +16,10 @@ namespace SharedVerifier{
     const char* init(int argc, char** argv);
     
     void startClock();
-    void endClock();
+    std::pair<double, uint64_t> endClock();
+    void endClockPrint();
+    double endClockSeconds();
+    uint64_t endClockCycles();
 
     //Inference Rule Verification and helpers
     bool verifyVertex(const Proof& p, const VertId vertexId, Assumptions& assumptions);

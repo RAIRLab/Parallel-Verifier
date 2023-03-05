@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     
     SharedVerifier::startClock();
     bool result = verifySimple(proof);
-    SharedVerifier::endClock();
+    SharedVerifier::endClockPrint();
 
     return !result;
 }

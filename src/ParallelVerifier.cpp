@@ -99,16 +99,16 @@ DepthMap getDepthMap(const Proof& p){
         std::vector<uint8_t> inLayerSendBuf(myItemCount);
         std::vector<uint8_t> inLayerReceiveBuf(numItems);
 
-        MPIDebugPrint("Layer: " + std::to_string(currentLayer));
+        //MPIDebugPrint("Layer: " + std::to_string(currentLayer));
 
         PotentialMemberIterator iter = potentialLayerMembers.begin();
         PotentialMemberIterator endIter = potentialLayerMembers.end();
 
-        MPIDebugPrint("Before Advance:");
+        //MPIDebugPrint("Before Advance:");
 
         std::advance(iter, myDisplacement);
 
-        MPIDebugPrint("Offset: " + std::to_string(myDisplacement));
+        //MPIDebugPrint("Offset: " + std::to_string(myDisplacement));
 
         //Compute if a node is on a layer in parallel
         for(size_t i = 0; i < myItemCount && iter != endIter; i++, iter++){
@@ -125,7 +125,7 @@ DepthMap getDepthMap(const Proof& p){
         MPI_Allgatherv((void*)inLayerSendBuf.data(), myItemCount,\
                       MPI_UINT8_T, (void*)inLayerReceiveBuf.data(),\
                       rankSizes.data(), rankDisplacements.data(),\
-                      MPI_INT, MPI_COMM_WORLD);
+                      MPI_UINT8_T, MPI_COMM_WORLD);
 
         for(int i = 0; i < numItems; i++){
             VertId completed = vertIdReceiveBuf[i];
@@ -153,7 +153,7 @@ bool verifyParallel(const Proof& p){
     DepthMap depthMap = getDepthMap(p);
     if(depthMap.size() != p.nodeLookup.size())
         return false;
-    
+
     return true;
 }
 
@@ -184,7 +184,10 @@ int main(int argc, char** argv){
     //Run Verifier
     SharedVerifier::startClock();
     bool result = verifyParallel(proof);
-    SharedVerifier::endClock();
+    auto [seconds, cycles] = SharedVerifier::endClock();
+    if(myRank == 0){
+        std::cout<<seconds<<" Seconds, "<<cycles<<" Clock Cycles"<<std::endl;
+    }
 
     MPI_Finalize();
     return !result;

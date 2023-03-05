@@ -28,11 +28,33 @@ void SharedVerifier::startClock(){
     startTime = clock_now();
 }
 
-void SharedVerifier::endClock(){
+std::pair<double, uint64_t> SharedVerifier::endClock(){
+    uint64_t endTime = clock_now();
+    uint64_t totalCycles = endTime-startTime;
+    double secs = totalCycles/(double)clockFreq;
+    return std::make_pair(secs, totalCycles);
+}
+
+void SharedVerifier::endClockPrint(){
     uint64_t endTime = clock_now();
     uint64_t totalCycles = endTime-startTime;
     double secs = totalCycles/(double)clockFreq;
     printf("%lf Seconds, %ld Clock Cycles\n", secs, totalCycles);
+}
+
+uint64_t SharedVerifier::endClockCycles(){
+    uint64_t endTime = clock_now();
+    uint64_t totalCycles = endTime-startTime;
+    return totalCycles;
+}
+
+//Returns the number of seconds elapsed as a double since 
+// the last call to startClock
+double SharedVerifier::endClockSeconds(){
+    uint64_t endTime = clock_now();
+    uint64_t totalCycles = endTime-startTime;
+    double secs = totalCycles/(double)clockFreq;
+    return secs;
 }
 
 //Inference Rule Verification =================================================
