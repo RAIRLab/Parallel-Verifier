@@ -51,4 +51,33 @@ add_test(
 )
 set_tests_properties(SerialVerifierAllPropositionalRules PROPERTIES TIMEOUT 5) 
 
+add_test(
+    NAME SerialVerifierOrDistro
+    COMMAND SerialVerifier "proofs/lazyslate/orDistribution.json"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+set_tests_properties(SerialVerifierOrDistro PROPERTIES TIMEOUT 5) 
+
+
 # Parallel Verifier -------------------------------------------------------------------
+
+add_test(
+    NAME ParallelVerifierFavorite
+    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierFavorite PROPERTIES TIMEOUT 5) 
+
+add_test(
+    NAME ParallelVerifierAllPropositionalRules
+    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierAllPropositionalRules PROPERTIES TIMEOUT 5) 
+
+add_test(
+    NAME ParallelVerifierOrDistro
+    COMMAND mpirun -N 4 ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierOrDistro PROPERTIES TIMEOUT 5) 
