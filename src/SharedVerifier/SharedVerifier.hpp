@@ -9,6 +9,9 @@
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
+//Maps a vertex to the set of assumptions it depends on semantically
+//this is NOT all assumptions that are its parents as many rules
+//discard assumptions
 using Assumptions = std::unordered_map<VertId, std::unordered_set<VertId>>;
 
 namespace SharedVerifier{
