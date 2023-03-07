@@ -1,7 +1,7 @@
 
 add_library(SharedVerifier STATIC)
 
-target_link_libraries(SharedVerifier SExpression ProofIO)
+target_link_libraries(SharedVerifier SExpression Proof ProofIO)
 
 set(INFERENCE_RULES
     InferenceRules/rules.hpp

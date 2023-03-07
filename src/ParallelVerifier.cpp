@@ -8,7 +8,7 @@
 
 #include<mpi.h>
 
-#include "ProofIO/Proof.hpp"
+#include "Proof/Proof.hpp"
 #include "ProofIO/ProofIO.hpp"
 #include "SharedVerifier/SharedVerifier.hpp"
 

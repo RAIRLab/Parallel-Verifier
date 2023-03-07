@@ -3,7 +3,7 @@
 #include<cstdio>
 #include<filesystem>
 
-#include "ProofIO/ProofIO.hpp"
+#include "Proof/Proof.hpp"
 
 namespace fs = std::filesystem;
 

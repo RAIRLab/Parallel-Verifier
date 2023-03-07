@@ -1,6 +1,6 @@
 
 
-#include"../../ProofIO/Proof.hpp"
+#include"../../Proof/Proof.hpp"
 #include"../SharedVerifier.hpp"
 
 bool verifyAssumptionSyntax(const Proof& p, const VertId vertex_id){

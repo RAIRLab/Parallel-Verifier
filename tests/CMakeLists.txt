@@ -17,7 +17,7 @@ add_test(NAME SExpressionTestCompound COMMAND SExpressionTest
 # ProofIO ---------------------------------------------------------------------
 
 add_executable(ProofIOTest)
-target_link_libraries(ProofIOTest ProofIO SExpression)
+target_link_libraries(ProofIOTest Proof ProofIO SExpression)
 target_sources(ProofIOTest PRIVATE
     ProofIOTest.cpp
 )
@@ -50,3 +50,5 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 set_tests_properties(SerialVerifierAllPropositionalRules PROPERTIES TIMEOUT 5) 
+
+# Parallel Verifier -------------------------------------------------------------------

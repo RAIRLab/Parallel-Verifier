@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Proof.hpp"
+#include "../Proof/Proof.hpp"
 #include "HyperSlate.hpp"
 #include "Lazyslate.hpp"
 

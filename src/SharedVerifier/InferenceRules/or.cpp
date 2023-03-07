@@ -1,6 +1,6 @@
 
 
-#include"../../ProofIO/Proof.hpp"
+#include"../../Proof/Proof.hpp"
 #include"../SharedVerifier.hpp"
 
 inline bool isOrVertex(const Proof::Node& pn) {

@@ -1,6 +1,6 @@
 
 #include"../SharedVerifier.hpp"
-#include"../../ProofIO/Proof.hpp"
+#include"../../Proof/Proof.hpp"
 
 #define FORWARD_DECLARE_INTRO_ELIM(N)\
 bool verify##N##ElimSyntax(const Proof& p, const VertId vertexId);\

@@ -5,7 +5,7 @@
 #include <vector>
 #include <optional>
 
-#include "Proof.hpp"
+#include "../Proof/Proof.hpp"
 
 namespace hyperslate { 
 

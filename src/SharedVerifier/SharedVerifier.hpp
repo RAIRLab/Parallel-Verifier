@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
-#include "../ProofIO/Proof.hpp"
+#include "../Proof/Proof.hpp"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 

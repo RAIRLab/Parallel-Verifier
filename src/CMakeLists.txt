@@ -1,5 +1,6 @@
 
 add_subdirectory(SExpression)
+add_subdirectory(Proof)
 add_subdirectory(ProofIO)
 add_subdirectory(SharedVerifier)
 

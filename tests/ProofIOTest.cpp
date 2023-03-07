@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <cassert>
-#include "../src/ProofIO/Proof.hpp"
+#include "../src/Proof/Proof.hpp"
 
 int main(int argc, char** argv){
     assert(argc == 2);

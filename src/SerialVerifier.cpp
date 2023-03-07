@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+
 #include "SharedVerifier/SharedVerifier.hpp"
 
 std::tuple<std::unordered_map<VertId, size_t>, size_t> computerLayerMap(const Proof& p) {

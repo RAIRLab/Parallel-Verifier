@@ -8,11 +8,9 @@ pkg_check_modules(JSONCPP jsoncpp)
 include_directories(${JSONCPP_INCLUDE_DIRS})
 target_link_libraries(ProofIO ${JSONCPP_LIBRARIES})
 
-target_link_libraries(ProofIO SExpression)
+target_link_libraries(ProofIO Proof SExpression)
 
 target_sources(ProofIO PRIVATE
-    Proof.hpp
-    Proof.cpp
     HyperSlate.hpp
     HyperSlate.cpp
     Lazyslate.hpp
