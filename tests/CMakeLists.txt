@@ -6,7 +6,7 @@
 add_executable(SExpressionTest)
 target_link_libraries(SExpressionTest SExpression)
 target_sources(SExpressionTest PRIVATE 
-    SexpressionTest.cpp
+    SExpressionTest.cpp
 )
 
 add_test(NAME SExpressionSingle COMMAND SExpressionTest "A")
