@@ -114,8 +114,6 @@ std::pair<LayerMap, DepthMap> getLayerAndDepthMaps(const Proof& p){
         //Buffers for storing the MPI communications 
         //uint_8t used as a standin for bool so it plays nice
         //with MPI and I don't need to deal with vector<bool> drama
-        std::vector<int> vertIdSendBuf(myItemCount);
-        std::vector<int> vertIdReceiveBuf(numItems);
         std::vector<uint8_t> inLayerSendBuf(myItemCount);
         std::vector<uint8_t> inLayerReceiveBuf(numItems);
 
@@ -123,25 +121,19 @@ std::pair<LayerMap, DepthMap> getLayerAndDepthMaps(const Proof& p){
               std::unordered_set<VertId>::const_iterator;
         PotentialMemberIterator iter = potentialLayerMembers.begin();
         PotentialMemberIterator endIter = potentialLayerMembers.end();
+        std::vector<VertId> potentialMembersCopy(iter, endIter);
 
+        //Advance to the start of the members this rank will be checking
         std::advance(iter, myDisplacement);
 
         //Compute if a node is on a layer by checking if all its
         //parents are in the depth map
         for(size_t i = 0; i < myItemCount && iter != endIter; i++, iter++){
-            vertIdSendBuf[i] = *iter;
             inLayerSendBuf[i] = 
                 (uint8_t)allParentsInDepthMap(p, *iter, depthMap);
         }
 
         //Share which of our nodes are on the current layer
-
-        //TODO: This first MPI call is probably useless since you can
-        //compute localy what nodes are where in potentialLayerMembers.
-        MPI_Allgatherv((void*)vertIdSendBuf.data(), myItemCount,\
-                      MPI_INT, (void*)vertIdReceiveBuf.data(), \
-                      rankSizes.data(), rankDisplacements.data(),\
-                      MPI_INT, MPI_COMM_WORLD);
         MPI_Allgatherv((void*)inLayerSendBuf.data(), myItemCount,\
                       MPI_UINT8_T, (void*)inLayerReceiveBuf.data(),\
                       rankSizes.data(), rankDisplacements.data(),\
@@ -151,7 +143,7 @@ std::pair<LayerMap, DepthMap> getLayerAndDepthMaps(const Proof& p){
         //as being possible nodes on the next layer
         layerMap.insert({currentLayer, std::unordered_set<VertId>()});
         for(int i = 0; i < numItems; i++){
-            VertId completed = vertIdReceiveBuf[i];
+            VertId completed = potentialMembersCopy[i];
             if(inLayerReceiveBuf[i]){
                 depthMap.insert({completed, currentLayer});
                 layerMap[currentLayer].insert(completed);
