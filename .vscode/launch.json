@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/ParallelVerifier",
-            "args": ["proofs/lazyslate/orDistribution.json"],
+            "args": ["proofs/lazyslate/orDistribution.json", "NoOpt", "OzSerial"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -53,7 +53,7 @@ std::pair<LayerMap, DepthMap> ParallelVerifier::getLayerMapSerial(
 
     //LayerMap construction O(n)
     //std::list fill constructor
-    LayerVector layerVector(maxDepth, std::unordered_set<VertId>());
+    LayerVector layerVector(maxDepth + 1, std::unordered_set<VertId>());
     for(const auto& [id, depth] : depthMap){
         layerVector[depth].insert(id);
     }

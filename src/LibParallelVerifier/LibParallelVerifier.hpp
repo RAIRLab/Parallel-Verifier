@@ -13,7 +13,6 @@
 #include "../ProofIO/ProofIO.hpp"
 #include "../SharedVerifier/SharedVerifier.hpp"
 
-
 //DepthMaps map each node in the proof graph to a layer number
 //representing the maximum distance to an assumption
 using DepthMap = std::unordered_map<VertId, size_t>;
@@ -23,6 +22,7 @@ using DepthMap = std::unordered_map<VertId, size_t>;
 //nodes on layer 1, etc.
 using LayerMap = std::list<std::unordered_set<VertId>>;
 
+//LayerMappers are functions that compute a layerMap from a proof.
 using LayerMapper = std::pair<LayerMap,DepthMap>(*)(const Proof&);
 
 namespace ParallelVerifier{
@@ -30,6 +30,7 @@ namespace ParallelVerifier{
     std::pair<LayerMap,DepthMap> getLayerMapSerial(const Proof& proof);
     std::pair<LayerMap,DepthMap> getLayerMapMPI(const Proof& proof);
 
+    //Provided Verifiers with different optimizations  
     bool verifyParallelNoOpt(const Proof& proof, LayerMapper mapper);
     bool verifyParallelLoadBalance(const Proof& proof, LayerMapper mapper);
     bool verifyParallelSemanticJump(const Proof& proof, LayerMapper mapper);

@@ -72,7 +72,7 @@ bool verifySimple(const Proof& p) {
 }
 
 int main(int argc, char** argv) {
-    const char* proofFilePath = SharedVerifier::init(&argc, &argv);
+    const char* proofFilePath = SharedVerifier::init(argc, argv);
     Proof proof(proofFilePath);
     
     SharedVerifier::startClock();

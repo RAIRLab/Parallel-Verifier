@@ -9,17 +9,15 @@ using namespace SharedVerifier;
 // Misc Shared Code ===========================================================
 
 //Returns the file path that needs to be read
-const char* SharedVerifier::init(int* argc, char*** argv){
+const char* SharedVerifier::init(int argc, char** argv){
     // If no arguments are passed, print help
-    if (*argc != 2) {
-        std::cout << "Usage: ./verif.exe [ProofFile]" << std::endl;
+    if (argc < 2) {
+        std::cout << "Usage: ./verif.exe <ProofFile> <ProverSpecificArgs...>"\
+        << std::endl;
         exit(1);
     }
     // Parse and create hypergraph on each rank
-    const char* name = (*argv)[1];
-    (*argc)--;
-    (*argv)++;
-    return name;
+    return argv[1];
 }
 
 

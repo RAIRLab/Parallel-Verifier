@@ -6,6 +6,27 @@ imported from [Hyperslate](http://www.logicamodernapproach.com/) and [Lazyslate]
 ## Logic Support
 Just natural deduction propositional calculus for now.
 
+## Usage
+
+#### Serial Verifier
+```
+    ./SerialVerifier [proofFilePath]
+```
+
+#### Parallel Verifier
+```
+    ./ParallelVerifier [proofFilePath] [VerifierAlg] [LayerMapAlg]
+    VerifierAlg and LayerMapAlg are optional but if one is included,
+    the other must be as well
+    VerifierAlg values
+        NoOpt - non-optimized MPI implementation with no balancing
+        LoadBalance - load balancing optimizations implementation
+        SemanticJump - load balancing with semantic jumping implementation
+    LayerMapAlg values
+        OzSerial - Recursive DP O(n) layer mapping algo run on each rank
+        MPI - MPI parallel D(n) layer mapping algo
+```
+
 ## Dependencies
 
 * [MPI](https://www.open-mpi.org/) (We use Open-MPI for local debugging and MPICH for benchmarks)
