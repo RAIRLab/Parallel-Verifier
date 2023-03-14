@@ -16,7 +16,7 @@ using Assumptions = std::unordered_map<VertId, std::unordered_set<VertId>>;
 
 namespace SharedVerifier{
 
-    const char* init(int argc, char** argv);
+    const char* init(int* argc, char*** argv);
     
     void startClock();
     std::pair<double, uint64_t> endClock();

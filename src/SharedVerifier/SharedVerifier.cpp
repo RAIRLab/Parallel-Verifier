@@ -9,18 +9,21 @@ using namespace SharedVerifier;
 // Misc Shared Code ===========================================================
 
 //Returns the file path that needs to be read
-const char* SharedVerifier::init(int argc, char** argv){
+const char* SharedVerifier::init(int* argc, char*** argv){
     // If no arguments are passed, print help
-    if (argc != 2) {
+    if (*argc != 2) {
         std::cout << "Usage: ./verif.exe [ProofFile]" << std::endl;
         exit(1);
     }
     // Parse and create hypergraph on each rank
-    return argv[1];
+    const char* name = (*argv)[1];
+    (*argc)--;
+    (*argv)++;
+    return name;
 }
 
 
-// Timings ----------------------------------------------------------------------
+// Timings --------------------------------------------------------------------
 
 static uint64_t startTime; //Uh oh a global
 
@@ -79,7 +82,7 @@ using RuleMap = \
 const RuleMap rules = {
     {
         Proof::Justification::Assume,
-        VerificationFunctions{verifyAssumptionSyntax, verifyAssumptionSemantics}
+        VerificationFunctions{verifyAssumptionSyntax,verifyAssumptionSemantics}
     },
     INTRO_ELIM_RULES(And),
     INTRO_ELIM_RULES(Or),

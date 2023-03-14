@@ -54,22 +54,18 @@
         "ratio": "cpp",
         "iomanip": "cpp",
         "cstring": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "condition_variable": "cpp",
-        "list": "cpp",
-        "mutex": "cpp",
-        "numbers": "cpp",
-        "semaphore": "cpp",
-        "stop_token": "cpp",
-        "thread": "cpp"
+        "list": "cpp"
     },
     "cSpell.words": [
         "Allgather",
         "allgathered",
         "Allgatherv",
         "Allreduce",
+        "assumpt",
+        "asumpt",
         "Carothers",
+        "depthmap",
+        "Depthmaps",
         "Elim",
         "hypergraph",
         "hyperslate",
@@ -85,5 +81,6 @@
         "SEXPRESSION",
         "tokenizes",
         "Verts"
-    ]
+    ],
+    "editor.rulers": [79]
 }
