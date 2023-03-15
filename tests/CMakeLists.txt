@@ -1,5 +1,10 @@
 
-
+include(ProcessorCount)
+ProcessorCount(NumProcessors)
+message(
+    "Num CPUs for MPI Testing (Note tests may not be accuracte if not enough CPU cores are present): "
+    ${NumProcessors} " Cores"
+)
 
 # SExpressions ----------------------------------------------------------------
 
@@ -65,21 +70,21 @@ set_tests_properties(SerialVerifierOrDistro PROPERTIES TIMEOUT 5)
 
 add_test(
     NAME ParallelVerifierFavorite_NoOpt_MPI
-    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierFavorite_NoOpt_MPI PROPERTIES TIMEOUT 5) 
 
 add_test(
     NAME ParallelVerifierAllPropositionalRules_NoOpt_MPI
-    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierAllPropositionalRules_NoOpt_MPI PROPERTIES TIMEOUT 5) 
 
 add_test(
     NAME ParallelVerifierOrDistro_NoOpt_MPI
-    COMMAND mpirun -N 4 ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
+    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierOrDistro_NoOpt_MPI PROPERTIES TIMEOUT 5) 
@@ -88,21 +93,21 @@ set_tests_properties(ParallelVerifierOrDistro_NoOpt_MPI PROPERTIES TIMEOUT 5)
 
 add_test(
     NAME ParallelVerifierFavorite_NoOpt_OzSerial
-    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json NoOpt OzSerial
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json NoOpt OzSerial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierFavorite_NoOpt_OzSerial PROPERTIES TIMEOUT 5) 
 
 add_test(
     NAME ParallelVerifierAllPropositionalRules_NoOpt_OzSerial
-    COMMAND mpirun -N 4 ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json NoOpt OzSerial
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json NoOpt OzSerial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierAllPropositionalRules_NoOpt_OzSerial PROPERTIES TIMEOUT 5) 
 
 add_test(
     NAME ParallelVerifierOrDistro_NoOpt_OzSerial
-    COMMAND mpirun -N 4 ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json NoOpt OzSerial
+    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json NoOpt OzSerial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierOrDistro_NoOpt_OzSerial PROPERTIES TIMEOUT 5)
