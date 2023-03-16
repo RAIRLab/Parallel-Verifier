@@ -98,7 +98,7 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
                       MPI_INT, MPI_COMM_WORLD);
 
         int assumptionSizeSum = \
-            std::reduce(assumptionSizes.begin(), assumptionSizes.end());
+            std::accumulate(assumptionSizes.begin(), assumptionSizes.end(), 0);
         std::vector<int> displacements = getRankDisplacements(assumptionSizes);
 
         std::vector<int> assumptionUpdates(assumptionSizeSum);
