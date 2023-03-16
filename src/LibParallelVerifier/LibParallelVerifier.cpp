@@ -121,13 +121,6 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
     return true;
 }
 
-
-bool ParallelVerifier::verifyParallelLoadBalance(const Proof& proof,
-                                                 LayerMapper mapper){
-    return false;                                                 
-}
-
-
 bool ParallelVerifier::verifyParallelSemanticJump(const Proof& proof,
                                                   LayerMapper mapper){
     return false;
