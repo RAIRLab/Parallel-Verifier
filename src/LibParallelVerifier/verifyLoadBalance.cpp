@@ -123,7 +123,7 @@ bool ParallelVerifier::verifyParallelLoadBalance(const Proof& p,
                 rankFailed = rankFailed || \
                  !verifyVertexSemantics(p, layerNodes[index], assumptions);
             }
-        }
+        }  
 
         //Do our forward syntax checks
         for(int i = 0; i < syntaxNodeCount; i++){
