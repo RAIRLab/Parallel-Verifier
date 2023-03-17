@@ -26,7 +26,7 @@ jobs:
         run: whereis mpiexec
         
       - name: Cmake MPI Find
-        run: cmake --find-package -DNAME=MPI -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST
+        run: cmake --find-package -DNAME=MPI -DMODE=EXIST --debug-output
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} --debug-output
