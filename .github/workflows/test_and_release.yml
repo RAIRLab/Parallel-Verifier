@@ -21,6 +21,12 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest 
         with:
           packages: pkg-config libjsoncpp-dev openmpi-bin libopenmpi-dev
+          
+      - name: Test MPI Exec
+        run: whereis mpiexec
+        
+      - name: Cmake MPI Find
+        run: cmake --find-package -DNAME=MPI -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} --debug-output
