@@ -7,7 +7,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP jsoncpp)
 include_directories(${JSONCPP_INCLUDE_DIRS})
 target_link_libraries(ProofIO ${JSONCPP_LIBRARIES})
-target_link_libraries(ProofIO stdc++fs)
+#target_link_libraries(ProofIO stdc++fs)
 
 target_link_libraries(ProofIO Proof SExpression)
 
