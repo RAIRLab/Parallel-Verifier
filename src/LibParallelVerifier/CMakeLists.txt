@@ -2,7 +2,8 @@
 add_library(LibParallelVerifier STATIC)
 
 find_package(MPI REQUIRED)
-target_link_libraries(LibParallelVerifier SharedVerifier MPI::MPI_CXX)
+include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+target_link_libraries(LibParallelVerifier SharedVerifier ${MPI_C_LIBRARIES})
 
 target_sources(LibParallelVerifier PRIVATE
     LibParallelVerifier.hpp
