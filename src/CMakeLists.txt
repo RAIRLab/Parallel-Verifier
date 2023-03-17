@@ -1,9 +1,10 @@
 
+add_subdirectory(LibParallelVerifier)
 add_subdirectory(SExpression)
 add_subdirectory(Proof)
 add_subdirectory(ProofIO)
 add_subdirectory(SharedVerifier)
-add_subdirectory(LibParallelVerifier)
+
 
 add_executable(SerialVerifier)
 target_link_libraries(SerialVerifier SharedVerifier)
