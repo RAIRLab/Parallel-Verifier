@@ -58,7 +58,7 @@ struct Proof{
 
     // Methods ================================================================
     Proof() = default;
-    Proof(std::string filename);
+    Proof(std::string filename); //Uses ProofIO to construct
     std::string toString() const;
 };
 

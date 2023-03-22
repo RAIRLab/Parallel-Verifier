@@ -7,42 +7,6 @@
 
 using namespace ProofIO;
 
-ProofData::ProofData()
-:tag(ProofData::Tag::Lazyslate), lazyslateData() {
-} 
-
-ProofData::~ProofData(){
-    //This was only required when we had it as an anonymous union
-    /*
-    switch(this->tag) {
-        case ProofData::Tag::Hyperslate:
-            hyperslateData.~FileData();
-            break;
-        case ProofData::Tag::Lazyslate:
-            lazyslateData.~FileData();
-            break;
-        default:
-            std::cerr<<"ProofIO Error: could not destruct "\
-            "ProofData object, invalid proof type";
-    }
-    */
-}
-
-ProofData::ProofData(const ProofData& copy) {
-    this->tag = copy.tag;
-    switch(copy.tag) {
-        case ProofData::Tag::Hyperslate:
-            this->hyperslateData = copy.hyperslateData;
-            break;
-        case ProofData::Tag::Lazyslate:
-            this->lazyslateData = copy.lazyslateData;
-            break;
-        default:
-            throw std::runtime_error("ProofIO Error: could not construct "\
-            "ProofData object, invalid proof type");
-    }
-}
-
 //Speed optimized file contents to string
 std::string readFileContents(FILE* inputFile){
     std::string returnString;
@@ -67,11 +31,9 @@ ProofData ProofIO::loadProofData(std::string filename) {
     std::string fileExtension = filePath.extension();
     ProofData returnData;
     if (fileExtension == ".slt") {
-        returnData.tag = ProofData::Tag::Hyperslate;
-        returnData.hyperslateData = hyperslate::parse(fileContents);
+        returnData = hyperslate::parse(fileContents);
     } else if (fileExtension == ".json") {
-        returnData.tag = ProofData::Tag::Lazyslate;
-        returnData.lazyslateData = lazyslate::parse(fileContents);
+        returnData = lazyslate::parse(fileContents);
     }else{
         throw std::runtime_error("ProofIO error: Unsupported File Type \"" 
                                   + fileExtension + "\"");
@@ -82,12 +44,12 @@ ProofData ProofIO::loadProofData(std::string filename) {
 
 Proof ProofIO::loadProofFromFile(std::string filename) {
     ProofData data = loadProofData(filename);
-    switch (data.tag) {
-        case ProofData::Tag::Hyperslate:
-            return hyperslate::constructProof(data.hyperslateData);
+    switch (data.index()) {
+        case 0: //Hyperslate
+            return hyperslate::constructProof(std::get<0>(data));
             break;
-        case ProofData::Tag::Lazyslate:
-            return lazyslate::constructProof(data.lazyslateData);
+        case 1: //Lazyslate
+            return lazyslate::constructProof(std::get<1>(data));
             break;
     }
     throw std::runtime_error("ProofIO error: Invalid ProofData Tag");

@@ -1,6 +1,8 @@
 
 #include"Proof.hpp"
 
+//The only reason we depend on ProofIO is so you can construct a proof
+//by passing a string to the constructor
 #include "../ProofIO/ProofIO.hpp"
 
 std::unordered_set<std::string> reservedWords = {
@@ -8,7 +10,8 @@ std::unordered_set<std::string> reservedWords = {
     "forall", "exists"
 };
 
-Proof::SymbolTypeMap compute_symbol_types(sExpression& formula, Proof::SymbolTypeMap& intermediateResult, bool predicateFound = false) {
+Proof::SymbolTypeMap compute_symbol_types(sExpression& formula, 
+ Proof::SymbolTypeMap& intermediateResult, bool predicateFound = false) {
     // TODO: Should we do anything if we find conflicting symbol types?
 
     /* Base cases */
@@ -43,7 +46,8 @@ Proof::SymbolTypeMap compute_symbol_types(sExpression& formula, Proof::SymbolTyp
 
     // Assign the first element
     // unless its a reserved word
-    std::unordered_set<std::string>::const_iterator containsReservedWord = reservedWords.find(first.value);
+    std::unordered_set<std::string>::const_iterator containsReservedWord = \
+                                            reservedWords.find(first.value);
     if (containsReservedWord == reservedWords.end()) {
         intermediateResult[first] = (predicateFound)?
             Proof::SymbolType::ConstFreeVar:

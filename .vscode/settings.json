@@ -54,7 +54,8 @@
         "ratio": "cpp",
         "iomanip": "cpp",
         "cstring": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "variant": "cpp"
     },
     "cSpell.words": [
         "Allgather",
