@@ -20,9 +20,9 @@ const LMMap lmArgMap = {
 using ParallelVerif = bool(*)(const Proof&, LayerMapper);
 using PVMap = std::unordered_map<std::string, ParallelVerif>;
 const PVMap pvArgMap = {
+    {"Original",pv::verifyParallelOriginal},
     {"NoOpt", pv::verifyParallelNoOpt},
     {"LoadBalance", pv::verifyParallelLoadBalance},
-    {"SemanticJump",pv::verifyParallelSemanticJump}
 };
 
 //Assumes MPI_Init and has already been called

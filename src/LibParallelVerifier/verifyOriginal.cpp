@@ -1,11 +1,4 @@
 
-#include<cmath>
-#include<unordered_map>
-#include<unordered_set>
-#include<memory>
-#include<list>
-#include<numeric>
-
 #include<mpi.h>
 
 #include "../Proof/Proof.hpp"
@@ -17,9 +10,8 @@
 using MPIUtil::getRankSizes;
 using MPIUtil::getRankDisplacements;
 
-// Parallel Verification & associated helpers =================================
-
-bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
+bool ParallelVerifier::verifyParallelOriginal(const Proof& p,
+                                              LayerMapper mapper){
     auto [layerMap, depthMap] = mapper(p);
     
     //If there are nodes outside the depth map, they don't follow from
@@ -120,10 +112,3 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
 
     return true;
 }
-
-/*
-bool ParallelVerifier::verifyParallelSemanticJump(const Proof& proof,
-                                                  LayerMapper mapper){
-    return false;
-}
-*/

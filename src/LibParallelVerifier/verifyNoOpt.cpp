@@ -1,11 +1,4 @@
 
-#include<cmath>
-#include<unordered_map>
-#include<unordered_set>
-#include<memory>
-#include<list>
-#include<numeric>
-
 #include<mpi.h>
 
 #include "../Proof/Proof.hpp"
@@ -16,8 +9,6 @@
 
 using MPIUtil::getRankSizes;
 using MPIUtil::getRankDisplacements;
-
-// Parallel Verification & associated helpers =================================
 
 bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
     auto [layerMap, depthMap] = mapper(p);
@@ -39,32 +30,24 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
         int myNodeCount = rankSizes[myRank];            
         int myDisplacement = rankDisplacements[myRank];
 
-        std::vector<uint8_t> verifiedSendBuf(myNodeCount);
-        std::vector<uint8_t> verifiedReceiveBuf(layerSize);
-        
         using NodeIterator = std::unordered_set<VertId>::const_iterator;
         NodeIterator nodeIter = layerNodes.begin();
         std::advance(nodeIter, myDisplacement);
-
-        std::list<VertId> myNodes;
+        
+        bool rankFailed = false;
+        std::list<VertId> myNodes; //List of nodes we need to update assumptions
         for(size_t i = 0; i < myNodeCount; i++, nodeIter++){
             myNodes.push_back(*nodeIter);
-            verifiedSendBuf[i] = \
-            (uint8_t)SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
-            if(!verifiedSendBuf[i]){
-                std::cout<<"Layer: "<<layer << ", Node:"<<*nodeIter<<std::endl; 
-            }
+            rankFailed = rankFailed ||
+                !SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
         }
 
-        MPI_Allgatherv((void*)verifiedSendBuf.data(), myNodeCount,\
-                       MPI_UINT8_T, verifiedReceiveBuf.data(),\
-                       rankSizes.data(), rankDisplacements.data(),\
-                       MPI_UINT8_T, MPI_COMM_WORLD);
-        
-        for(size_t i = 0; i < layerSize; i++){
-            if(!verifiedReceiveBuf[i]){
-                return false;
-            }
+        bool verificationFailure;
+        MPI_Allreduce((void*)&rankFailed, (void*)&verificationFailure, \
+         1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
+
+        if(verificationFailure){
+            return false;
         }
 
         //Assumption Updates --------------------------------------------------
@@ -120,10 +103,3 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
 
     return true;
 }
-
-/*
-bool ParallelVerifier::verifyParallelSemanticJump(const Proof& proof,
-                                                  LayerMapper mapper){
-    return false;
-}
-*/

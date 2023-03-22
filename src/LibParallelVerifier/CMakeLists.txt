@@ -7,10 +7,12 @@ target_link_libraries(LibParallelVerifier SharedVerifier ${MPI_C_LIBRARIES})
 
 target_sources(LibParallelVerifier PRIVATE
     LibParallelVerifier.hpp
-    LibParallelVerifier.cpp
+    #LibParallelVerifier.cpp
     MPIUtil.hpp
     MPIUtil.cpp
     getLayersMPI.cpp
     getLayersSerial.cpp
     verifyLoadBalance.cpp
+    verifyNoOpt.cpp
+    verifyOriginal.cpp
 )

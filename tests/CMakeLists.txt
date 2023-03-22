@@ -134,3 +134,26 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 set_tests_properties(ParallelVerifierOrDistro_LoadBalance_MPI PROPERTIES TIMEOUT 10)
+
+#Original MPI
+
+add_test(
+    NAME ParallelVerifierFavorite_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json Original MPI
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierFavorite_Original_MPI PROPERTIES TIMEOUT 10) 
+
+add_test(
+    NAME ParallelVerifierAllPropositionalRules_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json Original MPI
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierAllPropositionalRules_Original_MPI PROPERTIES TIMEOUT 10) 
+
+add_test(
+    NAME ParallelVerifierOrDistro_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json Original MPI
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(ParallelVerifierOrDistro_Original_MPI PROPERTIES TIMEOUT 10)
