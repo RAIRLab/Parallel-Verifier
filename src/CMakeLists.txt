@@ -14,3 +14,7 @@ add_executable(ParallelVerifier)
 find_package(MPI REQUIRED)
 target_link_libraries(ParallelVerifier LibParallelVerifier SharedVerifier MPI::MPI_CXX)
 target_sources(ParallelVerifier PRIVATE ParallelVerifier.cpp)
+
+add_executable(ProofConv)
+target_link_libraries(ProofConv ProofIO)
+target_sources(ProofConv PRIVATE ProofConv.cpp)

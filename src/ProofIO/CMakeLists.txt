@@ -18,4 +18,5 @@ target_sources(ProofIO PRIVATE
     Lazyslate_jsoncpp.cpp
     ProofIO.hpp
     ProofIO.cpp
+    Writers.cpp
 )
