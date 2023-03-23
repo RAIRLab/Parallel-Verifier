@@ -1,5 +1,7 @@
 
 #include "ProofIO.hpp"
+
+#include <cassert>
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -14,7 +16,8 @@ std::string readFileContents(FILE* inputFile){
     size_t fileSize = std::ftell(inputFile);
     returnString.resize(fileSize);
     std::rewind(inputFile);
-    fread(&returnString[0], 1, fileSize, inputFile);
+    size_t sizeRead = fread(&returnString[0], 1, fileSize, inputFile);
+    assert(sizeRead == fileSize);
     return returnString;
 }
 
