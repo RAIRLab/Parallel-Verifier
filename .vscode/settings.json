@@ -68,6 +68,7 @@
         "depthmap",
         "Depthmaps",
         "Elim",
+        "graphviz",
         "hypergraph",
         "hyperslate",
         "jank",
@@ -81,6 +82,8 @@
         "Selmer's",
         "SEXPRESSION",
         "tokenizes",
+        "Tpng",
+        "Verif",
         "Verts"
     ],
     "editor.rulers": [79]

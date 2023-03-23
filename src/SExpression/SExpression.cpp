@@ -286,7 +286,9 @@ std::string recursiveToString(const sExpression& expression, size_t depth, bool 
         result += (expand ? std::string(' ', depth+1) + "(\n" : "(");
         for(const sExpression& subExpression : expression.members)
             result += recursiveToString(subExpression, depth+1, expand);
-        result.pop_back(); //removes the extra space
+        if(result.back() == ' '){
+            result.pop_back(); //removes the extra space
+        }
         result += (expand ? std::string(' ', depth=1) + ")\n" : ")");
     }else if(expression.type == sExpression::Type::Keyword){
         result += (expand ? std::to_string((int)expression.type) + std::string(' ', depth)\
