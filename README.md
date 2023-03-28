@@ -19,9 +19,9 @@ Just natural deduction propositional calculus for now.
     VerifierAlg and LayerMapAlg are optional but if one is included,
     the other must be as well
     VerifierAlg values
+        Original - a worse version that passes extra data rather than using an MPI reduce
         NoOpt - non-optimized MPI implementation with no balancing
         LoadBalance - load balancing optimizations implementation
-        SemanticJump - load balancing with semantic jumping implementation
     LayerMapAlg values
         OzSerial - Recursive DP O(n) layer mapping algo run on each rank
         MPI - MPI parallel D(n) layer mapping algo
