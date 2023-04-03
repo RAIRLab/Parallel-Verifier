@@ -53,7 +53,7 @@ int main(int argc, char** argv){
     //Load Proof
     const char* proofFilePath = SharedVerifier::init(argc, argv);
     std::string proofFileContents = MPIUtil::getFileContents(proofFilePath);
-    Proof proof = ProofIO::loadFromJSONContents(proofFileContents);
+    Proof proof = ProofIO::loadFromContents(proofFileContents);
 
     //Figure out what algos we're using
     const auto [verifier, layerMapper] = processArgs(argc, argv);

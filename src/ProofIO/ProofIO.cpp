@@ -62,3 +62,20 @@ Proof ProofIO::loadFromJSONContents(const std::string& fileContents){
     lazyslate::FileData data = lazyslate::parse(fileContents);
     return lazyslate::constructProof(data);
 }
+
+
+Proof ProofIO::loadFromContents(const std::string& fileContents,
+                                std::optional<ProofDataType> type){
+    if (fileContents[0] == '{' || 
+      ((bool)type && type.value() == ProofDataType::LazySlate)){
+        lazyslate::FileData data = lazyslate::parse(fileContents);
+        return lazyslate::constructProof(data);
+    } else if (fileContents[0] == '(' || 
+      ((bool)type && type.value() == ProofDataType::HyperSlate)){
+        hyperslate::FileData data = hyperslate::parse(fileContents);
+        return hyperslate::constructProof(data);
+    } else {
+        throw std::runtime_error(
+            "ProofIO error: Unable to determine proof type");
+    }
+}
