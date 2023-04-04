@@ -129,7 +129,7 @@ bool ParallelVerifier::verifyParallelLoadBalance(const Proof& p,
         for(int i = 0; i < syntaxNodeCount; i++){
             int index = syntaxCheckIndex + syntaxDisplacement + i;
             rankFailed = rankFailed || \
-             !verifyVertexSyntax(p, layerNodes[index]);
+             !verifyVertexSyntax(p, layerNodeQueue[index]);
         }
 
         //Syntax Check updates ------------------------------------------------
