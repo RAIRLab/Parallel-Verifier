@@ -26,7 +26,7 @@ std::string MPIUtil::getFileContents(const char* filePath){
     MPI_File_read(fileHandle, fileContentsBuff, fileSize,
                   MPI_CHAR, MPI_STATUS_IGNORE);
     MPI_File_close(&fileHandle);
-    std::string fileContents = std::string(fileContentsBuff);
+    std::string fileContents = std::string(fileContentsBuff, fileSize);
     delete[] fileContentsBuff;
     return fileContents;
 }
