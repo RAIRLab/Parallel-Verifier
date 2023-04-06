@@ -59,6 +59,7 @@ int main(int argc, char** argv){
     const auto [verifier, layerMapper] = processArgs(argc, argv);
 
     //Run Verifier
+    MPI_Barrier(MPI_COMM_WORLD);
     SharedVerifier::startClock();
     bool result = verifier(proof, layerMapper);
     auto [seconds, cycles] = SharedVerifier::endClock();
