@@ -1,19 +1,19 @@
 
-#James Oswald 
+#James Oswald
 
 from pathlib import Path
 
 #Hyperparamters ======================================================
 
 #Line Proof Topology
-lineLengths: "list(int)" = [100, 200, 300, 400, 500] #Number of nodes in the the linear benchmark
+lineLengths: "list(int)" = [100, 200, 300, 400, 500, 600] #Number of nodes in the the linear benchmark
 
 #Branch Proof Topology
 numBranchs: int = 12
-branchLengths: "list(int)" = [1, 25, 50, 75, 100]
+branchLengths: "list(int)" = [1, 25, 50, 75, 100, 125]
 
 #Tree proof Topology
-treeDepths: "list(int)" = [2, 4, 6, 8, 10, 12]  #The tree will have 2^treeDepth nodes
+treeDepths: "list(int)" = [2, 4, 6, 8, 10, 12, 14]  #The tree will have 2^treeDepth nodes
 
 
 #writes a hyperlate proof .slt file given a list of descriptions and connections
@@ -97,12 +97,22 @@ def genTreeFormulas(formulas : "list(str)", descriptions : "list(str)", structur
         formulas[myIndex] = "A" + str(myIndex)
         descriptions[myIndex] = f"(:X 0 :Y 0 :ID {myIndex} :NAME \"{myIndex}\" :FORMULA \"{formulas[myIndex]}\" :JUSTIFICATION LOGIC::ASSUME)"
         return myIndex
-    else:    
+    else:
+        formulas.append("")
+        descriptions.append("")
         leftChildIndex = genTreeFormulas(formulas, descriptions, structures, treeDepth-1)
         rightChildIndex = genTreeFormulas(formulas, descriptions, structures, treeDepth-1)
+
+        # Conjunction Introduction
         formulas[myIndex] = f"(and {formulas[leftChildIndex]} {formulas[rightChildIndex]})"
         descriptions[myIndex] = f"(:X 0 :Y 0 :ID {myIndex} :NAME \"{myIndex}\" :FORMULA \"{formulas[myIndex]}\" :JUSTIFICATION LOGIC::AND-INTRO)"
         structures.append(f"(:CONCLUSION {myIndex} :PREMISES ({leftChildIndex} {rightChildIndex}))")
+
+        # Conjunction Elimination
+        myIndex += 1
+        formulas[myIndex] = f"{formulas[leftChildIndex]}"
+        descriptions[myIndex] = f"(:X 0 :Y 0 :ID {myIndex} :NAME \"{myIndex}\" :FORMULA \"{formulas[myIndex]}\" :JUSTIFICATION LOGIC::AND-ELIM)"
+        structures.append(f"(:CONCLUSION {myIndex} :PREMISES ({myIndex - 1}))")
         return myIndex
 
 def genTreeTopology(treeLevels: int):
