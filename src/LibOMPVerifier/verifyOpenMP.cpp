@@ -3,7 +3,7 @@
 
 
 bool OMPVerifier::OMPVerify(const Proof& p){
-    auto [layerMap, depthMap] = ParallelVerifier::getLayerMapSerial(p);
+    auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
     
     std::vector<std::vector<VertId>> layers;
     for(const std::unordered_set<VertId>& layer : layerMap){

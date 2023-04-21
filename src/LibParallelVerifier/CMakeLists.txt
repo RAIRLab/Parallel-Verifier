@@ -11,7 +11,6 @@ target_sources(LibParallelVerifier PRIVATE
     MPIUtil.hpp
     MPIUtil.cpp
     getLayersMPI.cpp
-    getLayersSerial.cpp
     verifyAlpha.cpp
     verifyLoadBalance.cpp
     verifyNoOpt.cpp

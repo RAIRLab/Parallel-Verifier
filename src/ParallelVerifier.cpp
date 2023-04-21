@@ -13,7 +13,7 @@ namespace pv = ParallelVerifier;
 //Maps layer mapping algo names to their implementations
 using LMMap = std::unordered_map<std::string, LayerMapper>;
 const LMMap lmArgMap = {
-    {"OzSerial", pv::getLayerMapSerial},
+    {"Serial", SharedVerifier::getLayerMap},
     {"MPI", pv::getLayerMapMPI}
 };
 
@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     //MPI Setup
     MPI_Init(&argc, &argv);
     MPIUtil::setGlobals();
-    
+
     //Load Proof
     const char* proofFilePath = SharedVerifier::init(argc, argv);
     std::string proofFileContents = MPIUtil::getFileContents(proofFilePath);
@@ -66,8 +66,8 @@ int main(int argc, char** argv){
     bool result = verifier(proof, layerMapper);
     auto [seconds, cycles] = SharedVerifier::endClock();
     if(myRank == 0){
-        std::cout<<seconds<<" Seconds, "<<cycles<<" Clock Cycles"<<std::endl
-        <<"Verified: "<< (result ? "true" : "false") << std::endl;
+        std::cout << seconds << " Seconds, " << cycles << " Clock Cycles";
+        std::cout << ", " << result << " Result Code" << std::endl;
     }
 
     MPI_Finalize();

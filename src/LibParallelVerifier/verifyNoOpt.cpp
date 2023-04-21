@@ -12,6 +12,7 @@ using MPIUtil::getRankDisplacements;
 
 bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
     auto [layerMap, depthMap] = mapper(p);
+
     
     //If there are nodes outside the depth map, they don't follow from
     //assumptions and the proof is invalid
@@ -52,7 +53,7 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
 
         //Assumption Updates --------------------------------------------------
 
-        if (layer != layerMap.size()-1){ //Ignore updates on final layer
+        if (layer == layerMap.size()-1){ //Ignore updates on final layer
             break;
         }
         

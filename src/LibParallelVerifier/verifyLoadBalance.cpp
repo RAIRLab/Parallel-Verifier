@@ -165,7 +165,7 @@ bool ParallelVerifier::verifyParallelLoadBalance(const Proof& p,
 
         //Assumption Updates --------------------------------------------------
 
-        if (layerIndex != layerMap.size()-1){ //Ignore updates on final layer
+        if (layerIndex == layerMap.size()-1){ //Ignore updates on final layer
             break;
         }
         

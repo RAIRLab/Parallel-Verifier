@@ -61,7 +61,7 @@ bool ParallelVerifier::verifyParallelOriginal(const Proof& p,
 
         //Assumption Updates --------------------------------------------------
 
-        if (layer != layerMap.size()-1){ //Ignore updates on final layer
+        if (layer == layerMap.size()-1){ //Ignore updates on final layer
             break;
         }
         
