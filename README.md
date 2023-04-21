@@ -15,10 +15,16 @@ Just natural deduction propositional calculus for now.
 
 #### Parallel Verifier
 ```
+    Commands:
     ./ParallelVerifier [proofFilePath] [VerifierAlg] [LayerMapAlg]
+    With MPI:
+    mpirun -N [NumRanks] ./ParallelVerifier [proofFilePath] [VerifierAlg] [LayerMapAlg] 
+
+    Args:
     VerifierAlg and LayerMapAlg are optional but if one is included,
     the other must be as well
     VerifierAlg values
+        Alpha - The Sp2022 version that uses markings and marking matrices. A layer mapper must be passed in, but it will not be used.
         Original - a worse version that passes extra data rather than using an MPI reduce
         NoOpt - non-optimized MPI implementation with no balancing
         LoadBalance - load balancing optimizations implementation

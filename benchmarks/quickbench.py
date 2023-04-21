@@ -1,13 +1,18 @@
 
+import os
 import subprocess
 import matplotlib
 import matplotlib.pyplot as plt
 
-proof = "../proofs/hyperslate/benchmarks/Tree12.slt"
-ranks = [1, 2, 4, 6]
+#Quick bench Paramaters 
 
+#Proof to quickbench
+proof = "../proofs/hyperslate/benchmarks/Tree12.slt"
+ranks = [1, 2, 4, 6] #Num Ranks to test
+#ParallelVerifier Args to test with
 args = [
     ("Alpha", "OzSerial"),
+    ("Original", "OzSerial"),
     ("NoOpt", "OzSerial"),
     ("LoadBalance", "OzSerial")
 ]
@@ -21,7 +26,18 @@ serialCycles = extractCycles(serialRawOut)
 print("Serial Cycles", serialCycles)
 plt.plot(ranks, [serialCycles] * len(ranks), label="Serial")
 
-#Parallel Results
+#OMP Parallel Results
+cycles = []
+my_env = os.environ.copy()
+for rank in ranks:
+    my_env["OMP_NUM_THREADS"] = str(rank) #Set OpneMP threads
+    rawOutput = subprocess.check_output(['../build/bin/OMPVerifier', proof], env=my_env)
+    cycle = extractCycles(rawOutput)
+    cycles.append(cycle)
+    print("OMP Rank", rank, "Cycles", cycle)
+plt.plot(ranks, cycles, label="OMP")
+
+#MPI Parallel Results
 for arg in args:
     cycles = []
     for rank in ranks:

@@ -1,10 +1,9 @@
-
+add_subdirectory(LibOMPVerifier)
 add_subdirectory(LibParallelVerifier)
 add_subdirectory(SExpression)
 add_subdirectory(Proof)
 add_subdirectory(ProofIO)
 add_subdirectory(SharedVerifier)
-
 
 add_executable(SerialVerifier)
 target_link_libraries(SerialVerifier SharedVerifier)
@@ -12,8 +11,13 @@ target_sources(SerialVerifier PRIVATE SerialVerifier.cpp)
 
 add_executable(ParallelVerifier)
 find_package(MPI REQUIRED)
-target_link_libraries(ParallelVerifier LibParallelVerifier SharedVerifier MPI::MPI_CXX)
+include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+target_link_libraries(ParallelVerifier MPI::MPI_CXX LibParallelVerifier SharedVerifier)
 target_sources(ParallelVerifier PRIVATE ParallelVerifier.cpp)
+
+add_executable(OMPVerifier)
+target_link_libraries(OMPVerifier LibParallelVerifier LibOMPVerifier SharedVerifier)
+target_sources(OMPVerifier PRIVATE ParallelVerifier.cpp)
 
 add_executable(ProofConv)
 target_link_libraries(ProofConv ProofIO)
