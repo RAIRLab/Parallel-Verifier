@@ -30,6 +30,8 @@ namespace ParallelVerifier{
     std::pair<LayerMap,DepthMap> getLayerMapSerial(const Proof& proof);
     std::pair<LayerMap,DepthMap> getLayerMapMPI(const Proof& proof);
 
+    //The classic verifier from class
+    bool verifyAlpha(const Proof& proof);
     //Provided Verifiers with different optimizations  
     bool verifyParallelOriginal(const Proof& proof, LayerMapper mapper);
     bool verifyParallelNoOpt(const Proof& proof, LayerMapper mapper);

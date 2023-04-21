@@ -20,6 +20,7 @@ const LMMap lmArgMap = {
 using ParallelVerif = bool(*)(const Proof&, LayerMapper);
 using PVMap = std::unordered_map<std::string, ParallelVerif>;
 const PVMap pvArgMap = {
+    {"Alpha", [](auto& p, auto l){return pv::verifyAlpha(p);}},
     {"Original",pv::verifyParallelOriginal},
     {"NoOpt", pv::verifyParallelNoOpt},
     {"LoadBalance", pv::verifyParallelLoadBalance},
@@ -64,7 +65,8 @@ int main(int argc, char** argv){
     bool result = verifier(proof, layerMapper);
     auto [seconds, cycles] = SharedVerifier::endClock();
     if(myRank == 0){
-        std::cout<<seconds<<" Seconds, "<<cycles<<" Clock Cycles"<<std::endl;
+        std::cout<<seconds<<" Seconds, "<<cycles<<" Clock Cycles"<<std::endl
+        <<"Verified: "<< (result ? "true" : "false") << std::endl;
     }
 
     MPI_Finalize();

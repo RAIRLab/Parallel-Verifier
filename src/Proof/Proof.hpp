@@ -46,7 +46,8 @@ struct Proof{
     };
 
 
-    //Representation ====================================================== 
+    //Representation ==========================================================
+     
     /*
         O(1) access to node data based on VertId as index
         This prevents us from using pointers on Proof::Nodes which would not translate between ranks.
