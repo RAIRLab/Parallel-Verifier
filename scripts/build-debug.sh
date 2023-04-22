@@ -5,9 +5,9 @@
 # and copies our executables into bin
 
 set -e
-SCRIPTDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-mkdir -p $SCRIPTDIR/build
-cd $SCRIPTDIR/build
+ROOTDIR="../$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+mkdir -p $ROOTDIR/build
+cd $ROOTDIR/build
 cmake ../ -D CMAKE_BUILD_TYPE=Debug
 make
-cd $SCRIPTDIR
+cd $ROOTDIR

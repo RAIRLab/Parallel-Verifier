@@ -36,6 +36,17 @@ More on Args:
 * OzSerial - Recursive DP O(n) layer mapping algo run on each rank
 * MPI - MPI parallel D(n) layer mapping algo
 
+## Project Layout
+* `.github` : github actions for testing proofs
+* `.vscode` : vscode recommended extensions and settings for the project
+* `benchmarks` : quick benchmarking utilities to measure performance
+* `proofs` : Proof files to verify on
+  * `hyperslate` : hyperslate slt proofs
+  * `lazyslate` : lazyslate json proofs
+* `sandbox` : code to test features to implement 
+* `scripts` : utility scripts for debugging, building, etc
+* `src` : Source Code
+* `tests` : CTest suite
 
 ## Dependencies
 * [MPI](https://www.open-mpi.org/) (We use Open-MPI for local debugging and MPICH for benchmarks)
