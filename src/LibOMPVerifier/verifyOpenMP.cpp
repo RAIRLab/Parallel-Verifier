@@ -26,6 +26,8 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         bool failed = false; 
         for(size_t i = 0; i < layer.size(); i++){
             VertId node = layer[i];
+            //This update is necessary because the "resultAssumptions[i] = assumptions[node];"
+            //inside the "omp parallel for" is a local thread copy.
             assumptions[node] = resultAssumptions[i];
             failed |= !results[i];
         }

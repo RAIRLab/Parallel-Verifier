@@ -12,11 +12,13 @@ bool verifySimple(const Proof& p) {
     const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
 
     for (const auto &currentLayer : layerMap) {
+        bool failed = false;
         for (const auto &n : currentLayer) {
-            if (!SharedVerifier::verifyVertex(p, n, assumptions)) {
-                return false;
-            }
             // Assumptions are updated within verifyVertex function
+            failed |= !SharedVerifier::verifyVertex(p, n, assumptions);
+        }
+        if(failed){
+            return false;
         }
     }
 
@@ -30,7 +32,7 @@ int main(int argc, char** argv) {
     SharedVerifier::startClock();
     bool result = verifySimple(proof);
     SharedVerifier::endClockPrint();
-    std::cout << ", " << result << " Result Code" << std::endl;
+    std::cout << ", " << !result << " Result Code" << std::endl;
 
     return !result;
 }
