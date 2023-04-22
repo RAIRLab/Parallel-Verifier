@@ -1,6 +1,6 @@
 
+#include "../SharedVerifier/SharedVerifier.hpp"
 #include "LibOMPVerifier.hpp"
-
 
 bool OMPVerifier::OMPVerify(const Proof& p){
     auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
@@ -27,7 +27,7 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         for(size_t i = 0; i < layer.size(); i++){
             VertId node = layer[i];
             assumptions[node] = resultAssumptions[i];
-            failed |= results[i];
+            failed |= !results[i];
         }
 
         if(failed){

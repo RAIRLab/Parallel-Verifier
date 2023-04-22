@@ -67,7 +67,7 @@ int main(int argc, char** argv){
     auto [seconds, cycles] = SharedVerifier::endClock();
     if(myRank == 0){
         std::cout << seconds << " Seconds, " << cycles << " Clock Cycles";
-        std::cout << ", " << result << " Result Code" << std::endl;
+        std::cout << ", " << !result << " Result Code" << std::endl;
     }
 
     MPI_Finalize();

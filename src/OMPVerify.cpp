@@ -9,7 +9,8 @@ int main(int argc, char** argv) {
     
     SharedVerifier::startClock();
     bool result = OMPVerifier::OMPVerify(proof);
-    SharedVerifier::endClockPrint();
-
+    auto [seconds, cycles] = SharedVerifier::endClock();
+    std::cout << seconds << " Seconds, " << cycles << " Clock Cycles";
+    std::cout << ", " << !result << " Result Code" << std::endl;
     return !result;
 }

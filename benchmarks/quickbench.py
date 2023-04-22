@@ -8,13 +8,12 @@ import matplotlib.pyplot as plt
 
 #Proof to quickbench
 proof = "../proofs/hyperslate/benchmarks/Tree12.slt"
-ranks = [1, 2, 4, 6] #Num Ranks to test
+ranks = [1, 2, 3, 4, 5, 6] #Num Ranks to test
 #ParallelVerifier Args to test with
 args = [
-    ("Alpha", "OzSerial"),
-    ("Original", "OzSerial"),
-    ("NoOpt", "OzSerial"),
-    ("LoadBalance", "OzSerial")
+    ("Original", "Serial"),
+    ("NoOpt", "Serial"),
+    ("LoadBalance", "Serial")
 ]
 
 def extractCycles(s):
