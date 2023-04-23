@@ -53,7 +53,7 @@ void MPIUtil::printLayerMap(const LayerMap& layerMap){
     }
 }
 
-// General MPI Helpers ========================================================
+// Internal MPI Helpers =======================================================
 
 //Takes in an an item count and determines
 //how many items are optimally allocated to each rank

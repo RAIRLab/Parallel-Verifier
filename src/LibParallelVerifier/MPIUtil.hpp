@@ -21,6 +21,9 @@ namespace MPIUtil{
     //Prints a given LayerMap on rank 0
     void printLayerMap(const LayerMap& layerMap);
 
+
+    //Internal Helpers ========================================================
+
     //Takes in an rankSizes map and computes the displacements
     //for MPI_AllGatherV
     //O(numRanks)
@@ -30,4 +33,5 @@ namespace MPIUtil{
     //how many items are optimally allocated to each rank
     //O(numRanks)
     std::vector<int> getRankSizes(int numItems);
+
 }

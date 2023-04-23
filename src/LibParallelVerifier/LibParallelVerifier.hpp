@@ -17,12 +17,16 @@
 using LayerMapper = std::pair<LayerMap,DepthMap>(*)(const Proof&);
 
 namespace ParallelVerifier{
+    void updateAssumptions(Assumptions& assumptions,
+                           const std::list<VertId>& checked);
+    
     //Provided LayerMappers
     std::pair<LayerMap,DepthMap> getLayerMapMPI(const Proof& proof);
 
-    //The classic verifier from class
+    //The classic verifier from sp22 class
     bool verifyAlpha(const Proof& proof);
-    //Provided Verifiers with different optimizations  
+
+    //Provided MPI Verifiers with different optimizations  
     bool verifyParallelOriginal(const Proof& proof, LayerMapper mapper);
     bool verifyParallelNoOpt(const Proof& proof, LayerMapper mapper);
     bool verifyParallelLoadBalance(const Proof& proof, LayerMapper mapper);
