@@ -1,4 +1,6 @@
 
+//Currently Dead Code, would be used for first order
+/*
 
 #include"Substitution.hpp"
 
@@ -79,3 +81,5 @@ sExpression Substitution::apply(const sExpression& term) const {
 
     return term;
 }
+
+*/

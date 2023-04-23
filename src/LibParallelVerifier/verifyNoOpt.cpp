@@ -1,4 +1,8 @@
 
+#ifdef DEBUG
+#include <iostream>
+#endif 
+
 #include<mpi.h>
 
 #include "../Proof/Proof.hpp"
@@ -22,6 +26,12 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
     Assumptions assumptions;
     LayerMap::const_iterator layerIter = layerMap.begin();
     for (int layer = 0; layerIter != layerMap.end(); layer++, layerIter++){
+
+#ifdef DEBUG
+        std::cout<<"Rank " << myRank <<": Verifying layer: "<< layer << \
+        "/" << layerMap.size() << " With assumptions: " << \
+        SharedVerifier::assumptionsToString(assumptions) << std::endl;
+#endif 
         const std::unordered_set<VertId>& layerNodes = *layerIter;
         const size_t layerSize = layerNodes.size();
         std::vector<int> rankSizes = getRankSizes(layerSize);
@@ -41,6 +51,12 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
             myNodes.push_back(*nodeIter);
             rankFailed = rankFailed ||
                 !SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
+#ifdef DEBUG
+            if(rankFailed){
+                std::cout<<"Failed on node: " << p.nodeLookup.at((VertId)*nodeIter).toString() << std::endl;
+                std::cout<<"With assumptions: " << SharedVerifier::assumptionsToString(assumptions) << std::endl;
+            }
+#endif
         }
 
         bool verificationFailure;
@@ -48,6 +64,9 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
          1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
 
         if(verificationFailure){
+#ifdef DEBUG
+            MPIUtil::debugPrint("Verification failed on layer" + std::to_string(layer), 0);
+#endif
             return false;
         }
 
@@ -63,11 +82,8 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
         //by all its assumptions, followed by -1 as a delimiter
         //Example: 5 1 2 3 -1 7 1 3 -1 6 2 -1    N=node A=assumption
         //         N A A A  D N A A  D N A  D    D=Delimiter
-        int asumptSerialSize = 0;
-        for(const VertId node : myNodes){
-            asumptSerialSize += assumptions[node].size() + 2;
-        }
-        std::vector<int> assumptSerialization(asumptSerialSize);
+        
+        std::vector<int> assumptSerialization;
         for(const VertId node : myNodes){
             assumptSerialization.push_back(node);
             for(const VertId assumption : assumptions[node]){
@@ -75,6 +91,17 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
             }
             assumptSerialization.push_back(-1);
         }
+        int asumptSerialSize = assumptSerialization.size();
+
+#ifdef DEBUG
+        //Print out our assumption vectors we're passing
+        std::string assumptSerializationStr = "";
+        for(size_t i = 0; i < assumptSerialization.size(); i++){
+            assumptSerializationStr += std::to_string(assumptSerialization[i]) + " ";
+        }
+        std::cout << "Rank " << myRank << " Layer " << layer <<\
+        " My Contributions: " << assumptSerializationStr << std::endl;
+#endif
         
         std::vector<int> assumptionSizes(numRanks);
         MPI_Allgather((void*)&asumptSerialSize, 1, MPI_INT,\
@@ -91,13 +118,24 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
                        assumptionSizes.data(), displacements.data(), 
                        MPI_INT, MPI_COMM_WORLD);
 
+#ifdef DEBUG
+        //Print out our assumption updates
+        std::string assumptionUpdatesStr = "";
+        for(size_t i = 0; i < assumptionUpdates.size(); i++){
+            assumptionUpdatesStr += std::to_string(assumptionUpdates[i]) + " ";
+        }
+        std::cout << "Rank " << myRank << " Layer " << layer <<\
+        " All Updates: " << assumptionUpdatesStr << std::endl;
+#endif
+
         //Decode the serialized assumption updates and apply them
         VertId updatedNode = assumptionUpdates[0];
         for(int i = 1; i < assumptionUpdates.size(); i++){
             if(assumptionUpdates[i] == -1){
                 updatedNode = assumptionUpdates[i+1]; 
+                i++;
             }else{
-                assumptions[updatedNode].insert(assumptionUpdates[i+1]);
+                assumptions[updatedNode].insert(assumptionUpdates[i]);
             }
         }
     }

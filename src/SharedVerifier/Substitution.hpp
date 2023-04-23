@@ -1,3 +1,6 @@
+
+//Currently Dead Code, would be used for first order
+/*
 #pragma once
 
 #include <unordered_set>
@@ -17,3 +20,4 @@ struct Substitution {
     // std::vector<sExpression> variables(void);
 };
 
+*/

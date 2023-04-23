@@ -58,6 +58,21 @@ double SharedVerifier::endClockSeconds(){
     return secs;
 }
 
+// Debug ======================================================================
+
+std::string SharedVerifier::assumptionsToString(Assumptions assumptions){
+    std::string rv = "";
+    for(const auto& [id, as] : assumptions){
+        rv += "(" + std::to_string(id) + ":";
+        for(VertId a : as){
+            rv += std::to_string(a) + ",";
+        }
+        rv += "\b),";
+    }
+    rv += "\b";
+    return rv;
+}
+
 //Inference Rule Verification =================================================
 
 //Struct to store verification functions
@@ -128,7 +143,7 @@ using LayerVector = std::vector<std::unordered_set<VertId>>;
 //Recursive helper for getLayerAndDepthMapsSerial
 //Returns the depth of a node id, in a proof p, using and modifying
 //a global depth map for the proof.
-size_t SharedVerifier::getNodeDepth(const Proof& p, VertId id, DepthMap& depthMap){
+size_t getNodeDepth(const Proof& p, VertId id, DepthMap& depthMap){
     //Base case 1, we already know the depth of the node
     DepthMap::const_iterator depthMapIter = depthMap.find(id);
     if(depthMapIter != depthMap.end()){
@@ -138,10 +153,10 @@ size_t SharedVerifier::getNodeDepth(const Proof& p, VertId id, DepthMap& depthMa
     std::unordered_set<VertId> parents = p.nodeLookup.at(id).parents;
     if(parents.size() == 0){
         depthMap[id] = 0;
-
         return 0;
     }
 
+    //Recursive case
     std::unordered_set<int>::const_iterator itr = parents.begin();
     size_t maxDepth = getNodeDepth(p, *itr, depthMap);
     itr++;

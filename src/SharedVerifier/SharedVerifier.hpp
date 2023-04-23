@@ -34,8 +34,10 @@ namespace SharedVerifier{
     double endClockSeconds();
     uint64_t endClockCycles();
 
+    // Debug
+    std::string assumptionsToString(Assumptions assumptions);
+
     // Layering
-    size_t getNodeDepth(const Proof& p, VertId id, DepthMap& depthMap);
     std::pair<LayerMap, DepthMap> getLayerMap(const Proof& p);
 
     //Inference Rule Verification and helpers

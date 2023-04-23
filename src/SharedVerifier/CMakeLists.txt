@@ -20,8 +20,6 @@ target_sources(SharedVerifier PRIVATE
     ${INFERENCE_RULES}
     SharedVerifier.hpp
     SharedVerifier.cpp
-    Substitution.hpp
-    Substitution.cpp
     timing.hpp
 )
 

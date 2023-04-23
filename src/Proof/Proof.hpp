@@ -43,6 +43,8 @@ struct Proof{
         // Constructor
         Node(int VertId, sExpression formula, Justification justification);
         Node() = default;
+
+        std::string toString() const;
     };
 
 

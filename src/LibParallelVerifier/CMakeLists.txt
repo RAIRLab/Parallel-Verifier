@@ -5,6 +5,11 @@ find_package(MPI REQUIRED)
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 target_link_libraries(LibParallelVerifier SharedVerifier ${MPI_C_LIBRARIES})
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    message("LibParallelVerifier Debug Mode Enabled")
+    add_compile_definitions(DEBUG)
+endif()
+
 target_sources(LibParallelVerifier PRIVATE
     LibParallelVerifier.hpp
     #LibParallelVerifier.cpp

@@ -5,6 +5,13 @@
 //by passing a string to the constructor
 #include "../ProofIO/ProofIO.hpp"
 
+std::string Proof::Node::toString() const{
+    std::string rv = "";
+    rv += "id:" + std::to_string(this->id) + ",";
+    rv += "formula:\"" + this->formula.toString() + "\",";
+    return rv;
+}
+
 std::unordered_set<std::string> reservedWords = {
     "and", "or", "iff", "imp", "not",
     "forall", "exists"
