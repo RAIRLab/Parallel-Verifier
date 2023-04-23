@@ -63,6 +63,28 @@ add_test(
 )
 set_tests_properties(SerialVerifierOrDistro PROPERTIES TIMEOUT 10) 
 
+# OMP Verifier ----------------------------------------------------------------
+
+add_test(
+    NAME OMPVerifierFavorite
+    COMMAND OMPVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(OMPVerifierFavorite PROPERTIES TIMEOUT 10) 
+
+add_test(
+    NAME OMPVerifierAllPropositionalRules
+    COMMAND OMPVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(OMPVerifierAllPropositionalRules PROPERTIES TIMEOUT 10) 
+
+add_test(
+    NAME OMPVerifierOrDistro
+    COMMAND OMPVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_tests_properties(OMPVerifierOrDistro PROPERTIES TIMEOUT 10)
 
 # Parallel Verifier -------------------------------------------------------------------
 

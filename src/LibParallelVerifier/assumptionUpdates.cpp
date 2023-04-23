@@ -41,7 +41,7 @@ void ParallelVerifier::updateAssumptions(Assumptions& assumptions,
     for(size_t i = 0; i < assumptSerialization.size(); i++){
         assumptSerializationStr += std::to_string(assumptSerialization[i]) + " ";
     }
-    std::cout << "Rank " << myRank << " Layer " << layer <<\
+    std::cout << "Rank " << myRank << " Layer ?" <<\
     " My Contributions: " << assumptSerializationStr << std::endl;
 #endif
     
@@ -66,7 +66,7 @@ void ParallelVerifier::updateAssumptions(Assumptions& assumptions,
     for(size_t i = 0; i < assumptionUpdates.size(); i++){
         assumptionUpdatesStr += std::to_string(assumptionUpdates[i]) + " ";
     }
-    std::cout << "Rank " << myRank << " Layer " << layer <<\
+    std::cout << "Rank " << myRank << " Layer ?" <<\
     " All Updates: " << assumptionUpdatesStr << std::endl;
 #endif
 

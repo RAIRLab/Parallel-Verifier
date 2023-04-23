@@ -1,9 +1,5 @@
 
 
-#Uncomment to enable all print statements for debugging
-#add_compile_definitions(PRINT_DEBUG)
-
-
 add_library(LibParallelVerifier STATIC)
 
 find_package(MPI REQUIRED)
