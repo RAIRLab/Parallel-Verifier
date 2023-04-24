@@ -3,10 +3,12 @@
 #include "LibOMPVerifier.hpp"
 
 bool OMPVerifier::OMPVerifyOriginal(const Proof& p){
+
+    // Compute Layers in Serial
     const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
 
-
     Assumptions assumptions;
+
     for(size_t j = 0; j < layerMap.size(); j++){
         std::vector<VertId> layer(layerMap[j].begin(), layerMap[j].end());
 
@@ -15,8 +17,11 @@ bool OMPVerifier::OMPVerifyOriginal(const Proof& p){
         SharedVerifier::assumptionsToString(assumptions) << std::endl;
 #endif
 
+        // Thread-safe data structures
         bool result = true;
         std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size(), std::unordered_set<VertId>());
+        
+        // Parallel Reduction
         #pragma omp parallel for reduction (&&:result)
         for(size_t i = 0; i < layer.size(); i++){
             result = SharedVerifier::verifyVertex(p, layer[i], assumptions, resultAssumptions[i]);
@@ -40,7 +45,7 @@ bool OMPVerifier::OMPVerifyOriginal(const Proof& p){
         // Update assumptions for each node we just verified
         for(size_t i = 0; i < layer.size(); i++){
             assumptions[layer[i]] = std::move(resultAssumptions[i]);
-        }
+        } 
     }
     return true;
 }  
