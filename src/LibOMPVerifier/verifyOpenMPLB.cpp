@@ -21,6 +21,16 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         syntaxChecked[vertId] = false;
     }
 
+    // Setup thread counts
+    size_t num_threads;
+    bool envSet = std::sscanf(
+        std::getenv("OMP_NUM_THREADS"),
+        "%zu", &num_threads
+    );
+    if (!envSet) {
+        throw std::runtime_error("Need to set OMP_NUM_THREADS");
+    }
+
     Assumptions assumptions;
 
     for(size_t j = 0; j < layerMap.size(); j++){
@@ -39,17 +49,6 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         bool result = true;
         std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size(), std::unordered_set<VertId>());
         std::vector<VertId> resultSyntaxCheck(layer.size() + nextLayerSize);
-
-        // Setup thread counts
-        size_t num_threads;
-        bool envSet = std::sscanf(
-            std::getenv("OMP_NUM_THREADS"),
-            "%zu", &num_threads
-        );
-        if (!envSet) {
-            throw std::runtime_error("Need to set OMP_NUM_THREADS");
-        }
-
 
         const size_t leftOvers = layer.size() % num_threads;
         const size_t elementsPerThread = layer.size() / num_threads;
