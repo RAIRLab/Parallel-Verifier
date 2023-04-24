@@ -4,5 +4,6 @@
 #include "../Proof/Proof.hpp"
 
 namespace OMPVerifier {
-    bool OMPVerifyOriginal(const Proof& p);     
+    bool OMPVerifyOriginal(const Proof& p);
+    bool OMPVerifyLB(const Proof& p);  
 }
