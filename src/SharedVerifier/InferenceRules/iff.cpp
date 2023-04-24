@@ -19,7 +19,10 @@ bool verifyIffIntroSyntax(const Proof& p, const VertId vertex_id){
     return true;
 }
 
-bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions& assumptions) {
+bool verifyIffIntroSemantics(const Proof& p,
+                             const VertId vertex_id,
+                             const Assumptions& assumptions,
+                             std::unordered_set<VertId>& aIds) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
     const Proof::Node& firstParent = p.nodeLookup.at(parents[0]);
@@ -30,7 +33,7 @@ bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions
     VertId forward_id;
     if (firstParent.formula == pn.formula.members[2]) {
         // Make sure the antecedent is in the assumptions of the parent
-        for (const VertId a : assumptions[parents[0]]) {
+        for (const VertId a : assumptions.at(parents[0])) {
             const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
@@ -40,7 +43,7 @@ bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions
         }
     } else if (secondParent.formula == pn.formula.members[2]) {
         // Make sure the antecedent is in the assumptions of the parent
-        for (const VertId a : assumptions[parents[1]]) {
+        for (const VertId a : assumptions.at(parents[1])) {
             const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[1]) {
                 forward_check = true;
@@ -58,7 +61,7 @@ bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions
     VertId backward_id;
     if (firstParent.formula == pn.formula.members[1]) {
         // Make sure the consequent is in the assumptions of the parent
-        for (const VertId a : assumptions[parents[0]]) {
+        for (const VertId a : assumptions.at(parents[0])) {
             const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
@@ -68,7 +71,7 @@ bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions
         }
     } else if (secondParent.formula == pn.formula.members[1]) {
         // Make sure the consequent is in the assumptions of the parent
-        for (const VertId a : assumptions[parents[1]]) {
+        for (const VertId a : assumptions.at(parents[1])) {
             const Proof::Node& aNode = p.nodeLookup.at(a);
             if (aNode.formula == pn.formula.members[2]) {
                 backward_check = true;
@@ -82,10 +85,10 @@ bool verifyIffIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions
     }
 
     // Update Assumptions
-    assumptions[vertex_id] = assumptions[parents[0]];
-    assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
-    assumptions[vertex_id].erase(forward_id);
-    assumptions[vertex_id].erase(backward_id);
+    aIds = assumptions.at(parents[0]);
+    aIds.insert(assumptions.at(parents[1]).begin(), assumptions.at(parents[1]).end());
+    aIds.erase(forward_id);
+    aIds.erase(backward_id);
     return true;
 }
 
@@ -136,13 +139,16 @@ bool verifyIffElimSyntax(const Proof& p, const VertId vertex_id){
     return true;
 }
 
-bool verifyIffElimSemantics(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
+bool verifyIffElimSemantics(const Proof& p,
+                            const VertId vertex_id,
+                            const Assumptions& assumptions,
+                            std::unordered_set<VertId>& aIds) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
 
     // Update Assumptions
-    assumptions[vertex_id] = assumptions[parents[0]];
-    assumptions[vertex_id].insert(assumptions[parents[1]].begin(), assumptions[parents[1]].end());
+    aIds = assumptions.at(parents[0]);
+    aIds.insert(assumptions.at(parents[1]).begin(), assumptions.at(parents[1]).end());
 
     return true;
 }
