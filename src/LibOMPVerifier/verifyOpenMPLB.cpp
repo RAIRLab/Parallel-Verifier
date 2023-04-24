@@ -15,12 +15,6 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         layers.push_back(std::vector<VertId>(layer.begin(), layer.end()));
     }
 
-    // // Related to trying to get OpenMP to figure it out
-    // std::vector<VertId> nodes(p.nodeLookup.size());
-    // for (const auto &[id, node] : p.nodeLookup) {
-    //     nodes.push_back(id);
-    // }
-
     // Keep track of nodes that were syntax checked
     std::unordered_map<VertId, bool> syntaxChecked(p.nodeLookup.size());
     for (const auto &[vertId, node] : p.nodeLookup) {
@@ -32,88 +26,146 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
     for(size_t j = 0; j < layerMap.size(); j++){
         const std::vector<VertId>& layer = layers[j];
 
-        std::optional<std::vector<VertId>> nextLayer;
-        if (j < layerMap.size() - 1) {
-            nextLayer = layers[j + 1];
-        }
+        const bool nextLayerExists = j < layerMap.size() - 1;
+        const size_t nextLayerSize = (nextLayerExists)? layers[j + 1].size() : 0;
+
 
 #ifdef PRINT_DEBUG
         std::cout<< "Layer " <<j<<" Assumptions "<< \
         SharedVerifier::assumptionsToString(assumptions) << std::endl;
 #endif
 
+        // Thread safe data structures
         bool result = true;
         std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size(), std::unordered_set<VertId>());
-        size_t nextLayerSize = (nextLayer.has_value())? nextLayer.value().size() : 0;
         std::vector<VertId> resultSyntaxCheck(layer.size() + nextLayerSize);
+
+        // Setup thread counts
+        size_t num_threads;
+        bool envSet = std::sscanf(
+            std::getenv("OMP_NUM_THREADS"),
+            "%zu", &num_threads
+        );
+        if (!envSet) {
+            throw std::runtime_error("Need to set OMP_NUM_THREADS");
+        }
+
+
+        const size_t leftOvers = layer.size() % num_threads;
+        const size_t elementsPerThread = layer.size() / num_threads;
+        const size_t lastNameBetter = num_threads * elementsPerThread;
+
+        // std::cout << "Layer Size: " << layer.size() << std::endl;
+        // std::cout << "Next Layer Size: " << nextLayerSize << std::endl;
+        // std::cout << "Number Threads: " << num_threads << std::endl;
+
+        // std::cout << "Layer: ";
+        // for (auto vertId : layer) {
+            // std::cout << vertId << ", ";
+        // }
+        // std::cout << std::endl;
+
+
+        omp_set_dynamic(0);
+        omp_set_num_threads(num_threads);
         #pragma omp parallel reduction(&&:result)
         {
-            size_t thread_id = omp_get_thread_num();
-            size_t num_threads = omp_get_num_threads();
+            const size_t thread_id = omp_get_thread_num();
+            const size_t start = thread_id * elementsPerThread;
+            const size_t end = (thread_id + 1) * elementsPerThread;
 
-            size_t elementsPerThread = layer.size() / num_threads;
-            size_t start = thread_id * elementsPerThread;
-            size_t end = (thread_id + 1) * elementsPerThread;
-
-            for (size_t i = start; i < end; ++i) {
+            for (size_t i = start; i < end; i++) {
                 if (syntaxChecked.at(layer[i])) {
+                    // std::string toPrint3 = std::string("Already Syntax Checked: ");
+                    // toPrint3 += std::to_string(layer[i]) += std::string("\n");
+                    // std::cout << toPrint3;
+
                     // If we already verified the syntax, only check the semantics
                     result = SharedVerifier::verifyVertexSemantics(p, layer[i], assumptions, resultAssumptions[i]);
+
+                    // std::string toPrint11 = std::string("Verified semantics of: ");
+                    // toPrint11 += std::to_string(layer[i]) + std::string("\n");
+                    // std::cout << toPrint11; 
+
                 } else {
                     // Otherwise check both syntax and semantics
-                    // std::cout << "HUMANS 1\n"; // TODO: Why doesn't this trigger?
+
+                    // std::string toPrint9 = std::string("Full Verifying Vertex: ") + std::to_string(layer[i]);
+                    // toPrint9 += std::string("\n");
+                    // std::cout << toPrint9;
+                    
                     result = SharedVerifier::verifyVertex(p, layer[i], assumptions, resultAssumptions[i]);
+                    
+                    
+                    // std::string toPrint8 = std::string("Verified Fully Vertex: ") + std::to_string(layer[i]); 
+                    // toPrint8 += std::string(" Setting RSC[") + std::to_string(i);
+                    // toPrint8 += std::string("] to true\n");
+                    // std::cout << toPrint8;
+
                     resultSyntaxCheck[i] = true;
+
+                    // std::cout << "H3 Success\n";
                 }
             }
 
-            size_t leftOvers = layer.size() % num_threads;
+            // size_t leftOvers = layer.size() % num_threads;
+
+            // std::string toPrint0 = std::string("Layer Size: ") + std::to_string(layer.size());
+            // toPrint0 += std::string(" ElementsPerThread: ") + std::to_string(elementsPerThread);
+            // toPrint0 += std::string(" Leftovers: ") + std::to_string(leftOvers);
+            // toPrint0 += std::string(" ForwardCheck: ") + std::to_string(num_threads - leftOvers);
+            // toPrint0 += std::string("\n");
+            // std::cout << toPrint0;
+
             if (thread_id < leftOvers) {
                 // Each thread will verify one of the nodes left
                 // on this layer.
-                result = SharedVerifier::verifyVertex(p, layer[end + thread_id], assumptions, resultAssumptions[end + thread_id]);
-                resultSyntaxCheck[end + thread_id] = true;
+                // std::string toPrint12 = std::string("Verifying LeftOver: ");
+                // toPrint12 += std::to_string(layer[lastNameBetter + thread_id]) + std::string("\n");
+                // std::cout << toPrint12;
 
-            } else if (nextLayer.has_value()) {
+                if (syntaxChecked.at(lastNameBetter + thread_id)) {
+                    result = SharedVerifier::verifyVertexSemantics(p, layer[lastNameBetter + thread_id], assumptions, resultAssumptions[lastNameBetter + thread_id]);
+                } else {
+                    result = SharedVerifier::verifyVertex(p, layer[lastNameBetter + thread_id], assumptions, resultAssumptions[lastNameBetter + thread_id]);
+                }
+                
+                // std::string toPrint5 = std::string("Verified Leftover: ") + std::to_string(layer[lastNameBetter + thread_id]); 
+                // toPrint5 += std::string(" Setting RSC[") + std::to_string(lastNameBetter + thread_id);
+                // toPrint5 += std::string("] to true\n");
+                // std::cout << toPrint5;
+                
+                resultSyntaxCheck[lastNameBetter + thread_id] = true;
+                
+                // std::cout << "H1 Success\n";
+            } else if (nextLayerExists) {
                 // These threads will look ahead to the next layer and
                 // verify a syntax.
                 size_t newIndex = (thread_id - leftOvers);
-                if (newIndex < nextLayer.value().size()) {
-                    /*
-                    Current Layer Size: 2 Next Layer Size: 1 newIndex: 0 vertId: 3
-                    Current Layer Size: 1 Next Layer Size: 1 newIndex: 0 vertId: 21941
-                    terminate called after throwing an instance of 'std::out_of_range'
-                      what():  _Map_base::at
-                    Aborted (core dumped)
-                    Note: the vertId is super high for some reason
-                    */
-                    // VertId nodeId = (nextLayer.value())[thread_id];
-                    // std::string toPrint = std::string("Current Layer Size: ") + std::to_string(layer.size()); 
-                    // toPrint += std::string(" Next Layer Size: ") + std::to_string(nextLayer.value().size());
-                    // toPrint += " newIndex: " + std::to_string(newIndex);
-                    // toPrint += " vertId: " + std::to_string(nodeId) + std::string("\n");
+                if (newIndex < layers[j + 1].size()) {
+                    VertId nodeId = layers[j + 1].at(newIndex);
+
+                    // std::string toPrint = std::string("Forward Checking: ");
+                    // toPrint += std::to_string(nodeId) + std::string("\n");
                     // std::cout << toPrint;
-                    // result = SharedVerifier::verifyVertexSyntax(p, nodeId);
-                    // resultSyntaxCheck[layer.size() + newIndex] = true;
+
+
+                    result = SharedVerifier::verifyVertexSyntax(p, nodeId);
+
+                    // std::string toPrint7 = std::string("Verified FC: ") + std::to_string(nodeId);
+                    // toPrint7 += std::string(" Setting RSC[") + std::to_string(layer.size() + newIndex);
+                    // toPrint7 += std::string("] to true\n");
+                    // std::cout << toPrint7;
+
+                    resultSyntaxCheck[layer.size() + newIndex] = true;
+                    // std::cout << "H2 Success\n";
                 }
 
             }
 
         } // End parallel block
-        // std::cout << std::endl;
+        
 
-        // // Attempt to let OpenMP figure it out, doesn't work sadly
-        // #pragma omp parallel 
-        // {
-        //     #pragma omp for reduction(&&:result)
-        //     for(size_t i = 0; i < layer.size(); i++){
-        //         result = SharedVerifier::verifyVertexSemantics(p, layer[i], assumptions, resultAssumptions[i]);
-        //     }
-        //     #pragma omp for reduction(&&:syntaxResult)
-        //     for(size_t i = 0; i < nodes.size(); i++){
-        //         syntaxResult = SharedVerifier::verifyVertexSyntax(p, nodes[i]);
-        //     }
-        // }
         if (!result) {
             return false;
         }
@@ -136,14 +188,23 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         }
 
         // Update syntax checked
-        // for (size_t i = 0; i < layer.size(); i++) {
-        //     syntaxChecked[layer[i]] = resultSyntaxCheck[i];
-        // }
-        // if (nextLayerExists) {
-        //     for (size_t i = 0; i < nextLayerSize; i++) {
-        //         syntaxChecked[nextLayer[i]] = resultSyntaxCheck[layer.size() + i];
-        //     }
-        // }
+        // std::cout << "Current Layer RSC copy" << std::endl;
+        for (size_t i = 0; i < layer.size(); i++) {
+            syntaxChecked[layer[i]] = resultSyntaxCheck[i];
+        }
+        // std::cout << "Finished copy" << std::endl;
+
+        if (nextLayerExists) {
+            // std::cout << "currentLayer size: " << layer.size() << std::endl;
+            // std::cout << "nextLayer size: " << nextLayer.value().size() << std::endl;
+            // std::cout << "RSC size: " << resultSyntaxCheck.size() << std::endl;
+            for (size_t i = 0; i < (num_threads - leftOvers) && i < layers[j + 1].size(); i++) {
+                // std::cout << "Inner: " << layer.size() + i << std::endl;
+                syntaxChecked[layers[j + 1].at(i)] = resultSyntaxCheck[layer.size() + i];
+            }
+        }
+
+        // std::cout << std::endl; // Space between each layer
 
 
     }
