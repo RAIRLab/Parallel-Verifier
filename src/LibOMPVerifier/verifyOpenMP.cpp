@@ -2,7 +2,7 @@
 #include "../SharedVerifier/SharedVerifier.hpp"
 #include "LibOMPVerifier.hpp"
 
-bool OMPVerifier::OMPVerify(const Proof& p){
+bool OMPVerifier::OMPVerifyOriginal(const Proof& p){
     const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
 
 
