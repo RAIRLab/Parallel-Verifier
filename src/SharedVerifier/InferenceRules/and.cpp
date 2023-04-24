@@ -42,8 +42,9 @@ std::pair<bool, Assumptions> verifyAndIntroSemantics(const Proof& p, const VertI
     VertId parent2Id = parents[1];
     const std::unordered_set<int>& p2Assumptions = assumptions.at(parent2Id);
 
-    Assumptions newAssumptions;
-    newAssumptions[vertex_id] = assumptions.at(parent1Id);
+    Assumptions newAssumptions = {
+        {vertex_id, assumptions.at(parent1Id)}
+    };
     newAssumptions[vertex_id].insert(p2Assumptions.begin(), p2Assumptions.end());
     
     return std::make_pair(true, newAssumptions);
@@ -72,7 +73,8 @@ std::pair<bool, Assumptions> verifyAndElimSemantics(const Proof& p, VertId verte
                             const Assumptions& assumptions) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const VertId parentId = *pn.parents.begin();
-    Assumptions newAssumptions;
-    newAssumptions[vertex_id] = assumptions.at(parentId);
+    Assumptions newAssumptions = {
+        {vertex_id, assumptions.at(parentId)}
+    };
     return std::make_pair(true, newAssumptions);
 }

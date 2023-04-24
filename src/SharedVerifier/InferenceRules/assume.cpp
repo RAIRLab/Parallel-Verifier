@@ -9,7 +9,8 @@ bool verifyAssumptionSyntax(const Proof& p, const VertId vertex_id){
 }
 
 std::pair<bool, Assumptions> verifyAssumptionSemantics(const Proof& p, const VertId vertex_id, const Assumptions& assumptions) {
-    Assumptions newAssumption;
-    newAssumption[vertex_id] = {vertex_id};
+    Assumptions newAssumption = {
+        {vertex_id, {vertex_id}}
+    };
     return std::make_pair(true, newAssumption);
 }

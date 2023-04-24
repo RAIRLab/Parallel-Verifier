@@ -19,8 +19,8 @@ bool verifySimple(const Proof& p) {
                 return false;
             }
             // Update assumptions
-            for (auto [assumptionNode, assumptionIds] : newAssumptions) {
-                assumptions[assumptionNode] = assumptionIds;
+            for (auto [assumptionKey, assumptionIds] : newAssumptions) {
+                assumptions[assumptionKey] = std::move(assumptionIds);
             }
         }
     }
