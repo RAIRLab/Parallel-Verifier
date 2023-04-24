@@ -13,13 +13,11 @@ bool verifySimple(const Proof& p) {
 
     for (const auto &currentLayer : layerMap) {
         for (const auto &n : currentLayer) {
-            // Assumptions are updated within verifyVertex function
-            auto [success, newAssumptions] = SharedVerifier::verifyVertex(p, n, assumptions);
+            auto [success, newAssumptionIds] = SharedVerifier::verifyVertex(p, n, assumptions);
             if (!success) {
                 return false;
             }
-            // Update assumptions
-            assumptions.merge(newAssumptions);
+            assumptions[n] = std::move(newAssumptionIds);
         }
     }
 

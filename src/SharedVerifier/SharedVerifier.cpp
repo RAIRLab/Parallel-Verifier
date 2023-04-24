@@ -78,7 +78,7 @@ std::string SharedVerifier::assumptionsToString(Assumptions assumptions){
 //Struct to store verification functions
 struct VerificationFunctions{
     bool (*syntax)(const Proof&, const VertId);
-    std::pair<bool, Assumptions> (*semantics)(const Proof&, const VertId, const Assumptions&);
+    std::pair<bool, std::unordered_set<VertId>> (*semantics)(const Proof&, const VertId, const Assumptions&);
 };
 
 //Macro to generate rule table members, they all follow the same naming scheme
@@ -121,14 +121,14 @@ bool SharedVerifier::verifyVertexSyntax(const Proof& p, const VertId vertexId){
     return getRuleVerifiers(p, vertexId).syntax(p, vertexId);
 }
 
-std::pair<bool, Assumptions> SharedVerifier::verifyVertexSemantics(const Proof& p,
+std::pair<bool, std::unordered_set<VertId>> SharedVerifier::verifyVertexSemantics(const Proof& p,
                                            const VertId vertexId,
                                            const Assumptions& assumptions){
     return getRuleVerifiers(p, vertexId).semantics(p, vertexId, assumptions);
 }
 
 // Verify that vertex is justified and update assumptions
-std::pair<bool, Assumptions> SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
+std::pair<bool, std::unordered_set<VertId>> SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
                                   const Assumptions& assumptions){
     const VerificationFunctions& verifiers = getRuleVerifiers(p, vertexId);
     const bool syntaxCheck = verifiers.syntax(p, vertexId);

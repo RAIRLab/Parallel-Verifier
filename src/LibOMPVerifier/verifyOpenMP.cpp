@@ -26,9 +26,9 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         for(size_t i = 0; i < layer.size(); i++){
             // Assumptions assumptions2;
             VertId node = layer[i];
-            auto [result, newAssumptions] = SharedVerifier::verifyVertex(p, node, assumptions);
+            auto [result, newAssumptionIds] = SharedVerifier::verifyVertex(p, node, assumptions);
             results[i] = result;
-            resultAssumptions[i] = newAssumptions[node];
+            resultAssumptions[i] = std::move(newAssumptionIds);
         }
 
 #ifdef PRINT_DEBUG

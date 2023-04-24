@@ -34,7 +34,7 @@ bool verifyAndIntroSyntax(const Proof& p, const VertId vertex_id){
 
 //Precondition: verifyAndIntroSyntax has been called already
 //Just updates the assumptions since AndIntro is non-context changing
-std::pair<bool, Assumptions> verifyAndIntroSemantics(const Proof& p, const VertId vertex_id, 
+std::pair<bool, std::unordered_set<VertId>> verifyAndIntroSemantics(const Proof& p, const VertId vertex_id, 
                              const Assumptions& assumptions){
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
@@ -42,12 +42,10 @@ std::pair<bool, Assumptions> verifyAndIntroSemantics(const Proof& p, const VertI
     VertId parent2Id = parents[1];
     const std::unordered_set<int>& p2Assumptions = assumptions.at(parent2Id);
 
-    Assumptions newAssumptions = {
-        {vertex_id, assumptions.at(parent1Id)}
-    };
-    newAssumptions[vertex_id].insert(p2Assumptions.begin(), p2Assumptions.end());
+    std::unordered_set<VertId> assumptionIds = assumptions.at(parent1Id);
+    assumptionIds.insert(p2Assumptions.begin(), p2Assumptions.end());
     
-    return std::make_pair(true, newAssumptions);
+    return std::make_pair(true, assumptionIds);
 }
 
 bool verifyAndElimSyntax(const Proof& p, const VertId vertex_id){
@@ -69,12 +67,9 @@ bool verifyAndElimSyntax(const Proof& p, const VertId vertex_id){
            pn.formula == parent_pn.formula.members[2];
 }
 
-std::pair<bool, Assumptions> verifyAndElimSemantics(const Proof& p, VertId vertex_id,
+std::pair<bool, std::unordered_set<VertId>> verifyAndElimSemantics(const Proof& p, VertId vertex_id,
                             const Assumptions& assumptions) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const VertId parentId = *pn.parents.begin();
-    Assumptions newAssumptions = {
-        {vertex_id, assumptions.at(parentId)}
-    };
-    return std::make_pair(true, newAssumptions);
+    return std::make_pair(true, assumptions.at(parentId));
 }
