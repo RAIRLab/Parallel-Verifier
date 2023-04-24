@@ -41,9 +41,9 @@ namespace SharedVerifier{
     std::pair<LayerMap, DepthMap> getLayerMap(const Proof& p);
 
     //Inference Rule Verification and helpers
-    bool verifyVertex(const Proof& p, const VertId vertexId, Assumptions& assumptions);
+    std::pair<bool, Assumptions> verifyVertex(const Proof& p, const VertId vertexId, const Assumptions& assumptions);
     bool verifyVertexSyntax(const Proof& p, const VertId vertexId);
-    bool verifyVertexSemantics(const Proof& p, const VertId vertexId, Assumptions& assumptions);
+    std::pair<bool, Assumptions> verifyVertexSemantics(const Proof& p, const VertId vertexId, const Assumptions& assumptions);
 }
 
 

@@ -41,8 +41,14 @@ bool ParallelVerifier::verifyParallelOriginal(const Proof& p,
         std::list<VertId> myNodes;
         for(size_t i = 0; i < myNodeCount; i++, nodeIter++){
             myNodes.push_back(*nodeIter);
-            verifiedSendBuf[i] = \
-            (uint8_t)SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
+            const auto [result, newAssumptions] = SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
+            if (result) {
+                // Update assumptions
+                for (auto [assumptionNode, assumptionIds] : newAssumptions) {
+                    assumptions[assumptionNode] = assumptionIds;
+                }
+            }
+            verifiedSendBuf[i] = (uint8_t)result;
             if(!verifiedSendBuf[i]){
                 std::cout<<"Layer: "<<layer << ", Node:"<<*nodeIter<<std::endl; 
             }

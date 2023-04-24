@@ -8,7 +8,8 @@ bool verifyAssumptionSyntax(const Proof& p, const VertId vertex_id){
     return pn.parents.size() == 0;
 }
 
-bool verifyAssumptionSemantics(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
-    assumptions[vertex_id] = {vertex_id};
-    return true;
+std::pair<bool, Assumptions> verifyAssumptionSemantics(const Proof& p, const VertId vertex_id, const Assumptions& assumptions) {
+    Assumptions newAssumption;
+    newAssumption[vertex_id] = {vertex_id};
+    return std::make_pair(true, newAssumption);
 }

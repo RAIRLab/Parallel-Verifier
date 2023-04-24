@@ -78,7 +78,7 @@ std::string SharedVerifier::assumptionsToString(Assumptions assumptions){
 //Struct to store verification functions
 struct VerificationFunctions{
     bool (*syntax)(const Proof&, const VertId);
-    bool (*semantics)(const Proof&, const VertId, Assumptions&);
+    std::pair<bool, Assumptions> (*semantics)(const Proof&, const VertId, const Assumptions&);
 };
 
 //Macro to generate rule table members, they all follow the same naming scheme
@@ -92,16 +92,17 @@ struct VerificationFunctions{
 using RuleMap = \
     std::unordered_map<Proof::Justification, VerificationFunctions>;
 
+
 const RuleMap rules = {
     {
         Proof::Justification::Assume,
         VerificationFunctions{verifyAssumptionSyntax,verifyAssumptionSemantics}
     },
     INTRO_ELIM_RULES(And),
-    INTRO_ELIM_RULES(Or),
-    INTRO_ELIM_RULES(If),
-    INTRO_ELIM_RULES(Iff),
-    INTRO_ELIM_RULES(Not),
+    // INTRO_ELIM_RULES(Or),
+    // INTRO_ELIM_RULES(If),
+    // INTRO_ELIM_RULES(Iff),
+    // INTRO_ELIM_RULES(Not),
     //INTRO_ELIM_RULES(Eq),
     //INTRO_ELIM_RULES(Forall),
     //INTRO_ELIM_RULES(Exists)
@@ -120,18 +121,19 @@ bool SharedVerifier::verifyVertexSyntax(const Proof& p, const VertId vertexId){
     return getRuleVerifiers(p, vertexId).syntax(p, vertexId);
 }
 
-bool SharedVerifier::verifyVertexSemantics(const Proof& p,
+std::pair<bool, Assumptions> SharedVerifier::verifyVertexSemantics(const Proof& p,
                                            const VertId vertexId,
-                                           Assumptions& assumptions){
+                                           const Assumptions& assumptions){
     return getRuleVerifiers(p, vertexId).semantics(p, vertexId, assumptions);
 }
 
 // Verify that vertex is justified and update assumptions
-bool SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
-                                  Assumptions& assumptions){
+std::pair<bool, Assumptions> SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
+                                  const Assumptions& assumptions){
     const VerificationFunctions& verifiers = getRuleVerifiers(p, vertexId);
-    return verifiers.syntax(p, vertexId) &&\
-           verifiers.semantics(p, vertexId, assumptions);
+    const bool syntaxCheck = verifiers.syntax(p, vertexId);
+    const auto [semanticCheck, newAssumptions] = verifiers.semantics(p, vertexId, assumptions);
+    return std::make_pair(syntaxCheck && semanticCheck, newAssumptions);
 }
 
 

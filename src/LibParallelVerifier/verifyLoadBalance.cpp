@@ -116,12 +116,26 @@ bool ParallelVerifier::verifyParallelLoadBalance(const Proof& p,
 
             //If we've haven't been syntax checked do a full check
             //Otherwise if we have just do a semantic check
+            bool success;
+            Assumptions newAssumptions;
+
             if(syntaxCheckedNodes.find(node) == syntaxCheckedNodes.end()){
-                rankFailed = rankFailed || \
-                 !verifyVertex(p, layerNodes[index], assumptions);
+                auto result = verifyVertex(p, layerNodes[index], assumptions);
+                success = result.first; newAssumptions = result.second;
+                rankFailed = rankFailed || !success;
             }else{
-                rankFailed = rankFailed || \
-                 !verifyVertexSemantics(p, layerNodes[index], assumptions);
+                auto result = verifyVertexSemantics(p, layerNodes[index], assumptions);
+                success = result.first; newAssumptions = result.second;
+                rankFailed = rankFailed || !success;;
+            }
+
+            if (rankFailed) {
+                break;
+            }
+
+            // Update assumptions
+            for (auto [assumptionNode, assumptionIds] : newAssumptions) {
+                assumptions[assumptionNode] = assumptionIds;
             }
         }  
 

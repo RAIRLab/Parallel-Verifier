@@ -49,8 +49,17 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
         std::list<VertId> myNodes; //List of nodes we need to update assumptions
         for(size_t i = 0; i < myNodeCount; i++, nodeIter++){
             myNodes.push_back(*nodeIter);
-            rankFailed = rankFailed ||
-                !SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
+            const auto [success, newAssumptions] = SharedVerifier::verifyVertex(p, *nodeIter, assumptions);
+            rankFailed = rankFailed || !success;
+            if (rankFailed) {
+                break;
+            }
+
+            // Update assumptions
+            for (auto [assumptionNode, assumptionIds] : newAssumptions) {
+                assumptions[assumptionNode] = assumptionIds;
+            }
+
 #ifdef PRINT_DEBUG
             if(rankFailed){
                 std::cout<<"Failed on node: " << p.nodeLookup.at((VertId)*nodeIter).toString() << std::endl;

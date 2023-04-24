@@ -22,11 +22,13 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         std::vector<uint8_t> results(layer.size());
         std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size());
         //Need private per thread copy of assumptions since we can't insert in parallel 
-        #pragma omp parallel for firstprivate(assumptions)
+        #pragma omp parallel for
         for(size_t i = 0; i < layer.size(); i++){
+            // Assumptions assumptions2;
             VertId node = layer[i];
-            results[i] = SharedVerifier::verifyVertex(p, node, assumptions);
-            resultAssumptions[i] = assumptions[node];
+            auto [result, newAssumptions] = SharedVerifier::verifyVertex(p, node, assumptions);
+            results[i] = result;
+            resultAssumptions[i] = newAssumptions[node];
         }
 
 #ifdef PRINT_DEBUG
@@ -40,7 +42,7 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         }
         std::cout<<"\b"<<std::endl;
 #endif
-        //update assumptions and check if we've failed in serial
+        // update assumptions and check if we've failed in serial
         bool failed = false; 
         for(size_t i = 0; i < layer.size(); i++){
             VertId node = layer[i];
