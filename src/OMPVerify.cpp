@@ -8,7 +8,8 @@ using OMPVerif = bool(*)(const Proof&);
 using PVMap = std::unordered_map<std::string, OMPVerif>;
 const PVMap pvArgMap = {
     {"OG", OMPVerifier::OMPVerifyOriginal},
-    {"LB", OMPVerifier::OMPVerifyLB}
+    {"LB", OMPVerifier::OMPVerifyLB},
+    {"BF", OMPVerifier::OMPVerifyBF}
 };
 
 

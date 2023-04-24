@@ -12,4 +12,5 @@ target_sources(LibOMPVerifier PRIVATE
     LibOMPVerifier.hpp
     verifyOpenMPOriginal.cpp
     verifyOpenMPLB.cpp
+    verifyOpenMPBF.cpp
 )
