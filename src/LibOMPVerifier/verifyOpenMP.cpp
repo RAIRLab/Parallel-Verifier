@@ -3,32 +3,27 @@
 #include "LibOMPVerifier.hpp"
 
 bool OMPVerifier::OMPVerify(const Proof& p){
-    auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
-    
-    std::vector<std::vector<VertId>> layers;
-    for(const std::unordered_set<VertId>& layer : layerMap){
-        layers.push_back(std::vector<VertId>(layer.begin(), layer.end()));
-    }
+    const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
+
 
     Assumptions assumptions;
-    for(size_t j = 0; j < layers.size(); j++){
-        const std::vector<VertId>& layer = layers[j];
+    for(size_t j = 0; j < layerMap.size(); j++){
+        std::vector<VertId> layer(layerMap[j].begin(), layerMap[j].end());
 
 #ifdef PRINT_DEBUG
         std::cout<< "Layer " <<j<<" Assumptions "<< \
         SharedVerifier::assumptionsToString(assumptions) << std::endl;
 #endif
 
-        std::vector<uint8_t> results(layer.size());
-        std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size());
-        //Need private per thread copy of assumptions since we can't insert in parallel 
-        #pragma omp parallel for
+        bool result = true;
+        std::vector<std::unordered_set<VertId>> resultAssumptions(layer.size(), std::unordered_set<VertId>());
+        #pragma omp parallel for reduction (&&:result)
         for(size_t i = 0; i < layer.size(); i++){
-            // Assumptions assumptions2;
-            VertId node = layer[i];
-            auto [result, newAssumptionIds] = SharedVerifier::verifyVertex(p, node, assumptions);
-            results[i] = result;
-            resultAssumptions[i] = std::move(newAssumptionIds);
+            result = SharedVerifier::verifyVertex(p, layer[i], assumptions, resultAssumptions[i]);
+        }
+
+        if (!result) {
+            return false;
         }
 
 #ifdef PRINT_DEBUG
@@ -42,18 +37,9 @@ bool OMPVerifier::OMPVerify(const Proof& p){
         }
         std::cout<<"\b"<<std::endl;
 #endif
-        // update assumptions and check if we've failed in serial
-        bool failed = false; 
+        // Update assumptions for each node we just verified
         for(size_t i = 0; i < layer.size(); i++){
-            VertId node = layer[i];
-            //This update is necessary because the "resultAssumptions[i] = assumptions[node];"
-            //inside the "omp parallel for" is a local thread copy.
-            assumptions[node] = resultAssumptions[i];
-            failed |= !results[i];
-        }
-
-        if(failed){
-            return false;
+            assumptions[layer[i]] = std::move(resultAssumptions[i]);
         }
     }
     return true;

@@ -119,22 +119,19 @@ bool ParallelVerifier::verifyParallelLoadBalance(const Proof& p,
             bool success;
             std::unordered_set<VertId> newAssumptionIds;
 
+            assumptions[layerNodes[index]] = std::unordered_set<VertId>();
+
             if(syntaxCheckedNodes.find(node) == syntaxCheckedNodes.end()){
-                auto result = verifyVertex(p, layerNodes[index], assumptions);
-                success = result.first; newAssumptionIds = result.second;
+                bool success = verifyVertex(p, layerNodes[index], assumptions, assumptions[layerNodes[index]]);
                 rankFailed = rankFailed || !success;
             }else{
-                auto result = verifyVertexSemantics(p, layerNodes[index], assumptions);
-                success = result.first; newAssumptionIds = result.second;
+                bool success = verifyVertexSemantics(p, layerNodes[index], assumptions, assumptions[layerNodes[index]]);
                 rankFailed = rankFailed || !success;;
             }
 
             if (rankFailed) {
                 break;
-            }
-
-            // Update assumptions
-            assumptions[layerNodes[index]] = std::move(newAssumptionIds);
+            };
         }  
 
         //Do our forward syntax checks

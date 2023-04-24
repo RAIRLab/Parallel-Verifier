@@ -13,11 +13,11 @@ bool verifySimple(const Proof& p) {
 
     for (const auto &currentLayer : layerMap) {
         for (const auto &n : currentLayer) {
-            auto [success, newAssumptionIds] = SharedVerifier::verifyVertex(p, n, assumptions);
+            assumptions[n] = std::unordered_set<VertId>();
+            bool success = SharedVerifier::verifyVertex(p, n, assumptions, assumptions[n]);
             if (!success) {
                 return false;
             }
-            assumptions[n] = std::move(newAssumptionIds);
         }
     }
 

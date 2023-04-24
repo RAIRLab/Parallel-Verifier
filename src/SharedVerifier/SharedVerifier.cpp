@@ -78,7 +78,7 @@ std::string SharedVerifier::assumptionsToString(Assumptions assumptions){
 //Struct to store verification functions
 struct VerificationFunctions{
     bool (*syntax)(const Proof&, const VertId);
-    std::pair<bool, std::unordered_set<VertId>> (*semantics)(const Proof&, const VertId, const Assumptions&);
+    bool (*semantics)(const Proof&, const VertId, const Assumptions&, std::unordered_set<VertId>&);
 };
 
 //Macro to generate rule table members, they all follow the same naming scheme
@@ -121,19 +121,20 @@ bool SharedVerifier::verifyVertexSyntax(const Proof& p, const VertId vertexId){
     return getRuleVerifiers(p, vertexId).syntax(p, vertexId);
 }
 
-std::pair<bool, std::unordered_set<VertId>> SharedVerifier::verifyVertexSemantics(const Proof& p,
+bool SharedVerifier::verifyVertexSemantics(const Proof& p,
                                            const VertId vertexId,
-                                           const Assumptions& assumptions){
-    return getRuleVerifiers(p, vertexId).semantics(p, vertexId, assumptions);
+                                           const Assumptions& assumptions,
+                                           std::unordered_set<VertId>& aIds){
+    return getRuleVerifiers(p, vertexId).semantics(p, vertexId, assumptions, aIds);
 }
 
 // Verify that vertex is justified and update assumptions
-std::pair<bool, std::unordered_set<VertId>> SharedVerifier::verifyVertex(const Proof& p, const VertId vertexId,
-                                  const Assumptions& assumptions){
+bool SharedVerifier::verifyVertex(const Proof& p,
+                                  const VertId vertexId,
+                                  const Assumptions& assumptions,
+                                  std::unordered_set<VertId>& aIds){
     const VerificationFunctions& verifiers = getRuleVerifiers(p, vertexId);
-    const bool syntaxCheck = verifiers.syntax(p, vertexId);
-    const auto [semanticCheck, newAssumptions] = verifiers.semantics(p, vertexId, assumptions);
-    return std::make_pair(syntaxCheck && semanticCheck, newAssumptions);
+    return verifiers.syntax(p, vertexId) && verifiers.semantics(p, vertexId, assumptions, aIds);
 }
 
 
@@ -191,7 +192,6 @@ std::pair<LayerMap, DepthMap> SharedVerifier::getLayerMap(const Proof& p){
     for(const auto& [id, depth] : depthMap){
         layerVector[depth].insert(id);
     }
-    LayerMap layerMap(layerVector.begin(), layerVector.end());
 
-    return std::make_pair(layerMap, depthMap);
+    return std::make_pair(layerVector, depthMap);
 }

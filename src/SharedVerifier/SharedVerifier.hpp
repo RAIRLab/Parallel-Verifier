@@ -22,7 +22,7 @@ using DepthMap = std::unordered_map<VertId, size_t>;
 //LayerMaps store sequential sets of vertices
 //index 0 will store nodes on layer 0, index 1 will store
 //nodes on layer 1, etc.
-using LayerMap = std::list<std::unordered_set<VertId>>;
+using LayerMap = std::vector<std::unordered_set<VertId>>;
 
 namespace SharedVerifier{
 
@@ -41,9 +41,9 @@ namespace SharedVerifier{
     std::pair<LayerMap, DepthMap> getLayerMap(const Proof& p);
 
     //Inference Rule Verification and helpers
-    std::pair<bool, std::unordered_set<VertId>> verifyVertex(const Proof& p, const VertId vertexId, const Assumptions& assumptions);
+    bool verifyVertex(const Proof& p, const VertId vertexId, const Assumptions& assumptions, std::unordered_set<VertId>& aIds);
     bool verifyVertexSyntax(const Proof& p, const VertId vertexId);
-    std::pair<bool, std::unordered_set<VertId>> verifyVertexSemantics(const Proof& p, const VertId vertexId, const Assumptions& assumptions);
+    bool verifyVertexSemantics(const Proof& p, const VertId vertexId, const Assumptions& assumptions, std::unordered_set<VertId>& aIds);
 }
 
 
