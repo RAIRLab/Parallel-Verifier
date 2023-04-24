@@ -10,5 +10,5 @@ target_link_libraries(LibOMPVerifier
 
 target_sources(LibOMPVerifier PRIVATE
     LibOMPVerifier.hpp
-    verifyOpenMP.cpp
+    verifyOpenMPOriginal.cpp
 )
