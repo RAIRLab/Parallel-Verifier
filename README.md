@@ -17,9 +17,15 @@ Just natural deduction propositional calculus for now.
 Set the environmental var to specify how many threads OMP can use, then run
 the program with a path to a proof file.
 ```bash
-    export OMP_NUM_THREADS=[numThreads]
-    ./OMPVerifier [proofFilePath]
+    export OMP_NUM_THREADS=[NumThreads]
+    ./OMPVerifier [proofFilePath] [VerifierAlg]
 ```
+More on Args:
+* VerifierAlg is OG by default
+* VerifierAlg values:
+  * OG - Original, parallelization of verification of nodes on each layer
+  * LB - Load balanced, split syntax and semantic check, extra space space on a layer is used to forward syntax check
+  * BF - Syntax First, syntax check all nodes in parallel, semantic check layer by layer.
 
 #### MPI Verifier
 ```bash
@@ -27,14 +33,14 @@ the program with a path to a proof file.
 ```
 More on Args:
 * VerifierAlg and LayerMapAlg are optional but if one is included, the other must be as well
-* VerifierAlg values
-  * Alpha - The Sp2022 version that uses markings and marking matrices. A layer mapper must be passed in, but it will not be used.
+* VerifierAlg values:
+  * Alpha - The broken Sp2022 version that uses markings and marking matrices. A layer mapper must be passed in, but it will not be used.
   * Original - a worse version that passes extra data rather than using an MPI reduce
   * NoOpt - non-optimized MPI implementation with no balancing
   * LoadBalance - load balancing optimizations implementation
 * LayerMapAlg values
-* OzSerial - Recursive DP O(n) layer mapping algo run on each rank
-* MPI - MPI parallel D(n) layer mapping algo
+  * Serial - Recursive DP O(n) layer mapping algo run on each rank
+  * MPI - MPI parallel D(n) layer mapping algo
 
 ## Project Layout
 * `.github` : github actions for testing proofs
