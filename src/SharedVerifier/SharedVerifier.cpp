@@ -195,3 +195,55 @@ std::pair<LayerMap, DepthMap> SharedVerifier::getLayerMap(const Proof& p){
 
     return std::make_pair(layerVector, depthMap);
 }
+
+//Recursive helper for getLayerAndDepthMapsSerial
+//Returns the depth of a node id, in a proof p, using and modifying
+//a global depth map for the proof.
+size_t getNodeDepthFast(const Proof& p, VertId id, FastDepthMap& depthMap){
+    //Base case 1, we already know the depth of the node
+    size_t depthMapVal = depthMap[id];
+    if(depthMapVal != -1){
+        return depthMapVal;
+    }
+    //Base case 2, we're an assumption
+    std::unordered_set<VertId> parents = p.nodeLookup.at(id).parents;
+    if(parents.size() == 0){
+        depthMap[id] = 0;
+        return 0;
+    }
+
+    //Recursive case
+    std::unordered_set<int>::const_iterator itr = parents.begin();
+    size_t maxDepth = getNodeDepthFast(p, *itr, depthMap);
+    itr++;
+    for(;itr != parents.end(); itr++){
+        size_t curDepth = getNodeDepthFast(p, *itr, depthMap);
+        if(curDepth > maxDepth){
+            maxDepth = curDepth;
+        }
+    }
+    depthMap[id] = maxDepth + 1;
+    return maxDepth + 1;
+}
+//O(n) serial construction of the depth and layer maps for a proof.
+//n is the number of nodes in the proof
+FastLayerMap SharedVerifier::getLayerMapFast(const Proof& p){
+    //Depthmap construction is O(n) via dynamic programming
+    FastDepthMap depthMap(p.nodeLookup.size(), -1);
+    size_t maxDepth = 0;
+    for(const auto& [id, node] : p.nodeLookup){
+        size_t curDepth = getNodeDepthFast(p, id, depthMap);
+        if(curDepth > maxDepth){
+            maxDepth = curDepth;
+        }
+    }
+
+    //LayerMap construction O(n)
+    //std::list fill constructor
+    FastLayerMap layerVector(maxDepth + 1, std::vector<VertId>());
+    for(int i = 0; i < depthMap.size(); i++){
+        layerVector[depthMap[i]].push_back(i);
+    }
+
+    return layerVector;
+}

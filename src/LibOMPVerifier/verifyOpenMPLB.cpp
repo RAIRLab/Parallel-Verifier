@@ -6,7 +6,7 @@
 bool OMPVerifier::OMPVerifyLB(const Proof& p){
 
     // Compute Layers
-    const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
+    const FastLayerMap layerMap = SharedVerifier::getLayerMapFast(p);
 
     // Create a flat layer of all the nodes in order
     std::vector<VertId> flatLayers;
@@ -16,7 +16,7 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
     std::unordered_map<VertId, bool> syntaxChecked(p.nodeLookup.size());
 
     // Populate the last two data structures
-    for(const std::unordered_set<VertId>& layer : layerMap){
+    for(const std::vector<VertId>& layer : layerMap){
         flatLayers.insert(flatLayers.end(), layer.begin(), layer.end());
         for (const VertId vid : layer) {
             syntaxChecked[vid] = false;
@@ -200,7 +200,7 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         // std::cout << "Finished copy" << std::endl;
 
 
-        // std::cout << "Transfering syntax checks" << std::endl;
+        // std::cout << "Transferring syntax checks" << std::endl;
         if (leftOvers > 0) {
             for (size_t i = 0; i < (num_threads - leftOvers) && numSyntaxVerified + i < flatLayers.size(); i++) {
                 syntaxChecked[flatLayers[numSyntaxVerified + i]] = resultSyntaxCheck[layer.size() + i];
@@ -208,7 +208,7 @@ bool OMPVerifier::OMPVerifyLB(const Proof& p){
         }
 
         
-        // std::cout << "Finished transfering syntax checks" << std::endl;
+        // std::cout << "Finished transferring syntax checks" << std::endl;
 
         numSyntaxVerified += syntaxVerifiedThisIter;
 

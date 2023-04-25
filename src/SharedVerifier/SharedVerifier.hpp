@@ -24,6 +24,10 @@ using DepthMap = std::unordered_map<VertId, size_t>;
 //nodes on layer 1, etc.
 using LayerMap = std::vector<std::unordered_set<VertId>>;
 
+using FastLayerMap = std::vector<std::vector<VertId>>;
+using FastDepthMap = std::vector<size_t>;
+using NodeVec = std::vector<VertId>;
+
 namespace SharedVerifier{
 
     const char* init(int argc, char** argv);
@@ -39,6 +43,7 @@ namespace SharedVerifier{
 
     // Layering
     std::pair<LayerMap, DepthMap> getLayerMap(const Proof& p);
+    FastLayerMap getLayerMapFast(const Proof& p);
 
     //Inference Rule Verification and helpers
     bool verifyVertex(const Proof& p, const VertId vertexId, const Assumptions& assumptions, std::unordered_set<VertId>& aIds);

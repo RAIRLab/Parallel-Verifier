@@ -2,10 +2,6 @@
 #include "../SharedVerifier/SharedVerifier.hpp"
 #include "LibOMPVerifier.hpp"
 
-using FastLayerMap = std::vector<std::vector<VertId>>;
-using FastDepthMap = std::vector<size_t>;
-using NodeVec = std::vector<VertId>;
-
 //Recursive helper for getLayerAndDepthMapsSerial
 //Returns the depth of a node id, in a proof p, using and modifying
 //a global depth map for the proof.

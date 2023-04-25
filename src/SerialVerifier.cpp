@@ -9,7 +9,7 @@
 
 bool verifySimple(const Proof& p) {
     Assumptions assumptions;
-    const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
+    const auto layerMap = SharedVerifier::getLayerMapFast(p);
 
     for (const auto &currentLayer : layerMap) {
         for (const auto &n : currentLayer) {

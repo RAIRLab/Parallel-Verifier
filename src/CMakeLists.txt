@@ -17,7 +17,7 @@ target_sources(ParallelVerifier PRIVATE ParallelVerifier.cpp)
 
 add_executable(OMPVerifier)
 target_link_libraries(OMPVerifier LibOMPVerifier SharedVerifier)
-target_sources(OMPVerifier PRIVATE OMPVerify.cpp)
+target_sources(OMPVerifier PRIVATE OMPVerifier.cpp)
 
 add_executable(ProofConv)
 target_link_libraries(ProofConv ProofIO)
