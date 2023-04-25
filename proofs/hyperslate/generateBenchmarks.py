@@ -6,14 +6,14 @@ from pathlib import Path
 #Hyperparamters ======================================================
 
 #Line Proof Topology
-lineLengths: "list(int)" = [100, 200, 300, 400, 500, 600] #Number of nodes in the the linear benchmark
+lineLengths: "list(int)" = [100, 150, 200, 250, 300, 350, 400] #Number of nodes in the the linear benchmark
 
 #Branch Proof Topology
 numBranchs: int = 12
-branchLengths: "list(int)" = [1, 25, 50, 75, 100, 125]
+branchLengths: "list(int)" = [1, 25, 50, 75, 100, 125, 150]
 
 #Tree proof Topology
-treeDepths: "list(int)" = [2, 4, 6, 8, 10, 12, 14]  #The tree will have 2^treeDepth nodes
+treeDepths: "list(int)" = [8, 10, 12, 14, 16, 18, 20]  #The tree will have 2^treeDepth nodes
 
 
 #writes a hyperlate proof .slt file given a list of descriptions and connections

@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fstack-protector -s")
 
 #Uncomment to enable all print statements for debugging
-add_compile_definitions(PRINT_DEBUG)
+#add_compile_definitions(PRINT_DEBUG)
 
 # Sources ====================================================================
 
