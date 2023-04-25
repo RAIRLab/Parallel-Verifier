@@ -2,7 +2,7 @@
 #pragma once
 
 #include<vector>
-#include"LibParallelVerifier.hpp"
+#include"LibMPIVerifier.hpp"
 
 extern int myRank;
 extern int numRanks;

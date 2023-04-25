@@ -5,7 +5,7 @@
 
 #include "../SharedVerifier/SharedVerifier.hpp"
 
-#include "LibParallelVerifier.hpp"
+#include "LibMPIVerifier.hpp"
 #include "MPIUtil.hpp"
 
 using MPIUtil::getRankDisplacements;

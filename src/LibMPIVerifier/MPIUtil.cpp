@@ -1,7 +1,7 @@
 
 
 
-#include"LibParallelVerifier.hpp"
+#include"LibMPIVerifier.hpp"
 #include"MPIUtil.hpp"
 
 #include<mpi.h>

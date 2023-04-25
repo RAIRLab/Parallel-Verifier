@@ -1,22 +1,18 @@
 
-#ifdef PRINT_DEBUG
-#include <iostream>
-#endif 
-
 #include<mpi.h>
 
 #include "../Proof/Proof.hpp"
 #include "../SharedVerifier/SharedVerifier.hpp"
 
-#include "LibParallelVerifier.hpp"
+#include "LibMPIVerifier.hpp"
 #include "MPIUtil.hpp"
 
 using MPIUtil::getRankSizes;
 using MPIUtil::getRankDisplacements;
 
-bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
+bool ParallelVerifier::verifyParallelOriginal(const Proof& p,
+                                              LayerMapper mapper){
     auto [layerMap, depthMap] = mapper(p);
-
     
     //If there are nodes outside the depth map, they don't follow from
     //assumptions and the proof is invalid
@@ -26,12 +22,6 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
     Assumptions assumptions;
     LayerMap::const_iterator layerIter = layerMap.begin();
     for (int layer = 0; layerIter != layerMap.end(); layer++, layerIter++){
-
-#ifdef PRINT_DEBUG
-        std::cout<<"Rank " << myRank <<": Verifying layer: "<< layer << \
-        "/" << layerMap.size() << " With assumptions: " << \
-        SharedVerifier::assumptionsToString(assumptions) << std::endl;
-#endif 
         const std::unordered_set<VertId>& layerNodes = *layerIter;
         const size_t layerSize = layerNodes.size();
         std::vector<int> rankSizes = getRankSizes(layerSize);
@@ -41,38 +31,34 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
         int myNodeCount = rankSizes[myRank];            
         int myDisplacement = rankDisplacements[myRank];
 
+        std::vector<uint8_t> verifiedSendBuf(myNodeCount);
+        std::vector<uint8_t> verifiedReceiveBuf(layerSize);
+        
         using NodeIterator = std::unordered_set<VertId>::const_iterator;
         NodeIterator nodeIter = layerNodes.begin();
         std::advance(nodeIter, myDisplacement);
-        
-        bool rankFailed = false;
-        std::list<VertId> myNodes; //List of nodes we need to update assumptions
+
+        std::list<VertId> myNodes;
         for(size_t i = 0; i < myNodeCount; i++, nodeIter++){
             myNodes.push_back(*nodeIter);
-            assumptions[*nodeIter] = std::unordered_set<VertId>();
-            bool success = SharedVerifier::verifyVertex(p, *nodeIter, assumptions, assumptions[*nodeIter]);
-            rankFailed = rankFailed || !success;
-            if (rankFailed) {
-                break;
+            assumptions[(*nodeIter)] = std::unordered_set<VertId>();
+            const bool result = SharedVerifier::verifyVertex(p, *nodeIter, assumptions, assumptions[*nodeIter]);
+            std::cout << std::endl;
+            verifiedSendBuf[i] = (uint8_t)result;
+            if(!verifiedSendBuf[i]){
+                std::cout<<"Layer: "<<layer << ", Node:"<<*nodeIter<<std::endl; 
             }
-
-#ifdef PRINT_DEBUG
-            if(rankFailed){
-                std::cout<<"Failed on node: " << p.nodeLookup.at((VertId)*nodeIter).toString() << std::endl;
-                std::cout<<"With assumptions: " << SharedVerifier::assumptionsToString(assumptions) << std::endl;
-            }
-#endif
         }
 
-        bool verificationFailure;
-        MPI_Allreduce((void*)&rankFailed, (void*)&verificationFailure, \
-         1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD);
-
-        if(verificationFailure){
-#ifdef PRINT_DEBUG
-            MPIUtil::debugPrint("Verification failed on layer" + std::to_string(layer), 0);
-#endif
-            return false;
+        MPI_Allgatherv((void*)verifiedSendBuf.data(), myNodeCount,\
+                       MPI_UINT8_T, verifiedReceiveBuf.data(),\
+                       rankSizes.data(), rankDisplacements.data(),\
+                       MPI_UINT8_T, MPI_COMM_WORLD);
+        
+        for(size_t i = 0; i < layerSize; i++){
+            if(!verifiedReceiveBuf[i]){
+                return false;
+            }
         }
 
         //Assumption Updates --------------------------------------------------
@@ -80,7 +66,7 @@ bool ParallelVerifier::verifyParallelNoOpt(const Proof& p, LayerMapper mapper){
         if (layer == layerMap.size()-1){ //Ignore updates on final layer
             break;
         }
-
+        
         ParallelVerifier::updateAssumptions(assumptions, myNodes);
     }
 

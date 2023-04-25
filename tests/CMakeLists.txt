@@ -91,91 +91,91 @@ set_tests_properties(OMPVerifierOrDistro PROPERTIES TIMEOUT 10)
 # NoOpt MPI
 
 add_test(
-    NAME ParallelVerifierFavorite_NoOpt_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
+    NAME MPIVerifierFavorite_NoOpt_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierFavorite_NoOpt_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierFavorite_NoOpt_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierAllPropositionalRules_NoOpt_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
+    NAME MPIVerifierAllPropositionalRules_NoOpt_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierAllPropositionalRules_NoOpt_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierAllPropositionalRules_NoOpt_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierOrDistro_NoOpt_MPI
-    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
+    NAME MPIVerifierOrDistro_NoOpt_MPI
+    COMMAND mpirun -N ${NumProcessors} ./MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierOrDistro_NoOpt_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierOrDistro_NoOpt_MPI PROPERTIES TIMEOUT 10) 
 
 # NoOpt Serial
 
 add_test(
-    NAME ParallelVerifierFavorite_NoOpt_Serial
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json NoOpt Serial
+    NAME MPIVerifierFavorite_NoOpt_Serial
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json NoOpt Serial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierFavorite_NoOpt_Serial PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierFavorite_NoOpt_Serial PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierAllPropositionalRules_NoOpt_Serial
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json NoOpt Serial
+    NAME MPIVerifierAllPropositionalRules_NoOpt_Serial
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json NoOpt Serial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierAllPropositionalRules_NoOpt_Serial PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierAllPropositionalRules_NoOpt_Serial PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierOrDistro_NoOpt_Serial
-    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json NoOpt Serial
+    NAME MPIVerifierOrDistro_NoOpt_Serial
+    COMMAND mpirun -N ${NumProcessors} ./MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json NoOpt Serial
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierOrDistro_NoOpt_Serial PROPERTIES TIMEOUT 10)
+set_tests_properties(MPIVerifierOrDistro_NoOpt_Serial PROPERTIES TIMEOUT 10)
 
 #LoadBalance MPI
 
 add_test(
-    NAME ParallelVerifierFavorite_LoadBalance_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json LoadBalance MPI
+    NAME MPIVerifierFavorite_LoadBalance_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json LoadBalance MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierFavorite_LoadBalance_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierFavorite_LoadBalance_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierAllPropositionalRules_LoadBalance_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json LoadBalance MPI
+    NAME MPIVerifierAllPropositionalRules_LoadBalance_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json LoadBalance MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierAllPropositionalRules_LoadBalance_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierAllPropositionalRules_LoadBalance_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierOrDistro_LoadBalance_MPI
-    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json LoadBalance MPI
+    NAME MPIVerifierOrDistro_LoadBalance_MPI
+    COMMAND mpirun -N ${NumProcessors} ./MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json LoadBalance MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierOrDistro_LoadBalance_MPI PROPERTIES TIMEOUT 10)
+set_tests_properties(MPIVerifierOrDistro_LoadBalance_MPI PROPERTIES TIMEOUT 10)
 
 #Original MPI
 
 add_test(
-    NAME ParallelVerifierFavorite_Original_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json Original MPI
+    NAME MPIVerifierFavorite_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/ourFavorite.json Original MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierFavorite_Original_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierFavorite_Original_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierAllPropositionalRules_Original_MPI
-    COMMAND mpirun -N ${NumProcessors} ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json Original MPI
+    NAME MPIVerifierAllPropositionalRules_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/allRulesProof.json Original MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierAllPropositionalRules_Original_MPI PROPERTIES TIMEOUT 10) 
+set_tests_properties(MPIVerifierAllPropositionalRules_Original_MPI PROPERTIES TIMEOUT 10) 
 
 add_test(
-    NAME ParallelVerifierOrDistro_Original_MPI
-    COMMAND mpirun -N ${NumProcessors} ./ParallelVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json Original MPI
+    NAME MPIVerifierOrDistro_Original_MPI
+    COMMAND mpirun -N ${NumProcessors} ./MPIVerifier ${CMAKE_SOURCE_DIR}/proofs/lazyslate/orDistribution.json Original MPI
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-set_tests_properties(ParallelVerifierOrDistro_Original_MPI PROPERTIES TIMEOUT 10)
+set_tests_properties(MPIVerifierOrDistro_Original_MPI PROPERTIES TIMEOUT 10)

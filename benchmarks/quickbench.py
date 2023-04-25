@@ -11,9 +11,9 @@ proof = "../proofs/hyperslate/benchmarks/Tree14.slt"
 ranks = [1, 2, 3, 4, 5, 6] #Num Ranks to test
 #ParallelVerifier Args to test with
 MPIArgs = [
-#    ("Original", "Serial"),
-#    ("NoOpt", "Serial"),
-#    ("LoadBalance", "Serial")
+    ("Original", "Serial"),
+    ("NoOpt", "Serial"),
+    ("LoadBalance", "Serial")
 ]
 
 OMPArgs = [
@@ -48,7 +48,7 @@ for method in OMPArgs:
 for arg in MPIArgs:
     cycles = []
     for rank in ranks:
-        rawOutput = subprocess.check_output(['mpirun', '-N', str(rank), '../build/bin/ParallelVerifier', proof] + list(arg))
+        rawOutput = subprocess.check_output(['mpirun', '-N', str(rank), '../build/bin/MPIVerifier', proof] + list(arg))
         cycle = extractCycles(rawOutput)
         cycles.append(cycle)
         print("MPI", str(arg), "Rank", rank, "Cycles", cycle)

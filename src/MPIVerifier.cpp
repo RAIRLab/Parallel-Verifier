@@ -4,8 +4,8 @@
 #include<unordered_map>
 #include<stdexcept>
 
-#include "LibParallelVerifier/LibParallelVerifier.hpp"
-#include "LibParallelVerifier/MPIUtil.hpp"
+#include "LibMPIVerifier/LibMPIVerifier.hpp"
+#include "LibMPIVerifier/MPIUtil.hpp"
 
 namespace pv = ParallelVerifier;
 

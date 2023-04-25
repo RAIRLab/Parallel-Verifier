@@ -11,7 +11,7 @@ dot -Tpng -o build/ParallelVerifier.png build/ParallelVerifier.dot
 ```
 
 ### Libs
-* LibParallelVerifier - The API for MPI based parallel verifier
+* LibMPIVerifier - The API for MPI based parallel verifier
 * Proof - Library containing class for representing and modifying graph based
 proofs
 * ProofIO - API for creating Proof data structures from Hyperslate and
@@ -22,7 +22,7 @@ represent all of our formulae with.
 used by both parallel verifier and serial verifier.
 
 ### Executables 
-* ParallelVerifier.cpp - A command line wrapper for LibParallelVerifier 
-(LibParallelVerifier does the actual verification)
+* ParallelVerifier.cpp - A command line wrapper for LibMPIVerifier 
+(LibMPIVerifier does the actual verification)
 * SerialVerifier.cpp - A command line program for serial verification 
 (Not an API wrapper, does the actual verification) 

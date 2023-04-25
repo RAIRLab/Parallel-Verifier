@@ -21,9 +21,9 @@ the program with a path to a proof file.
     ./OMPVerifier [proofFilePath]
 ```
 
-#### Parallel Verifier
+#### MPI Verifier
 ```bash
-    mpirun -N [NumRanks] ./ParallelVerifier [proofFilePath] [VerifierAlg] [LayerMapAlg] 
+    mpirun -N [NumRanks] ./MPIVerifier [proofFilePath] [VerifierAlg] [LayerMapAlg] 
 ```
 More on Args:
 * VerifierAlg and LayerMapAlg are optional but if one is included, the other must be as well

@@ -3,7 +3,7 @@
 #include<mpi.h>
 #include"../Proof/Proof.hpp"
 
-#include"LibParallelVerifier.hpp"
+#include"LibMPIVerifier.hpp"
 #include"MPIUtil.hpp"
 
 using MPIUtil::getRankSizes;
