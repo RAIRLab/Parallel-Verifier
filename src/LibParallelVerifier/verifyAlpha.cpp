@@ -176,7 +176,8 @@ bool ParallelVerifier::verifyAlpha(const Proof& proof){
         for(const VertId ownerId : owned){
             //if(hasCompleteMarkings(proof, ownerId, markings[ownerId])){
                 Assumptions passumptions = assumptions;
-                bool verified = verifyVertex(proof, ownerId, assumptions);
+                passumptions[ownerId] = std::unordered_set<VertId>();
+                bool verified = verifyVertex(proof, ownerId, assumptions, passumptions[ownerId]);
                 /*if(!verified){
                     std::cout<<"Wrong! : "<< ownerId << " " << proof.nodeLookup[ownerId].formula.toString()<<"\n";
                     printMarkings(passumptions);

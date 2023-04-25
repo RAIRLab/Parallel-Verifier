@@ -12,13 +12,12 @@ bool verifySimple(const Proof& p) {
     const auto [layerMap, depthMap] = SharedVerifier::getLayerMap(p);
 
     for (const auto &currentLayer : layerMap) {
-        bool failed = false;
         for (const auto &n : currentLayer) {
-            // Assumptions are updated within verifyVertex function
-            failed |= !SharedVerifier::verifyVertex(p, n, assumptions);
-        }
-        if(failed){
-            return false;
+            assumptions[n] = std::unordered_set<VertId>();
+            bool success = SharedVerifier::verifyVertex(p, n, assumptions, assumptions[n]);
+            if (!success) {
+                return false;
+            }
         }
     }
 

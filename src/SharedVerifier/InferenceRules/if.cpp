@@ -28,13 +28,16 @@ bool verifyIfIntroSyntax(const Proof& p, const VertId vertex_id){
     return true;
 }
 
-bool verifyIfIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions& assumptions) {
+bool verifyIfIntroSemantics(const Proof& p,
+                            const VertId vertex_id,
+                            const Assumptions& assumptions,
+                            std::unordered_set<VertId>& aIds) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const VertId parentId = *pn.parents.begin();
 
     // Make sure the antecedent is in the assumptions of the parent
     optVertId antecedentId = {};
-    for (const VertId a : assumptions[parentId]) {
+    for (const VertId a : assumptions.at(parentId)) {
         const Proof::Node& aNode = p.nodeLookup.at(a);
         if (aNode.formula == pn.formula.members[1]) {
             antecedentId = a;
@@ -45,8 +48,8 @@ bool verifyIfIntroSemantics(const Proof& p, const VertId vertex_id, Assumptions&
     }
 
     // Update Assumptions
-    assumptions[vertex_id] = assumptions[parentId];
-    assumptions[vertex_id].erase(antecedentId.value());
+    aIds = assumptions.at(parentId);
+    aIds.erase(antecedentId.value());
     return true;
     
 }
@@ -76,12 +79,16 @@ bool verifyIfElimSyntax(const Proof& p, const VertId vertex_id) {
             firstParent.formula == secondParent.formula.members[1]);
 }
 
-bool verifyIfElimSemantics(const Proof& p, const VertId vertex_id,
-                        Assumptions& assumptions){
+bool verifyIfElimSemantics(const Proof& p,
+                           const VertId vertex_id,
+                           const Assumptions& assumptions,
+                           std::unordered_set<VertId>& aIds){
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
-    const std::unordered_set<int>& p2Assumptions = assumptions[parents[1]];
-    assumptions[vertex_id] = assumptions[parents[0]];
-    assumptions[vertex_id].insert(p2Assumptions.begin(), p2Assumptions.end());
+    const std::unordered_set<int>& p2Assumptions = assumptions.at(parents[1]);
+
+    // Update Assumptions
+    aIds = assumptions.at(parents[0]);
+    aIds.insert(p2Assumptions.begin(), p2Assumptions.end());
     return true;
 }

@@ -30,11 +30,13 @@ bool verifyOrIntroSyntax(const Proof& p, const VertId vertex_id){
            parent_pn.formula == pn.formula.members[2];
 }
 
-bool verifyOrIntroSemantics(const Proof& p, const VertId vertex_id,
-                            Assumptions& assumptions) {
+bool verifyOrIntroSemantics(const Proof& p,
+                            const VertId vertex_id,
+                            const Assumptions& assumptions,
+                            std::unordered_set<VertId>& aIds) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const VertId parentId = *pn.parents.begin();
-    assumptions[vertex_id] = assumptions[parentId];
+    aIds = assumptions.at(parentId);
     return true;
 }
 
@@ -49,7 +51,10 @@ bool verifyOrElimSyntax(const Proof& p, const VertId vertex_id){
     return true;
 }
 
-bool verifyOrElimSemantics(const Proof& p, VertId vertex_id, Assumptions& assumptions) {
+bool verifyOrElimSemantics(const Proof& p,
+                           const VertId vertex_id,
+                           const Assumptions& assumptions,
+                           std::unordered_set<VertId>& aIds) {
     
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     optVertId orParentId = {}, parentId2 = {}, parentId3 = {};
@@ -86,7 +91,7 @@ bool verifyOrElimSemantics(const Proof& p, VertId vertex_id, Assumptions& assump
     bool right_side_check = false;
     VertId parent3AssumptionId;
 
-    for (const VertId a : assumptions[parentId2.value()]) {
+    for (const VertId a : assumptions.at(parentId2.value())) {
         const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
@@ -100,7 +105,7 @@ bool verifyOrElimSemantics(const Proof& p, VertId vertex_id, Assumptions& assump
         }
     }
 
-    for (const VertId a : assumptions[parentId3.value()]) {
+    for (const VertId a : assumptions.at(parentId3.value())) {
         const Proof::Node& aNode = p.nodeLookup.at(a);
         if (!left_side_check && aNode.formula == orParent.formula.members[1]) {
             left_side_check = true;
@@ -119,12 +124,12 @@ bool verifyOrElimSemantics(const Proof& p, VertId vertex_id, Assumptions& assump
         return false;
     }
         
-    assumptions[vertex_id] = assumptions[orParentId.value()];
-    std::unordered_set<VertId> parent2Assumptions = assumptions[parentId2.value()];
+    aIds = assumptions.at(orParentId.value());
+    std::unordered_set<VertId> parent2Assumptions = assumptions.at(parentId2.value());
     parent2Assumptions.erase(parent2AssumptionId);
-    std::unordered_set<VertId> parent3Assumptions = assumptions[parentId3.value()];
+    std::unordered_set<VertId> parent3Assumptions = assumptions.at(parentId3.value());
     parent3Assumptions.erase(parent3AssumptionId);
-    assumptions[vertex_id].insert(parent2Assumptions.begin(), parent2Assumptions.end());
-    assumptions[vertex_id].insert(parent3Assumptions.begin(), parent3Assumptions.end());
+    aIds.insert(parent2Assumptions.begin(), parent2Assumptions.end());
+    aIds.insert(parent3Assumptions.begin(), parent3Assumptions.end());
     return true;
 }

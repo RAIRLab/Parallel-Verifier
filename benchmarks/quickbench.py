@@ -10,11 +10,18 @@ import matplotlib.pyplot as plt
 proof = "../proofs/hyperslate/benchmarks/Tree14.slt"
 ranks = [1, 2, 3, 4, 5, 6] #Num Ranks to test
 #ParallelVerifier Args to test with
-args = [
-    ("Original", "Serial"),
-    ("NoOpt", "Serial"),
-    ("LoadBalance", "Serial")
+MPIArgs = [
+#    ("Original", "Serial"),
+#    ("NoOpt", "Serial"),
+#    ("LoadBalance", "Serial")
 ]
+
+OMPArgs = [
+    "OG",
+    "LB",
+    "BF"
+]
+
 
 def extractCycles(s):
     return int(str(s).split()[2])
@@ -26,25 +33,26 @@ print("Serial Cycles", serialCycles)
 plt.plot(ranks, [serialCycles] * len(ranks), label="Serial")
 
 #OMP Parallel Results
-cycles = []
 my_env = os.environ.copy()
-for rank in ranks:
-    my_env["OMP_NUM_THREADS"] = str(rank) #Set OpneMP threads
-    rawOutput = subprocess.check_output(['../build/bin/OMPVerifier', proof], env=my_env)
-    cycle = extractCycles(rawOutput)
-    cycles.append(cycle)
-    print("OMP Rank", rank, "Cycles", cycle)
-plt.plot(ranks, cycles, label="OMP")
+for method in OMPArgs:
+    cycles = []
+    for rank in ranks:
+        my_env["OMP_NUM_THREADS"] = str(rank) #Set OpneMP threads
+        rawOutput = subprocess.check_output(['../build/bin/OMPVerifier', proof, method], env=my_env)
+        cycle = extractCycles(rawOutput)
+        cycles.append(cycle)
+        print("OMP", method, rank, "Cycles", cycle)
+    plt.plot(ranks, cycles, label=f"OMP: {method}")
 
 #MPI Parallel Results
-for arg in args:
+for arg in MPIArgs:
     cycles = []
     for rank in ranks:
         rawOutput = subprocess.check_output(['mpirun', '-N', str(rank), '../build/bin/ParallelVerifier', proof] + list(arg))
         cycle = extractCycles(rawOutput)
         cycles.append(cycle)
-        print(str(arg), "Rank", rank, "Cycles", cycle)
-    plt.plot(ranks, cycles, label=str(arg))
+        print("MPI", str(arg), "Rank", rank, "Cycles", cycle)
+    plt.plot(ranks, cycles, label=f"MPI: {str(arg)}")
 
 plt.yscale('log')
 plt.title('growth')

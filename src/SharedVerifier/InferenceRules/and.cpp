@@ -34,15 +34,19 @@ bool verifyAndIntroSyntax(const Proof& p, const VertId vertex_id){
 
 //Precondition: verifyAndIntroSyntax has been called already
 //Just updates the assumptions since AndIntro is non-context changing
-bool verifyAndIntroSemantics(const Proof& p, const VertId vertex_id, 
-                             Assumptions& assumptions){
+bool verifyAndIntroSemantics(const Proof& p,
+                             const VertId vertex_id, 
+                             const Assumptions& assumptions,
+                             std::unordered_set<VertId>& aIds){
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     std::vector<VertId> parents(pn.parents.begin(), pn.parents.end());
     VertId parent1Id = parents[0];
     VertId parent2Id = parents[1];
-    const std::unordered_set<int>& p2Assumptions = assumptions[parent2Id];
-    assumptions[vertex_id] = assumptions[parent1Id];
-    assumptions[vertex_id].insert(p2Assumptions.begin(), p2Assumptions.end());
+    const std::unordered_set<int>& p2Assumptions = assumptions.at(parent2Id);
+
+    aIds = assumptions.at(parent1Id);
+    aIds.insert(p2Assumptions.begin(), p2Assumptions.end());
+    
     return true;
 }
 
@@ -65,10 +69,13 @@ bool verifyAndElimSyntax(const Proof& p, const VertId vertex_id){
            pn.formula == parent_pn.formula.members[2];
 }
 
-bool verifyAndElimSemantics(const Proof& p, VertId vertex_id,
-                            Assumptions& assumptions) {
+bool verifyAndElimSemantics(const Proof& p,
+                            const VertId vertex_id,
+                            const Assumptions& assumptions,
+                            std::unordered_set<VertId>& aIds) {
     const Proof::Node& pn = p.nodeLookup.at(vertex_id);
     const VertId parentId = *pn.parents.begin();
-    assumptions[vertex_id] = assumptions[parentId];
+    // Update Assumption Ids
+    aIds = assumptions.at(parentId);
     return true;
 }
