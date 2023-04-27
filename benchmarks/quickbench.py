@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 #Quick bench Paramaters 
 
 #Proof to quickbench
-proof = "../proofs/hyperslate/benchmarks/Tree14.slt"
+proof = "../proofs/hyperslate/benchmarks/Branch100-150.slt"
 ranks = [1, 2, 3, 4, 5, 6] #Num Ranks to test
 #ParallelVerifier Args to test with
 MPIArgs = [
