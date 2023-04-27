@@ -9,8 +9,8 @@ from pathlib import Path
 lineLengths: "list(int)" = [100, 200, 300, 400, 500, 600] #Number of nodes in the the linear benchmark
 
 #Branch Proof Topology
-numBranchs: int = 12
-branchLengths: "list(int)" = [1, 25, 50, 75, 100, 125]
+numBranchs: "list(int)" = [30, 50, 70, 90, 110, 130, 150]
+branchLengths: "list(int)" = [100]
 
 #Tree proof Topology
 treeDepths: "list(int)" = [2, 4, 6, 8, 10, 12, 14]  #The tree will have 2^treeDepth nodes
@@ -128,8 +128,9 @@ Path("benchmarks").mkdir(parents=True, exist_ok=True)
 for ll in lineLengths:
     genLineTopology(ll)
 
-for ll in branchLengths:
-    genBranchTopology(numBranchs, ll)
+for lb in numBranchs:
+    for ll in branchLengths:
+        genBranchTopology(lb, ll)
 
 for td in treeDepths:
     genTreeTopology(td)
