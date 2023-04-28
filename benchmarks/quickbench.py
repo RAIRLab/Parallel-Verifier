@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 
 #Proof to quickbench
 proof = "../proofs/hyperslate/benchmarks/Branch100-150.slt"
-ranks = [1, 2, 3, 4, 5, 6, 7, 8] #Num Ranks to test
+ranks = [1, 2, 3, 4, 5, 6] #Num Ranks to test
 #ParallelVerifier Args to test with
 MPIArgs = [
-    ("Original", "Serial"),
-    ("NoOpt", "Serial"),
-    ("LoadBalance", "Serial")
+#    ("Original", "Serial"),
+#    ("NoOpt", "Serial"),
+#    ("LoadBalance", "Serial")
 ]
 
 OMPArgs = [
