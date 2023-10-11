@@ -1,7 +1,7 @@
 # Parallel Verifier
 
 Parallel Verifier is an optimized parallel verifier for graph based natural deduction proofs, with support for proofs
-imported from [Hyperslate](http://www.logicamodernapproach.com/) and [Lazyslate classic]([https://github.com/James-Oswald/lazyslate](https://github.com/James-Oswald/lazyslate/releases/tag/v1.0.0)).
+imported from [Hyperslate](http://www.logicamodernapproach.com/) and [Lazyslate Classic](https://github.com/James-Oswald/lazyslate/releases/tag/v1.0.0).
 
 ## Logic Support
 Just natural deduction propositional calculus for now.
